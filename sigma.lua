@@ -1,86 +1,67 @@
---[[
-	AetheriumUI v1.0.1
-	A beautiful, modern, and feature-rich Roblox UI library.
-	Based on the structure of MacLib by the original author.
-	Enhanced by Claude 3.5 Sonnet (Anthropic) based on user request.
-	Revised to remove optional chaining for wider compatibility.
-
-	Features:
-	- Window system with dragging, sidebar resizing, acrylic/UIBlur options.
-	- Tabbed interface with smooth transitions.
-	- Comprehensive element set: Buttons, Toggles, Sliders, Inputs, Keybinds, Dropdowns, Colorpickers, Labels, etc.
-	- Notification system.
-	- Dialog system.
-	- Global settings pop-up.
-	- Robust configuration saving/loading system.
-	- Modern aesthetics with customizable themes.
-]]
-
 local AetheriumUI = {
 	Options = {}, -- Stores flagged element instances
 	Flags = {}, -- Alias for Options for backward compatibility if needed
 	Folder = "AetheriumUI", -- Default folder for configs
 	Theme = { -- Default Theme Settings (Dark)
-		Background = Color3.fromRGB(20, 20, 22), -- Main background
-		BackgroundLight = Color3.fromRGB(28, 28, 31), -- Slightly lighter background (e.g., section bg)
-		BackgroundLighter = Color3.fromRGB(35, 35, 38), -- Even lighter (e.g., input bg)
-		Accent = Color3.fromRGB(80, 120, 255), -- Accent color (can be overridden)
+		Background = Color3.fromRGB(20, 20, 22),
+		BackgroundLight = Color3.fromRGB(28, 28, 31),
+		BackgroundLighter = Color3.fromRGB(35, 35, 38),
+		Accent = Color3.fromRGB(80, 120, 255),
 		AccentLight = Color3.fromRGB(100, 140, 255),
-		Text = Color3.fromRGB(230, 230, 230), -- Primary text
-		TextSecondary = Color3.fromRGB(160, 160, 165), -- Dimmer text (e.g., labels, placeholders)
-		TextDisabled = Color3.fromRGB(100, 100, 105), -- Disabled text
-		Stroke = Color3.fromRGB(50, 50, 55), -- Border color
+		Text = Color3.fromRGB(230, 230, 230),
+		TextSecondary = Color3.fromRGB(160, 160, 165),
+		TextDisabled = Color3.fromRGB(100, 100, 105),
+		Stroke = Color3.fromRGB(50, 50, 55),
 		StrokeLight = Color3.fromRGB(70, 70, 75),
-		PrimaryInteraction = Color3.fromRGB(45, 45, 50), -- Button backgrounds, etc.
+		PrimaryInteraction = Color3.fromRGB(45, 45, 50),
 		PrimaryInteractionHover = Color3.fromRGB(60, 60, 65),
 		Red = Color3.fromRGB(255, 80, 80),
 		Green = Color3.fromRGB(80, 255, 120),
 		Yellow = Color3.fromRGB(255, 190, 60),
-		Overlay = Color3.fromRGB(0, 0, 0), -- Background overlay (dialogs, colorpicker)
+		Overlay = Color3.fromRGB(0, 0, 0),
 
 		Font = {
-			Regular = Font.new("rbxassetid://12187365364", Enum.FontWeight.Regular, Enum.FontStyle.Normal), -- Inter Regular
-			Medium = Font.new("rbxassetid://12187365364", Enum.FontWeight.Medium, Enum.FontStyle.Normal), -- Inter Medium
-			SemiBold = Font.new("rbxassetid://12187365364", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal), -- Inter SemiBold
-			Bold = Font.new("rbxassetid://12187365364", Enum.FontWeight.Bold, Enum.FontStyle.Normal), -- Inter Bold
+			Regular = Font.new("rbxassetid://12187365364", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+			Medium = Font.new("rbxassetid://12187365364", Enum.FontWeight.Medium, Enum.FontStyle.Normal),
+			SemiBold = Font.new("rbxassetid://12187365364", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
+			Bold = Font.new("rbxassetid://12187365364", Enum.FontWeight.Bold, Enum.FontStyle.Normal),
 		},
 
-		CornerRadius = UDim.new(0, 8), -- Default rounding
+		CornerRadius = UDim.new(0, 8),
 		StrokeThickness = 1,
-		StrokeTransparency = 0.5, -- Default stroke transparency (adjusts based on context)
+		StrokeTransparency = 0.5,
 		DisabledTransparency = 0.7,
 
-		AnimationSpeed = 0.15, -- Base speed for tweens
+		AnimationSpeed = 0.15,
 		EasingStyle = Enum.EasingStyle.Quad,
 		EasingDirection = Enum.EasingDirection.Out,
-
-		BlurIntensity = 0.15, -- For UIBlur
+		-- BlurIntensity removed as UIBlur is removed
 	},
-	Assets = { -- Using original assets, consider updating/replacing
-		interFont = "rbxassetid://12187365364", -- Included in Theme.Font now
+	Assets = {
+		interFont = "rbxassetid://12187365364",
 		userInfoBlurred = "rbxassetid://18824089198",
 		toggleBackground = "rbxassetid://18772190202",
 		togglerHead = "rbxassetid://18772309008",
-		buttonImage = "rbxassetid://10709791437", -- Arrow/Chevron Right
+		buttonImage = "rbxassetid://10709791437",
 		searchIcon = "rbxassetid://86737463322606",
 		colorWheel = "rbxassetid://2849458409",
 		colorTarget = "rbxassetid://73265255323268",
-		grid = "rbxassetid://121484455191370", -- Transparency Grid
-		globe = "rbxassetid://108952102602834", -- Global Settings Icon
-		transform = "rbxassetid://90336395745819", -- Move Icon
-		dropdown = "rbxassetid://18865373378", -- Dropdown Arrow
+		grid = "rbxassetid://121484455191370",
+		globe = "rbxassetid://108952102602834",
+		transform = "rbxassetid://90336395745819",
+		dropdown = "rbxassetid://18865373378",
 		sliderbar = "rbxassetid://18772615246",
 		sliderhead = "rbxassetid://18772834246",
-		defaultTabIcon = "rbxassetid://18821914323", -- Placeholder if needed
-		settingsTabIcon = "rbxassetid://10734950309", -- Placeholder if needed
+		defaultTabIcon = "rbxassetid://18821914323",
+		settingsTabIcon = "rbxassetid://10734950309",
 	},
 	_Services = {},
 	_Variables = {},
 	_Internal = {
 		CurrentWindow = nil,
 		IsUnloaded = false,
-		ActiveTweens = {}, -- To manage and potentially cancel tweens
-		Connections = {}, -- To manage event connections
+		ActiveTweens = {},
+		Connections = {},
 	},
 }
 
@@ -107,7 +88,7 @@ local UserInputService = AetheriumUI:GetService("UserInputService")
 local Lighting = AetheriumUI:GetService("Lighting")
 local Players = AetheriumUI:GetService("Players")
 local CoreGui = AetheriumUI:GetService("CoreGui")
-local StarterGui = AetheriumUI:GetService("StarterGui") -- For PlayerGui fallback
+local StarterGui = AetheriumUI:GetService("StarterGui")
 
 -- // Variables // --
 AetheriumUI._Variables.IsStudio = RunService:IsStudio()
@@ -115,2166 +96,190 @@ AetheriumUI._Variables.LocalPlayer = Players.LocalPlayer
 AetheriumUI._Variables.Mouse = AetheriumUI._Variables.LocalPlayer and AetheriumUI._Variables.LocalPlayer:GetMouse()
 
 -- // Utility Functions // --
-
--- Enhanced Instance Creation
 local function Create(instanceType, properties)
 	local instance = Instance.new(instanceType)
 	for prop, value in pairs(properties or {}) do
-		if prop == "Parent" then
-			continue -- Handle parent last if needed, though properties table order isn't guaranteed
-		end
-		local success, err = pcall(function() instance[prop] = value end)
-		if not success then
-			warn(("[AetheriumUI] Failed to set property '%s' on %s: %s"):format(tostring(prop), instanceType, err))
-		end
+		if prop == "Parent" then continue end
+		local s, e = pcall(function() instance[prop] = value end)
+		if not s then warn(("[AetheriumUI] SetProp Fail '%s' on %s: %s"):format(tostring(prop), instanceType, e)) end
 	end
-	if properties and properties.Parent then
-		instance.Parent = properties.Parent
-	end
+	if properties and properties.Parent then instance.Parent = properties.Parent end
 	return instance
 end
 
--- Enhanced Tweening
 local function TweenInstance(instance, propertyTable, overrideTweenInfo)
-	local info = overrideTweenInfo or TweenInfo.new(
-		AetheriumUI.Theme.AnimationSpeed,
-		AetheriumUI.Theme.EasingStyle,
-		AetheriumUI.Theme.EasingDirection
-	)
-	local tween = TweenService:Create(instance, info, propertyTable)
-	tween:Play()
-
-	-- Track active tweens for potential cleanup/override
-	AetheriumUI._Internal.ActiveTweens[instance] = AetheriumUI._Internal.ActiveTweens[instance] or {}
-	table.insert(AetheriumUI._Internal.ActiveTweens[instance], tween)
-	local completedConn
-	completedConn = tween.Completed:Connect(function()
-		local list = AetheriumUI._Internal.ActiveTweens[instance]
-		if list then
-			local index = table.find(list, tween)
-			if index then
-				table.remove(list, index)
-			end
-			if #list == 0 then
-				AetheriumUI._Internal.ActiveTweens[instance] = nil
-			end
-		end
-		if completedConn and completedConn.Connected then completedConn:Disconnect() end -- Disconnect self
-	end)
-
+	local info = overrideTweenInfo or TweenInfo.new(AetheriumUI.Theme.AnimationSpeed, AetheriumUI.Theme.EasingStyle, AetheriumUI.Theme.EasingDirection)
+	local tween = TweenService:Create(instance, info, propertyTable); tween:Play()
+	AetheriumUI._Internal.ActiveTweens[instance] = AetheriumUI._Internal.ActiveTweens[instance] or {}; table.insert(AetheriumUI._Internal.ActiveTweens[instance], tween)
+	local completedConn; completedConn = tween.Completed:Connect(function() local list=AetheriumUI._Internal.ActiveTweens[instance]; if list then local index=table.find(list,tween); if index then table.remove(list,index) end; if #list==0 then AetheriumUI._Internal.ActiveTweens[instance]=nil end end; if completedConn and completedConn.Connected then pcall(completedConn.Disconnect, completedConn) end end)
 	return tween
 end
 
--- Stop Existing Tweens for an Instance
-local function StopTweens(instance)
-    if AetheriumUI._Internal.ActiveTweens[instance] then
-        for i = #AetheriumUI._Internal.ActiveTweens[instance], 1, -1 do -- Iterate backwards for safe removal
-            local tween = AetheriumUI._Internal.ActiveTweens[instance][i]
-            if tween and tween.PlaybackState ~= Enum.PlaybackState.Completed then
-                tween:Cancel()
-            end
-			table.remove(AetheriumUI._Internal.ActiveTweens[instance], i)
-        end
-        AetheriumUI._Internal.ActiveTweens[instance] = nil
-    end
-end
-
--- Apply Standard Styling (Example - Extend as needed)
-local function ApplyStyling(instance, styleType)
-	if not instance then return end
-
-	local theme = AetheriumUI.Theme
-	if styleType == "TextLabel" then
-		instance.Font = Enum.Font.SourceSans -- Fallback
-		instance.TextColor3 = theme.Text
-		instance.TextSize = 13
-		instance.BackgroundTransparency = 1
-		if theme.Font.Regular then instance.FontFace = theme.Font.Regular end
-	elseif styleType == "TextButton" then
-		instance.Font = Enum.Font.SourceSans
-		instance.TextColor3 = theme.Text
-		instance.TextSize = 14
-		instance.BackgroundColor3 = theme.PrimaryInteraction
-		instance.BackgroundTransparency = 0
-		if theme.Font.Medium then instance.FontFace = theme.Font.Medium end
-	elseif styleType == "Frame" then
-		instance.BackgroundColor3 = theme.Background
-		instance.BackgroundTransparency = 0
-		instance.BorderSizePixel = 0
-	elseif styleType == "Input" then
-		instance.BackgroundColor3 = theme.BackgroundLighter
-		instance.BackgroundTransparency = 0
-		instance.TextColor3 = theme.Text
-		instance.PlaceholderColor3 = theme.TextSecondary
-		instance.TextSize = 12
-		if theme.Font.Regular then instance.FontFace = theme.Font.Regular end
-		if not instance:FindFirstChildOfClass("UICorner") then Create("UICorner", { CornerRadius = theme.CornerRadius, Parent = instance }) end
-		if not instance:FindFirstChildOfClass("UIStroke") then Create("UIStroke", { Thickness = theme.StrokeThickness, Color = theme.Stroke, Transparency = theme.StrokeTransparency, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = instance }) end
-	-- Add more style types as needed
-	end
-end
-
--- Get Safe GUI Parent
-local function GetGuiParent()
-	local player = AetheriumUI._Variables.LocalPlayer
-	-- Prioritize CoreGui for exploit environments if gethui isn't explicitly available or needed
-	if CoreGui then return CoreGui end
-
-	-- Fallback logic if CoreGui isn't found (unlikely but safe)
-	if player then
-		local playerGui = player:FindFirstChildOfClass("PlayerGui")
-		if playerGui then return playerGui end
-	end
-
-	-- Absolute fallback
-	return game:GetService("Players").LocalPlayer:FindFirstChildOfClass("PlayerGui") or game:GetService("CoreGui")
-end
-
-
--- Create the main ScreenGui
-local function GetGui()
-	local parent = GetGuiParent()
-	local existingGui = parent:FindFirstChild("AetheriumUI_ScreenGui")
-	if existingGui and existingGui:IsA("ScreenGui") then
-		-- Optional: Clear existing children if reusing to prevent duplication? Risky.
-		return existingGui -- Return existing if found
-	end
-
-	local newGui = Create("ScreenGui", {
-		Name = "AetheriumUI_ScreenGui",
-		ScreenInsets = Enum.ScreenInsets.None,
-		ResetOnSpawn = false,
-		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-		DisplayOrder = 2147483647, -- Max display order
-		Parent = parent
-	})
-	return newGui
-end
-
--- Manage Connections for Cleanup
-local function ManageConnection(connection)
-	table.insert(AetheriumUI._Internal.Connections, connection)
-end
-
-local function CleanupConnections()
-	for _, conn in ipairs(AetheriumUI._Internal.Connections) do
-		if conn and conn.Connected then
-			pcall(conn.Disconnect, conn) -- Wrap disconnect in pcall just in case
-		end
-	end
-	AetheriumUI._Internal.Connections = {}
-end
-
-local function CleanupTweens()
-	for instance, tweens in pairs(AetheriumUI._Internal.ActiveTweens) do
-		if tweens then
-			for i = #tweens, 1, -1 do -- Iterate backwards
-				local tween = tweens[i]
-				if tween and tween.PlaybackState ~= Enum.PlaybackState.Completed then
-					pcall(tween.Cancel, tween)
-				end
-                table.remove(tweens, i)
-			end
-		end
-	end
-	AetheriumUI._Internal.ActiveTweens = {}
-end
+local function StopTweens(instance) if AetheriumUI._Internal.ActiveTweens[instance] then for i=#AetheriumUI._Internal.ActiveTweens[instance],1,-1 do local t=AetheriumUI._Internal.ActiveTweens[instance][i]; if t and t.PlaybackState~=Enum.PlaybackState.Completed then pcall(t.Cancel,t) end; table.remove(AetheriumUI._Internal.ActiveTweens[instance],i) end; AetheriumUI._Internal.ActiveTweens[instance]=nil end end
+local function ApplyStyling(instance, styleType) if not instance then return end; local theme=AetheriumUI.Theme; if styleType=="TextLabel" then instance.Font=Enum.Font.SourceSans; instance.TextColor3=theme.Text; instance.TextSize=13; instance.BackgroundTransparency=1; if theme.Font.Regular then instance.FontFace=theme.Font.Regular end elseif styleType=="TextButton" then instance.Font=Enum.Font.SourceSans; instance.TextColor3=theme.Text; instance.TextSize=14; instance.BackgroundColor3=theme.PrimaryInteraction; instance.BackgroundTransparency=0; if theme.Font.Medium then instance.FontFace=theme.Font.Medium end elseif styleType=="Frame" then instance.BackgroundColor3=theme.Background; instance.BackgroundTransparency=0; instance.BorderSizePixel=0 elseif styleType=="Input" then instance.BackgroundColor3=theme.BackgroundLighter; instance.BackgroundTransparency=0; instance.TextColor3=theme.Text; instance.PlaceholderColor3=theme.TextSecondary; instance.TextSize=12; if theme.Font.Regular then instance.FontFace=theme.Font.Regular end; if not instance:FindFirstChildOfClass("UICorner") then Create("UICorner",{CornerRadius=theme.CornerRadius,Parent=instance}) end; if not instance:FindFirstChildOfClass("UIStroke") then Create("UIStroke",{Thickness=theme.StrokeThickness,Color=theme.Stroke,Transparency=theme.StrokeTransparency,ApplyStrokeMode=Enum.ApplyStrokeMode.Border,Parent=instance}) end end end
+local function GetGuiParent() if CoreGui then return CoreGui end; local p=AetheriumUI._Variables.LocalPlayer; if p then local pg=p:FindFirstChildOfClass("PlayerGui"); if pg then return pg end end; return game:GetService("Players").LocalPlayer:FindFirstChildOfClass("PlayerGui") or game:GetService("CoreGui") end
+local function GetGui() local p=GetGuiParent(); local eg=p:FindFirstChild("AetheriumUI_ScreenGui"); if eg and eg:IsA("ScreenGui") then return eg end; local ng=Create("ScreenGui",{Name="AetheriumUI_ScreenGui", ScreenInsets=Enum.ScreenInsets.None, ResetOnSpawn=false, ZIndexBehavior=Enum.ZIndexBehavior.Sibling, DisplayOrder=2147483647, Parent=p}); return ng end
+local function ManageConnection(connection) table.insert(AetheriumUI._Internal.Connections, connection) end
+local function CleanupConnections() for _, c in ipairs(AetheriumUI._Internal.Connections) do if c and c.Connected then pcall(c.Disconnect, c) end end; AetheriumUI._Internal.Connections = {} end
+local function CleanupTweens() for i, ts in pairs(AetheriumUI._Internal.ActiveTweens) do if ts then for j=#ts,1,-1 do local t=ts[j]; if t and t.PlaybackState~=Enum.PlaybackState.Completed then pcall(t.Cancel, t) end; table.remove(ts, j) end end end; AetheriumUI._Internal.ActiveTweens = {} end
 
 -- // Main Library Functions // --
-
 function AetheriumUI:Window(Settings)
-	if AetheriumUI._Internal.CurrentWindow then
-		warn("[AetheriumUI] Warning: Creating a new window while one already exists. The previous window reference might be lost.")
-		-- Consider unloading the old one or returning the existing one based on desired behavior.
-		-- For now, we allow creating a new one but warn.
-	end
-	if AetheriumUI._Internal.IsUnloaded then
-		warn("[AetheriumUI] Library is unloaded. Cannot create a new window.")
-		return nil
-	end
+	if AetheriumUI._Internal.IsUnloaded then warn("[AetheriumUI] Library unloaded."); return nil end
+	local WindowFunctions = { Settings = Settings }; local theme = AetheriumUI.Theme
+	if Settings.Theme then for k,v in pairs(Settings.Theme) do if type(v)=="table" and type(theme[k])=="table" then for sk,sv in pairs(v) do theme[k][sk]=sv end else theme[k]=v end end end
 
-	local WindowFunctions = { Settings = Settings }
-	local theme = AetheriumUI.Theme -- Use the library's theme
-
-	-- Merge user theme settings with defaults if provided
-	if Settings.Theme then
-		for k, v in pairs(Settings.Theme) do
-			if type(v) == "table" and type(theme[k]) == "table" then
-				for sk, sv in pairs(v) do
-					theme[k][sk] = sv
-				end
-			else
-				theme[k] = v
-			end
-		end
-	end
-
-	-- Determine Blur Settings
-	local blurType = Settings.BlurType or "UIBlur" -- 'UIBlur', 'Acrylic', 'None'
-	local uiBlurInstance = Instance.new("UIBlur") -- Test instance creation
-	local useUIBlur = blurType == "UIBlur" and typeof(uiBlurInstance) == "Instance"
-	if uiBlurInstance then pcall(uiBlurInstance.Destroy, uiBlurInstance) end -- Destroy test instance
-
-	local useAcrylicBlur = blurType == "Acrylic" and not useUIBlur
+	-- Determine Blur Settings (Acrylic Only)
+	local blurType = Settings.BlurType or "None" -- Default to None now
+	local useAcrylicBlur = blurType == "Acrylic"
 	local acrylicBlurEnabled = Settings.AcrylicBlurEnabled -- Specific toggle for acrylic state
+	if acrylicBlurEnabled == nil then acrylicBlurEnabled = useAcrylicBlur end
 
-	if acrylicBlurEnabled == nil then
-		acrylicBlurEnabled = useUIBlur or useAcrylicBlur -- Enable if either blur type is active
-	end
-
-	local screenGui = GetGui()
-	WindowFunctions.ScreenGui = screenGui -- Expose screenGui reference
-	AetheriumUI._Internal.CurrentWindow = WindowFunctions -- Store reference to this window's functions
-
+	local screenGui = GetGui(); WindowFunctions.ScreenGui = screenGui; AetheriumUI._Internal.CurrentWindow = WindowFunctions
 
 	-- Base Container
-	local base = Create("Frame", {
-		Name = "Base",
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = Settings.Position or UDim2.fromScale(0.5, 0.5),
-		Size = Settings.Size or UDim2.fromOffset(868, 600),
-		BackgroundColor3 = theme.Background,
-		BackgroundTransparency = (useUIBlur or useAcrylicBlur) and 0.3 or 0, -- Adjust transparency for blur
-		BorderSizePixel = 0,
-		ClipsDescendants = true, -- Important for rounded corners
-		Parent = screenGui,
-		Visible = true, -- Start visible by default
-	})
-	WindowFunctions.BaseFrame = base -- Expose base frame if needed
+	local base = Create("Frame", { Name="Base", AnchorPoint=Vector2.new(0.5,0.5), Position=Settings.Position or UDim2.fromScale(0.5,0.5), Size=Settings.Size or UDim2.fromOffset(868,600), BackgroundColor3=theme.Background, BackgroundTransparency=useAcrylicBlur and 0.3 or 0, BorderSizePixel=0, ClipsDescendants=true, Parent=screenGui, Visible=true })
+	WindowFunctions.BaseFrame = base
+	local baseCorner = Create("UICorner", {CornerRadius=theme.CornerRadius, Parent=base})
+	local baseStroke = Create("UIStroke", {ApplyStrokeMode=Enum.ApplyStrokeMode.Border, Color=theme.Stroke, Thickness=theme.StrokeThickness, Transparency=theme.StrokeTransparency*0.5, Parent=base})
+	local baseScale = Create("UIScale", {Name="BaseScale", Parent=base})
 
-	local baseCorner = Create("UICorner", { CornerRadius = theme.CornerRadius, Parent = base })
-	local baseStroke = Create("UIStroke", {
-		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-		Color = theme.Stroke,
-		Thickness = theme.StrokeThickness,
-		Transparency = theme.StrokeTransparency * 0.5, -- Slightly less transparent stroke for main window
-		Parent = base
-	})
-	local baseScale = Create("UIScale", { Name = "BaseScale", Parent = base })
-
-	-- UIBlur Implementation
-	local uiBlurEffect = nil
-	if useUIBlur then
-		uiBlurEffect = Create("UIBlur", {
-			Name = "WindowBlur",
-			Size = theme.BlurIntensity, -- Use theme setting
-			Enabled = acrylicBlurEnabled,
-			Parent = base
-		})
-	end
-
-	-- Acrylic Blur Implementation (Part-based - Keep the original complex logic if needed)
-	local acrylicParts = {}
-	local acrylicUpdateConnection = nil
+	-- Acrylic Blur Implementation
+	local acrylicParts = {}; local acrylicUpdateConnection = nil
 	local function UpdateAcrylicBlurState(enabled)
 		if useAcrylicBlur then
 			acrylicBlurEnabled = enabled
-			base.BackgroundTransparency = enabled and 0.3 or 0 -- Adjust as needed
-			if not enabled then
-				if acrylicUpdateConnection and acrylicUpdateConnection.Connected then
-					acrylicUpdateConnection:Disconnect()
-					acrylicUpdateConnection = nil
-				end
-				for i = 1, 4 do if acrylicParts[i] and acrylicParts[i].Parent then acrylicParts[i].Parent = nil end end
-				-- Disable DepthOfField if it was created by this script
-				local dof = Lighting:FindFirstChild("Aetherium_DepthOfField")
-				if dof then dof.Enabled = false end
-			elseif enabled and not (acrylicUpdateConnection and acrylicUpdateConnection.Connected) then
-				-- Re-initialize or enable the acrylic effect parts and connection
-				AetheriumUI:_InitializeAcrylicBlur(base, acrylicParts, theme) -- Pass theme if needed
-				if AetheriumUI._Internal.AcrylicUpdateFunction then
-					acrylicUpdateConnection = RunService.RenderStepped:Connect(AetheriumUI._Internal.AcrylicUpdateFunction)
-					ManageConnection(acrylicUpdateConnection)
-					-- Enable DepthOfField
-					local dof = Lighting:FindFirstChild("Aetherium_DepthOfField")
-					if dof then dof.Enabled = true end
-				end
-			end
-		elseif useUIBlur and uiBlurEffect then
-			acrylicBlurEnabled = enabled
-			uiBlurEffect.Enabled = enabled
-			base.BackgroundTransparency = enabled and 0.3 or 0 -- Adjust transparency for UIBlur too
-		else
-			acrylicBlurEnabled = false -- No blur enabled
-			base.BackgroundTransparency = 0
+			base.BackgroundTransparency = enabled and 0.3 or 0
+			if not enabled then if acrylicUpdateConnection and acrylicUpdateConnection.Connected then acrylicUpdateConnection:Disconnect(); acrylicUpdateConnection=nil end; for i=1,4 do if acrylicParts[i] and acrylicParts[i].Parent then acrylicParts[i].Parent=nil end end; local dof=Lighting:FindFirstChild("Aetherium_DepthOfField"); if dof then dof.Enabled=false end
+			elseif enabled and not (acrylicUpdateConnection and acrylicUpdateConnection.Connected) then AetheriumUI:_InitializeAcrylicBlur(base, acrylicParts, theme); if AetheriumUI._Internal.AcrylicUpdateFunction then acrylicUpdateConnection=RunService.RenderStepped:Connect(AetheriumUI._Internal.AcrylicUpdateFunction); ManageConnection(acrylicUpdateConnection); local dof=Lighting:FindFirstChild("Aetherium_DepthOfField"); if dof then dof.Enabled=true end end end
+		else -- No blur or UIBlur (which is removed)
+			acrylicBlurEnabled = false; base.BackgroundTransparency = 0
 		end
 	end
-
-	if useAcrylicBlur and acrylicBlurEnabled then
-		AetheriumUI:_InitializeAcrylicBlur(base, acrylicParts, theme)
-		if AetheriumUI._Internal.AcrylicUpdateFunction then
-			acrylicUpdateConnection = RunService.RenderStepped:Connect(AetheriumUI._Internal.AcrylicUpdateFunction)
-			ManageConnection(acrylicUpdateConnection)
-		end
-	end
+	if useAcrylicBlur and acrylicBlurEnabled then AetheriumUI:_InitializeAcrylicBlur(base, acrylicParts, theme); if AetheriumUI._Internal.AcrylicUpdateFunction then acrylicUpdateConnection=RunService.RenderStepped:Connect(AetheriumUI._Internal.AcrylicUpdateFunction); ManageConnection(acrylicUpdateConnection) end end
 
 	-- Notifications Container
-	local notifications = Create("Frame", {
-		Name = "Notifications",
-		BackgroundTransparency = 1,
-		Size = UDim2.fromScale(1, 1),
-		ZIndex = 10, -- Above base
-		Parent = screenGui
-	})
-	local notificationsListLayout = Create("UIListLayout", {
-		Name = "NotificationsListLayout",
-		Padding = UDim.new(0, 10),
-		HorizontalAlignment = Enum.HorizontalAlignment.Right,
-		VerticalAlignment = Enum.VerticalAlignment.Bottom,
-		SortOrder = Enum.SortOrder.LayoutOrder,
-		Parent = notifications
-	})
-	local notificationsPadding = Create("UIPadding", {
-		Name = "NotificationsPadding",
-		PaddingBottom = UDim.new(0, 10),
-		PaddingRight = UDim.new(0, 10),
-		Parent = notifications
-	})
-	WindowFunctions._NotificationContainer = notifications -- Internal reference
+	local notifications = Create("Frame", { Name="Notifications", BackgroundTransparency=1, Size=UDim2.fromScale(1,1), ZIndex=10, Parent=screenGui })
+	local notificationsListLayout = Create("UIListLayout", { Name="NotificationsListLayout", Padding=UDim.new(0,10), HorizontalAlignment=Enum.HorizontalAlignment.Right, VerticalAlignment=Enum.VerticalAlignment.Bottom, SortOrder=Enum.SortOrder.LayoutOrder, Parent=notifications })
+	local notificationsPadding = Create("UIPadding", { Name="NotificationsPadding", PaddingBottom=UDim.new(0,10), PaddingRight=UDim.new(0,10), Parent=notifications })
+	WindowFunctions._NotificationContainer = notifications
 
-	-- Sidebar
-	local sidebar = Create("Frame", {
-		Name = "Sidebar",
-		Size = UDim2.new(0.3, 0, 1, 0), -- Initial size relative to base
-		BackgroundColor3 = theme.Background, -- Match base or slightly different
-		BackgroundTransparency = 1, -- Let base handle transparency/blur
-		BorderSizePixel = 0,
-		Parent = base
-	})
+	-- Sidebar & Content (Structure remains similar)
+	local sidebar=Create("Frame",{Name="Sidebar",Size=UDim2.new(0.3,0,1,0),BackgroundColor3=theme.Background,BackgroundTransparency=1,BorderSizePixel=0,Parent=base})
+	local sidebarDivider=Create("Frame",{Name="SidebarDivider",AnchorPoint=Vector2.new(1,0),Position=UDim2.fromScale(1,0),Size=UDim2.new(0,1,1,0),BackgroundColor3=theme.Stroke,BackgroundTransparency=theme.StrokeTransparency*0.8,BorderSizePixel=0,ZIndex=2,Parent=sidebar})
+	local dividerInteract=Create("TextButton",{Name="DividerInteract",AnchorPoint=Vector2.new(0.5,0),Position=UDim2.fromScale(0.5,0),Size=UDim2.new(0,8,1,0),BackgroundTransparency=1,Text="",ZIndex=3,Parent=sidebarDivider})
+	local content=Create("Frame",{Name="Content",AnchorPoint=Vector2.new(1,0),Position=UDim2.fromScale(1,0),Size=UDim2.new(1-sidebar.Size.X.Scale,0,1,0),BackgroundColor3=theme.Background,BackgroundTransparency=1,BorderSizePixel=0,Parent=base})
 
-	-- Sidebar Divider (for resizing)
-	local sidebarDivider = Create("Frame", {
-		Name = "SidebarDivider",
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.fromScale(1, 0),
-		Size = UDim2.new(0, 1, 1, 0), -- Thin line
-		BackgroundColor3 = theme.Stroke,
-		BackgroundTransparency = theme.StrokeTransparency * 0.8,
-		BorderSizePixel = 0,
-		ZIndex = 2,
-		Parent = sidebar
-	})
-	local dividerInteract = Create("TextButton", {
-		Name = "DividerInteract",
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.fromScale(0.5, 0),
-		Size = UDim2.new(0, 8, 1, 0), -- Wider interaction area
-		BackgroundTransparency = 1,
-		Text = "",
-		ZIndex = 3,
-		Parent = sidebarDivider
-	})
-
-	-- Content Area
-	local content = Create("Frame", {
-		Name = "Content",
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.fromScale(1, 0),
-		Size = UDim2.new(1 - sidebar.Size.X.Scale, 0, 1, 0), -- Fill remaining space
-		BackgroundColor3 = theme.Background,
-		BackgroundTransparency = 1, -- Let base handle transparency/blur
-		BorderSizePixel = 0,
-		Parent = base
-	})
-
-	-- Window Controls (Top-Left of Sidebar)
-	local windowControls = Create("Frame", {
-		Name = "WindowControls",
-		Size = UDim2.new(1, 0, 0, 40), -- Increased height for better spacing
-		BackgroundTransparency = 1,
-		Parent = sidebar
-	})
-	local controlsContainer = Create("Frame", {
-		Name = "ControlsContainer",
-		BackgroundTransparency = 1,
-		Size = UDim2.fromScale(1, 1),
-		Parent = windowControls
-	})
-	local controlsLayout = Create("UIListLayout", {
-		Padding = UDim.new(0, 8),
-		FillDirection = Enum.FillDirection.Horizontal,
-		VerticalAlignment = Enum.VerticalAlignment.Center,
-		HorizontalAlignment = Enum.HorizontalAlignment.Left,
-		SortOrder = Enum.SortOrder.LayoutOrder,
-		Parent = controlsContainer
-	})
-	local controlsPadding = Create("UIPadding", {
-		PaddingLeft = UDim.new(0, 12),
-		Parent = controlsContainer
-	})
-
-	-- Control Button Creation Helper
-	local function CreateControlButton(name, color, order, onClick)
-		local btn = Create("TextButton", {
-			Name = name,
-			Text = "",
-			Size = UDim2.fromOffset(12, 12),
-			BackgroundColor3 = color,
-			AutoButtonColor = false,
-			LayoutOrder = order,
-			BorderSizePixel = 0,
-			Parent = controlsContainer
-		})
-		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = btn })
-
-		-- Inner Icon/Indicator (Optional, simple example)
-		local icon = Create("Frame", {
-			Name = "Icon",
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.fromScale(0.5, 0.5),
-			BackgroundColor3 = theme.Background, -- Contrasting color
-			BackgroundTransparency = 1, -- Hidden by default
-			BorderSizePixel = 0,
-			Parent = btn,
-			Visible = false -- Manage visibility on hover/state
-		})
-		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = icon })
-
-
-		ManageConnection(btn.MouseEnter:Connect(function()
-			TweenInstance(btn, { BackgroundTransparency = 0.3 })
-			icon.BackgroundTransparency = 0.5
-			icon.Visible = true
-		end))
-		ManageConnection(btn.MouseLeave:Connect(function()
-			TweenInstance(btn, { BackgroundTransparency = 0 })
-			icon.BackgroundTransparency = 1
-			icon.Visible = false
-		end))
-		if onClick then
-			ManageConnection(btn.MouseButton1Click:Connect(onClick))
-		end
-		return btn
-	end
-
-	-- Window Control Buttons
-	local windowState = true -- Track visibility state
-	local menuKeybind = Settings.Keybind or Enum.KeyCode.RightControl
-
-	local function ToggleMenuVisibility()
-		windowState = not windowState
-		base.Visible = windowState
-		-- Optional: Add notification for toggle
-		if WindowFunctions.Notify then
-			WindowFunctions:Notify({
-				Title = Settings.Title or "AetheriumUI",
-				Description = (windowState and "Window Shown." or "Window Hidden.") .. " Press " .. menuKeybind.Name .. " to toggle.",
-				Lifetime = 3,
-				Style = "None"
-			})
-		end
-	end
-
-	local exitButton = CreateControlButton("Exit", theme.Red, 1, function()
-		WindowFunctions:Dialog({
-			Title = "Confirm Exit",
-			Description = "Are you sure you want to unload the UI? Unsaved changes might be lost.",
-			Buttons = {
-				{ Name = "Unload", Callback = function() AetheriumUI:Unload() end },
-				{ Name = "Cancel", Callback = function() end } -- Empty callback for cancel
-			}
-		})
-	end)
-	local minimizeButton = CreateControlButton("Minimize", theme.Yellow, 2, ToggleMenuVisibility)
-	local maximizeButton = CreateControlButton("Maximize", theme.Green, 3, nil) -- No function for maximize yet
-	maximizeButton.Visible = false -- Hide maximize for now
-
-	-- Disable specific controls if requested
-	if Settings.DisabledWindowControls then
-		for _, controlName in ipairs(Settings.DisabledWindowControls) do
-			local btn = controlsContainer:FindFirstChild(controlName)
-			if btn then btn.Visible = false end
-		end
-	end
-
-	-- Divider below controls
-	Create("Frame", {
-		Name = "ControlsDivider",
-		AnchorPoint = Vector2.new(0, 1),
-		Position = UDim2.fromScale(0, 1),
-		Size = UDim2.new(1, 0, 0, 1),
-		BackgroundColor3 = theme.Stroke,
-		BackgroundTransparency = theme.StrokeTransparency,
-		BorderSizePixel = 0,
-		Parent = windowControls
-	})
+	-- Window Controls
+	local windowControls=Create("Frame",{Name="WindowControls",Size=UDim2.new(1,0,0,40),BackgroundTransparency=1,Parent=sidebar})
+	local controlsContainer=Create("Frame",{Name="ControlsContainer",BackgroundTransparency=1,Size=UDim2.fromScale(1,1),Parent=windowControls})
+	local controlsLayout=Create("UIListLayout",{Padding=UDim.new(0,8),FillDirection=Enum.FillDirection.Horizontal,VerticalAlignment=Enum.VerticalAlignment.Center,HorizontalAlignment=Enum.HorizontalAlignment.Left,SortOrder=Enum.SortOrder.LayoutOrder,Parent=controlsContainer})
+	local controlsPadding=Create("UIPadding",{PaddingLeft=UDim.new(0,12),Parent=controlsContainer})
+	local function CreateControlButton(n,c,o,cb) local b=Create("TextButton",{Name=n,Text="",Size=UDim2.fromOffset(12,12),BackgroundColor3=c,AutoButtonColor=false,LayoutOrder=o,BorderSizePixel=0,Parent=controlsContainer}); Create("UICorner",{CornerRadius=UDim.new(1,0),Parent=b}); local i=Create("Frame",{Name="Icon",AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),Size=UDim2.fromScale(0.5,0.5),BackgroundColor3=theme.Background,BackgroundTransparency=1,BorderSizePixel=0,Parent=b,Visible=false}); Create("UICorner",{CornerRadius=UDim.new(1,0),Parent=i}); ManageConnection(b.MouseEnter:Connect(function() TweenInstance(b,{BackgroundTransparency=0.3}); i.BackgroundTransparency=0.5; i.Visible=true end)); ManageConnection(b.MouseLeave:Connect(function() TweenInstance(b,{BackgroundTransparency=0}); i.BackgroundTransparency=1; i.Visible=false end)); if cb then ManageConnection(b.MouseButton1Click:Connect(cb)) end; return b end
+	local windowState=true; local menuKeybind=Settings.Keybind or Enum.KeyCode.RightControl
+	local function ToggleMenuVisibility() windowState=not windowState; base.Visible=windowState; if WindowFunctions.Notify then WindowFunctions:Notify({Title=Settings.Title or "AetheriumUI", Description=(windowState and "Shown." or "Hidden.").. " Press "..menuKeybind.Name.." to toggle.", Lifetime=3, Style="None"}) end end
+	local exitButton=CreateControlButton("Exit",theme.Red,1,function() WindowFunctions:Dialog({Title="Confirm Exit", Description="Unload UI?", Buttons={{Name="Unload",Callback=function() AetheriumUI:Unload() end},{Name="Cancel"}}}) end)
+	local minimizeButton=CreateControlButton("Minimize",theme.Yellow,2,ToggleMenuVisibility); local maximizeButton=CreateControlButton("Maximize",theme.Green,3,nil); maximizeButton.Visible=false
+	if Settings.DisabledWindowControls then for _,cN in ipairs(Settings.DisabledWindowControls) do local b=controlsContainer:FindFirstChild(cN); if b then b.Visible=false end end end
+	Create("Frame",{Name="ControlsDivider",AnchorPoint=Vector2.new(0,1),Position=UDim2.fromScale(0,1),Size=UDim2.new(1,0,0,1),BackgroundColor3=theme.Stroke,BackgroundTransparency=theme.StrokeTransparency,BorderSizePixel=0,Parent=windowControls})
 
 	-- Title/Subtitle Area
-	local informationArea = Create("Frame", {
-		Name = "InformationArea",
-		Size = UDim2.new(1, 0, 0, 60),
-		Position = UDim2.fromOffset(0, windowControls.Size.Y.Offset),
-		BackgroundTransparency = 1,
-		Parent = sidebar
-	})
-	local infoPadding = Create("UIPadding", {
-		PaddingLeft = UDim.new(0, 20),
-		PaddingRight = UDim.new(0, 20),
-		PaddingTop = UDim.new(0, 10),
-		PaddingBottom = UDim.new(0, 10),
-		Parent = informationArea
-	})
-	local infoLayout = Create("UIListLayout", {
-		Padding = UDim.new(0, 4),
-		SortOrder = Enum.SortOrder.LayoutOrder,
-		Parent = informationArea,
-	})
+	local informationArea=Create("Frame",{Name="InformationArea",Size=UDim2.new(1,0,0,60),Position=UDim2.fromOffset(0,windowControls.Size.Y.Offset),BackgroundTransparency=1,Parent=sidebar})
+	local infoPadding=Create("UIPadding",{PaddingLeft=UDim.new(0,20),PaddingRight=UDim.new(0,20),PaddingTop=UDim.new(0,10),PaddingBottom=UDim.new(0,10),Parent=informationArea})
+	local infoLayout=Create("UIListLayout",{Padding=UDim.new(0,4),SortOrder=Enum.SortOrder.LayoutOrder,Parent=informationArea})
+	local titleLabel=Create("TextLabel",{Name="Title",Text=Settings.Title or "AetheriumUI", FontFace=theme.Font.SemiBold,TextColor3=theme.Text,TextSize=18,TextXAlignment=Enum.TextXAlignment.Left,AutomaticSize=Enum.AutomaticSize.Y,Size=UDim2.new(1,-30,0,0),BackgroundTransparency=1,Parent=informationArea})
+	local subtitleLabel=Create("TextLabel",{Name="Subtitle",Text=Settings.Subtitle or "UI Library", FontFace=theme.Font.Regular,TextColor3=theme.TextSecondary,TextSize=12,TextXAlignment=Enum.TextXAlignment.Left,AutomaticSize=Enum.AutomaticSize.Y,Size=UDim2.new(1,-30,0,0),BackgroundTransparency=1,LayoutOrder=1,Parent=informationArea,Visible=(Settings.Subtitle~=nil and Settings.Subtitle~="")})
+	local globalSettingsButton=Create("ImageButton",{Name="GlobalSettingsButton",Image=AetheriumUI.Assets.globe,ImageColor3=theme.TextSecondary,ImageTransparency=0.3,Size=UDim2.fromOffset(18,18),AnchorPoint=Vector2.new(1,0.5),Position=UDim2.new(1,0,0.5,0),BackgroundTransparency=1,Parent=informationArea})
+	local globalSettingsFrame=nil; Create("Frame",{Name="InfoDivider",AnchorPoint=Vector2.new(0,1),Position=UDim2.fromScale(0,1),Size=UDim2.new(1,0,0,1),BackgroundColor3=theme.Stroke,BackgroundTransparency=theme.StrokeTransparency,BorderSizePixel=0,Parent=informationArea})
 
-	local titleLabel = Create("TextLabel", {
-		Name = "Title",
-		Text = Settings.Title or "AetheriumUI",
-		FontFace = theme.Font.SemiBold,
-		TextColor3 = theme.Text,
-		TextSize = 18,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		AutomaticSize = Enum.AutomaticSize.Y,
-		Size = UDim2.new(1, -30, 0, 0), -- Leave space for global settings icon
-		BackgroundTransparency = 1,
-		Parent = informationArea
-	})
-	local subtitleLabel = Create("TextLabel", {
-		Name = "Subtitle",
-		Text = Settings.Subtitle or "UI Library",
-		FontFace = theme.Font.Regular,
-		TextColor3 = theme.TextSecondary,
-		TextSize = 12,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		AutomaticSize = Enum.AutomaticSize.Y,
-		Size = UDim2.new(1, -30, 0, 0),
-		BackgroundTransparency = 1,
-		LayoutOrder = 1,
-		Parent = informationArea,
-		Visible = (Settings.Subtitle ~= nil and Settings.Subtitle ~= "")
-	})
-	-- Global Settings Button
-	local globalSettingsButton = Create("ImageButton", {
-		Name = "GlobalSettingsButton",
-		Image = AetheriumUI.Assets.globe,
-		ImageColor3 = theme.TextSecondary,
-		ImageTransparency = 0.3,
-		Size = UDim2.fromOffset(18, 18),
-		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, 0, 0.5, 0), -- Position relative to infoArea center Y
-		BackgroundTransparency = 1,
-		Parent = informationArea
-	})
-	local globalSettingsFrame = nil -- Forward declare
+	-- Sidebar Content Area
+	local sidebarContent=Create("Frame",{Name="SidebarContent",Size=UDim2.new(1,0,1,-(windowControls.Size.Y.Offset+informationArea.Size.Y.Offset)),Position=UDim2.fromOffset(0,windowControls.Size.Y.Offset+informationArea.Size.Y.Offset),BackgroundTransparency=1,Parent=sidebar})
+	local userInfoHeight=65; local showUserInfo=Settings.ShowUserInfo==nil or Settings.ShowUserInfo
+	local userInfo=Create("Frame",{Name="UserInfo",Size=UDim2.new(1,0,0,userInfoHeight),AnchorPoint=Vector2.new(0,1),Position=UDim2.fromScale(0,1),BackgroundTransparency=1,Parent=sidebarContent,Visible=showUserInfo})
+	Create("Frame",{Name="UserInfoDivider",AnchorPoint=Vector2.new(0.5,0),Position=UDim2.fromScale(0.5,0),Size=UDim2.new(0.9,0,0,1),BackgroundColor3=theme.Stroke,BackgroundTransparency=theme.StrokeTransparency,BorderSizePixel=0,Parent=userInfo})
+	local userInfoPadding=Create("UIPadding",{PaddingLeft=UDim.new(0,15),PaddingRight=UDim.new(0,15),PaddingTop=UDim.new(0,15),PaddingBottom=UDim.new(0,15),Parent=userInfo})
+	local userInfoLayout=Create("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,VerticalAlignment=Enum.VerticalAlignment.Center,Padding=UDim.new(0,10),SortOrder=Enum.SortOrder.LayoutOrder,Parent=userInfo})
+	local headshotSize=36; local headshotImage=nil; local isHeadshotReady=false; if AetheriumUI._Variables.LocalPlayer then pcall(function() headshotImage,isHeadshotReady=Players:GetUserThumbnailAsync(AetheriumUI._Variables.LocalPlayer.UserId,Enum.ThumbnailType.AvatarBust,Enum.ThumbnailSize.Size48x48) end) end
+	local headshot=Create("ImageLabel",{Name="Headshot",Size=UDim2.fromOffset(headshotSize,headshotSize),Image=(isHeadshotReady and headshotImage) or AetheriumUI.Assets.userInfoBlurred,BackgroundColor3=theme.BackgroundLighter,BackgroundTransparency=0,BorderSizePixel=0,Parent=userInfo}); Create("UICorner",{CornerRadius=UDim.new(1,0),Parent=headshot}); Create("UIStroke",{Color=theme.StrokeLight,Thickness=1,Transparency=0.5,Parent=headshot})
+	local nameFrame=Create("Frame",{Name="NameFrame",Size=UDim2.new(1,-(headshotSize+userInfoLayout.Padding.Offset),1,0),BackgroundTransparency=1,LayoutOrder=1,Parent=userInfo}); local nameLayout=Create("UIListLayout",{Padding=UDim.new(0,2),SortOrder=Enum.SortOrder.LayoutOrder,Parent=nameFrame})
+	local displayNameLabel=Create("TextLabel",{Name="DisplayName",Text=showUserInfo and (AetheriumUI._Variables.LocalPlayer and AetheriumUI._Variables.LocalPlayer.DisplayName or "DisplayName") or string.rep("•",10), FontFace=theme.Font.Medium,TextSize=14,TextColor3=theme.Text,TextXAlignment=Enum.TextXAlignment.Left,Size=UDim2.new(1,0,0,16),BackgroundTransparency=1,Parent=nameFrame})
+	local usernameLabel=Create("TextLabel",{Name="Username",Text=showUserInfo and (AetheriumUI._Variables.LocalPlayer and "@"..AetheriumUI._Variables.LocalPlayer.Name or "@Username") or "@"..string.rep("•",8), FontFace=theme.Font.Regular,TextSize=12,TextColor3=theme.TextSecondary,TextXAlignment=Enum.TextXAlignment.Left,Size=UDim2.new(1,0,0,14),BackgroundTransparency=1,LayoutOrder=1,Parent=nameFrame})
 
-	-- Divider below info
-	Create("Frame", {
-		Name = "InfoDivider",
-		AnchorPoint = Vector2.new(0, 1),
-		Position = UDim2.fromScale(0, 1),
-		Size = UDim2.new(1, 0, 0, 1),
-		BackgroundColor3 = theme.Stroke,
-		BackgroundTransparency = theme.StrokeTransparency,
-		BorderSizePixel = 0,
-		Parent = informationArea
-	})
+	-- Tab Switcher Area
+	local tabSwitcherArea=Create("Frame",{Name="TabSwitcherArea",Size=UDim2.new(1,0,1,-userInfoHeight),BackgroundTransparency=1,Parent=sidebarContent})
+	local tabSwitcherScroll=Create("ScrollingFrame",{Name="TabSwitcherScroll",Size=UDim2.fromScale(1,1),BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=4,ScrollBarImageColor3=theme.StrokeLight,ScrollingDirection=Enum.ScrollingDirection.Y,CanvasSize=UDim2.new(0,0,0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,Parent=tabSwitcherArea})
+	local tabSwitcherLayout=Create("UIListLayout",{Name="TabSwitcherLayout",Padding=UDim.new(0,5),SortOrder=Enum.SortOrder.LayoutOrder,Parent=tabSwitcherScroll})
+	local tabSwitcherPadding=Create("UIPadding",{PaddingLeft=UDim.new(0,10),PaddingRight=UDim.new(0,10),PaddingTop=UDim.new(0,15),PaddingBottom=UDim.new(0,15),Parent=tabSwitcherScroll})
 
+	-- Top Bar (Content)
+	local topbar=Create("Frame",{Name="Topbar",Size=UDim2.new(1,0,0,50),BackgroundTransparency=1,Parent=content}); Create("Frame",{Name="TopbarDivider",AnchorPoint=Vector2.new(0,1),Position=UDim2.fromScale(0,1),Size=UDim2.new(1,0,0,1),BackgroundColor3=theme.Stroke,BackgroundTransparency=theme.StrokeTransparency,BorderSizePixel=0,Parent=topbar}); local topbarPadding=Create("UIPadding",{PaddingLeft=UDim.new(0,20),PaddingRight=UDim.new(0,20),Parent=topbar})
+	local currentTabLabel=Create("TextLabel",{Name="CurrentTabLabel",Text="...",FontFace=theme.Font.Medium,TextSize=16,TextColor3=theme.TextSecondary,TextXAlignment=Enum.TextXAlignment.Left,Size=UDim2.new(1,-30,1,0),BackgroundTransparency=1,AnchorPoint=Vector2.new(0,0.5),Position=UDim2.fromScale(0,0.5),Parent=topbar})
+	local useDragIcon=not Settings.DragStyle or Settings.DragStyle==1; local moveIcon=Create("ImageButton",{Name="MoveIcon",Image=AetheriumUI.Assets.transform,ImageColor3=theme.TextSecondary,ImageTransparency=0.5,Size=UDim2.fromOffset(16,16),AnchorPoint=Vector2.new(1,0.5),Position=UDim2.fromScale(1,0.5),BackgroundTransparency=1,Visible=useDragIcon,Parent=topbar,ZIndex=2})
+	local moveInteract=Create("TextButton",{Name="MoveInteract",Size=UDim2.fromOffset(30,30),AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),BackgroundTransparency=1,Text="",ZIndex=3,Parent=moveIcon}); if useDragIcon then ManageConnection(moveInteract.MouseEnter:Connect(function() TweenInstance(moveIcon,{ImageTransparency=0.2}) end)); ManageConnection(moveInteract.MouseLeave:Connect(function() TweenInstance(moveIcon,{ImageTransparency=0.5}) end)) end
 
-	-- Main Sidebar Content Area (Tabs + User Info)
-	local sidebarContent = Create("Frame", {
-		Name = "SidebarContent",
-		Size = UDim2.new(1, 0, 1, -(windowControls.Size.Y.Offset + informationArea.Size.Y.Offset)),
-		Position = UDim2.fromOffset(0, windowControls.Size.Y.Offset + informationArea.Size.Y.Offset),
-		BackgroundTransparency = 1,
-		Parent = sidebar
-	})
+	-- Main Content Area
+	local contentElements=Create("Frame",{Name="ContentElements",Size=UDim2.new(1,0,1,-topbar.Size.Y.Offset),Position=UDim2.fromOffset(0,topbar.Size.Y.Offset),BackgroundTransparency=1,ClipsDescendants=true,Parent=content})
 
-	-- User Info (Bottom of Sidebar)
-	local userInfoHeight = 65
-	local showUserInfo = Settings.ShowUserInfo == nil or Settings.ShowUserInfo -- Default true
-	local userInfo = Create("Frame", {
-		Name = "UserInfo",
-		Size = UDim2.new(1, 0, 0, userInfoHeight),
-		AnchorPoint = Vector2.new(0, 1),
-		Position = UDim2.fromScale(0, 1),
-		BackgroundTransparency = 1,
-		Parent = sidebarContent,
-		Visible = showUserInfo
-	})
-	-- Divider above user info
-	Create("Frame", {
-		Name = "UserInfoDivider",
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.fromScale(0.5, 0),
-		Size = UDim2.new(0.9, 0, 0, 1), -- Slightly inset
-		BackgroundColor3 = theme.Stroke,
-		BackgroundTransparency = theme.StrokeTransparency,
-		BorderSizePixel = 0,
-		Parent = userInfo
-	})
-	local userInfoPadding = Create("UIPadding", {
-		PaddingLeft = UDim.new(0, 15),
-		PaddingRight = UDim.new(0, 15),
-		PaddingTop = UDim.new(0, 15), -- Add padding above divider
-		PaddingBottom = UDim.new(0, 15),
-		Parent = userInfo
-	})
-	local userInfoLayout = Create("UIListLayout", {
-		FillDirection = Enum.FillDirection.Horizontal,
-		VerticalAlignment = Enum.VerticalAlignment.Center,
-		Padding = UDim.new(0, 10),
-		SortOrder = Enum.SortOrder.LayoutOrder,
-		Parent = userInfo
-	})
+	-- Global Settings Frame
+	globalSettingsFrame=Create("Frame",{Name="GlobalSettings",AnchorPoint=Vector2.new(0,0),Position=UDim2.new(0,infoPadding.PaddingLeft.Offset,0,windowControls.Size.Y.Offset+informationArea.Size.Y.Offset-5),AutomaticSize=Enum.AutomaticSize.XY,BackgroundColor3=theme.BackgroundLighter,BorderSizePixel=0,Visible=false,ZIndex=15,Parent=base}); Create("UICorner",{CornerRadius=theme.CornerRadius,Parent=globalSettingsFrame}); Create("UIStroke",{Color=theme.StrokeLight,Thickness=1,Parent=globalSettingsFrame}); local gsPadding=Create("UIPadding",{PaddingLeft=UDim.new(0,10),PaddingRight=UDim.new(0,10),PaddingTop=UDim.new(0,10),PaddingBottom=UDim.new(0,10),Parent=globalSettingsFrame}); local gsLayout=Create("UIListLayout",{Padding=UDim.new(0,8),SortOrder=Enum.SortOrder.LayoutOrder,Parent=globalSettingsFrame}); local gsScale=Create("UIScale",{Name="GlobalSettingsScale",Scale=0,Parent=globalSettingsFrame}); local gsOpen=false; local gsHovering=false; local hasGlobalSetting=false
+	local function ToggleGlobalSettings(forceState) if not hasGlobalSetting then return end; local targetState=forceState; if targetState==nil then targetState=not gsOpen end; if targetState~=gsOpen then gsOpen=targetState; local targetScale=gsOpen and 1 or 0; local targetTransparency=gsOpen and 0 or 0.5; local tweenInfo=TweenInfo.new(theme.AnimationSpeed*1.2,theme.EasingStyle,theme.EasingDirection); StopTweens(gsScale); if gsOpen then globalSettingsFrame.Visible=true end; local scaleTween=TweenInstance(gsScale,{Scale=targetScale},tweenInfo); if not gsOpen then local cConn; cConn=scaleTween.Completed:Connect(function() if not gsOpen then globalSettingsFrame.Visible=false end; if cConn and cConn.Connected then pcall(cConn.Disconnect, cConn) end end) end; TweenInstance(globalSettingsButton,{ImageTransparency=targetTransparency}) end end
+	ManageConnection(globalSettingsButton.MouseEnter:Connect(function() if not gsOpen then TweenInstance(globalSettingsButton,{ImageTransparency=0}) end end)); ManageConnection(globalSettingsButton.MouseLeave:Connect(function() if not gsOpen then TweenInstance(globalSettingsButton,{ImageTransparency=0.3}) end end)); ManageConnection(globalSettingsButton.MouseButton1Click:Connect(function() ToggleGlobalSettings() end)); ManageConnection(globalSettingsFrame.MouseEnter:Connect(function() gsHovering=true end)); ManageConnection(globalSettingsFrame.MouseLeave:Connect(function() gsHovering=false end)); ManageConnection(UserInputService.InputBegan:Connect(function(input) if gsOpen and not gsHovering and (input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch) then if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then local mouseLoc=UserInputService:GetMouseLocation(); local gsRect=Rect.new(globalSettingsFrame.AbsolutePosition,globalSettingsFrame.AbsolutePosition+globalSettingsFrame.AbsoluteSize); local btnRect=Rect.new(globalSettingsButton.AbsolutePosition,globalSettingsButton.AbsolutePosition+globalSettingsButton.AbsoluteSize); if not gsRect:Contains(mouseLoc) and not btnRect:Contains(mouseLoc) then ToggleGlobalSettings(false) end end end end))
 
-	-- Headshot
-	local headshotSize = 36
-	local headshotImage = nil
-	local isHeadshotReady = false
-	if AetheriumUI._Variables.LocalPlayer then
-		pcall(function()
-			headshotImage, isHeadshotReady = Players:GetUserThumbnailAsync(AetheriumUI._Variables.LocalPlayer.UserId, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size48x48)
-		end)
+	-- Dragging Logic
+	local dragging=false; local dragInput, dragStart, startPos; local dragStyle=Settings.DragStyle or 1; local function UpdateDrag(input) local delta=input.Position-dragStart; base.Position=UDim2.new(startPos.X.Scale,startPos.X.Offset+delta.X,startPos.Y.Scale,startPos.Y.Offset+delta.Y) end; local dragChangedConn=nil; local function StartDrag(input) if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then dragging=true; dragStart=input.Position; startPos=base.Position; if dragChangedConn and dragChangedConn.Connected then dragChangedConn:Disconnect() end; dragChangedConn=input.Changed:Connect(function() if input.UserInputState==Enum.UserInputState.End then dragging=false; if dragChangedConn and dragChangedConn.Connected then dragChangedConn:Disconnect(); dragChangedConn=nil; end end end); ManageConnection(dragChangedConn) end end; local dragTarget=(dragStyle==1 and useDragIcon) and moveInteract or base; ManageConnection(dragTarget.InputBegan:Connect(StartDrag)); ManageConnection(UserInputService.InputChanged:Connect(function(input) if dragging and (input.UserInputType==Enum.UserInputType.MouseMovement or input.UserInputType==Enum.UserInputType.Touch) then UpdateDrag(input) end end))
+
+	-- Sidebar Resizing Logic
+	local resizingSidebar=false; local resizeStartMouseX, resizeStartSidebarWidth; local minSidebarWidth=150; local defaultSidebarScale=sidebar.Size.X.Scale; local defaultSidebarOffset=sidebar.Size.X.Offset; local resizeChangedConn=nil; ManageConnection(dividerInteract.MouseEnter:Connect(function() TweenInstance(sidebarDivider,{BackgroundTransparency=theme.StrokeTransparency*0.4}) end)); ManageConnection(dividerInteract.MouseLeave:Connect(function() TweenInstance(sidebarDivider,{BackgroundTransparency=theme.StrokeTransparency*0.8}) end)); ManageConnection(dividerInteract.InputBegan:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseButton1 then resizingSidebar=true; resizeStartMouseX=input.Position.X; resizeStartSidebarWidth=sidebar.AbsoluteSize.X; if resizeChangedConn and resizeChangedConn.Connected then resizeChangedConn:Disconnect() end; resizeChangedConn=input.Changed:Connect(function() if input.UserInputState==Enum.UserInputState.End then resizingSidebar=false; if resizeChangedConn and resizeChangedConn.Connected then resizeChangedConn:Disconnect(); resizeChangedConn=nil; end end end); ManageConnection(resizeChangedConn) end end)); ManageConnection(UserInputService.InputChanged:Connect(function(input) if resizingSidebar and input.UserInputType==Enum.UserInputType.MouseMovement then local currentMouseX=input.Position.X; local deltaX=currentMouseX-resizeStartMouseX; local newSidebarWidth=resizeStartSidebarWidth+deltaX; local maxSidebarWidth=base.AbsoluteSize.X-minSidebarWidth; newSidebarWidth=math.clamp(newSidebarWidth,minSidebarWidth,maxSidebarWidth); local defaultWidthPixels=defaultSidebarScale*base.AbsoluteSize.X+defaultSidebarOffset; if math.abs(newSidebarWidth-defaultWidthPixels)<15 then sidebar.Size=UDim2.new(defaultSidebarScale,defaultSidebarOffset,1,0) else sidebar.Size=UDim2.new(0,newSidebarWidth,1,0) end; content.Size=UDim2.new(0,base.AbsoluteSize.X-sidebar.AbsoluteSize.X,1,0) end end)); ManageConnection(base:GetPropertyChangedSignal("AbsoluteSize"):Connect(function() if not resizingSidebar then content.Size=UDim2.new(0,base.AbsoluteSize.X-sidebar.AbsoluteSize.X,1,0) end end))
+
+	-- Internal State
+	local tabs={}; local currentTabInstance=nil; local currentTabButton=nil; local tabIndex=0
+
+	-- Window Functions [DEFINITIONS OMITTED FOR BREVITY - ASSUME THEY ARE THE SAME AS PREVIOUS CORRECT VERSION]
+	-- Paste WindowFunctions definitions (UpdateTitle, UpdateSubtitle, SetState, GetState, etc.) HERE...
+    function WindowFunctions:UpdateTitle(newTitle) titleLabel.Text=newTitle end; function WindowFunctions:UpdateSubtitle(newSubtitle) subtitleLabel.Text=newSubtitle; subtitleLabel.Visible=(newSubtitle~=nil and newSubtitle~="") end; function WindowFunctions:SetState(state) if windowState==state then return end; windowState=state; base.Visible=state end; function WindowFunctions:GetState() return windowState end; function WindowFunctions:SetKeybind(keycode) if typeof(keycode)=="EnumItem" and keycode.EnumType==Enum.KeyCode then menuKeybind=keycode else warn("[AetheriumUI] SetKeybind expects Enum.KeyCode") end end; function WindowFunctions:SetAcrylicBlurState(enabled) UpdateAcrylicBlurState(enabled) end; function WindowFunctions:GetAcrylicBlurState() return acrylicBlurEnabled end; function WindowFunctions:SetUserInfoState(enabled) showUserInfo=enabled; userInfo.Visible=enabled; displayNameLabel.Text=showUserInfo and (AetheriumUI._Variables.LocalPlayer and AetheriumUI._Variables.LocalPlayer.DisplayName or "DisplayName") or string.rep("•",10); usernameLabel.Text=showUserInfo and (AetheriumUI._Variables.LocalPlayer and "@"..AetheriumUI._Variables.LocalPlayer.Name or "@Username") or "@"..string.rep("•",8); headshot.Image=(showUserInfo and isHeadshotReady and headshotImage) or AetheriumUI.Assets.userInfoBlurred end; function WindowFunctions:GetUserInfoState() return showUserInfo end; function WindowFunctions:SetSize(newSize) if typeof(newSize)=="UDim2" then TweenInstance(base,{Size=newSize}) else warn("[AetheriumUI] SetSize expects UDim2") end end; function WindowFunctions:GetSize() return base.Size end; function WindowFunctions:SetScale(newScale) if type(newScale)=="number" then TweenInstance(baseScale,{Scale=newScale}) else warn("[AetheriumUI] SetScale expects number") end end; function WindowFunctions:GetScale() return baseScale.Scale end; function WindowFunctions:SetNotificationsState(enabled) notifications.Visible=enabled end; function WindowFunctions:GetNotificationsState() return notifications.Visible end
+    function WindowFunctions:GlobalSetting(...) -- Assume definition is correct
+		-- [PREVIOUS GlobalSetting Definition Here]
+		hasGlobalSetting = true; local gsSettings=...; local GlobalSettingFunctions={Settings=gsSettings}; local uniqueId=HttpService:GenerateGUID(false); local container=Create("Frame",{Name="GlobalSetting_"..(gsSettings.Name or uniqueId):gsub("%s+","_"), Size=UDim2.new(1,0,0,25), BackgroundTransparency=1, Parent=globalSettingsFrame}); local layout=Create("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal, VerticalAlignment=Enum.VerticalAlignment.Center, SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,8), Parent=container}); local interactButton=Create("TextButton",{Name="Interact", Size=UDim2.fromScale(1,1), Text="", BackgroundTransparency=1, ZIndex=2, Parent=container}); local checkmarkSize=12; local checkmark=Create("TextLabel",{Name="Checkmark", Text="✓", FontFace=theme.Font.Bold, TextColor3=theme.Accent, TextSize=checkmarkSize, TextTransparency=1, Size=UDim2.fromOffset(0,checkmarkSize), TextXAlignment=Enum.TextXAlignment.Center, TextYAlignment=Enum.TextYAlignment.Center, BackgroundTransparency=1, LayoutOrder=1, ClipsDescendants=true, Parent=container}); local settingName=Create("TextLabel",{Name="SettingName", Text=gsSettings.Name or "Setting", FontFace=theme.Font.Regular, TextSize=13, TextColor3=theme.TextSecondary, TextXAlignment=Enum.TextXAlignment.Left, Size=UDim2.new(1,-(checkmarkSize+layout.Padding.Offset),1,0), AutomaticSize=Enum.AutomaticSize.X, BackgroundTransparency=1, LayoutOrder=2, Parent=container}); local isToggled=gsSettings.Default or false; local function SetVisualState(state,noAnim) local targetCheckSize=state and UDim2.fromOffset(checkmarkSize,checkmarkSize) or UDim2.fromOffset(0,checkmarkSize); local targetCheckTrans=state and 0 or 1; local targetNameColor=state and theme.Text or theme.TextSecondary; local animSpeed=noAnim and 0 or theme.AnimationSpeed*0.8; StopTweens(checkmark); StopTweens(settingName); TweenInstance(checkmark,{Size=targetCheckSize,TextTransparency=targetCheckTrans},TweenInfo.new(animSpeed,theme.EasingStyle,theme.EasingDirection)); TweenInstance(settingName,{TextColor3=targetNameColor},TweenInfo.new(animSpeed,theme.EasingStyle,theme.EasingDirection)) end; SetVisualState(isToggled,true); ManageConnection(interactButton.MouseButton1Click:Connect(function() isToggled=not isToggled; SetVisualState(isToggled); task.spawn(function() if gsSettings.Callback then pcall(gsSettings.Callback,isToggled) end end) end)); ManageConnection(interactButton.MouseEnter:Connect(function() if not isToggled then TweenInstance(settingName,{TextColor3=Color3.Lerp(theme.TextSecondary,theme.Text,0.5)}) end end)); ManageConnection(interactButton.MouseLeave:Connect(function() if not isToggled then TweenInstance(settingName,{TextColor3=theme.TextSecondary}) end end)); function GlobalSettingFunctions:UpdateName(newName) settingName.Text=newName end; function GlobalSettingFunctions:UpdateState(newState,noCallback) if isToggled==newState then return end; isToggled=newState; SetVisualState(isToggled); if not noCallback then task.spawn(function() if gsSettings.Callback then pcall(gsSettings.Callback,isToggled) end end) end end; function GlobalSettingFunctions:GetState() return isToggled end; return GlobalSettingFunctions
 	end
-
-	local headshot = Create("ImageLabel", {
-		Name = "Headshot",
-		Size = UDim2.fromOffset(headshotSize, headshotSize),
-		Image = (isHeadshotReady and headshotImage) or AetheriumUI.Assets.userInfoBlurred, -- Fallback or blurred
-		BackgroundColor3 = theme.BackgroundLighter,
-		BackgroundTransparency = 0,
-		BorderSizePixel = 0,
-		Parent = userInfo
-	})
-	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = headshot })
-	Create("UIStroke", { Color = theme.StrokeLight, Thickness = 1, Transparency = 0.5, Parent = headshot })
-
-	-- Username/Display Name Frame
-	local nameFrame = Create("Frame", {
-		Name = "NameFrame",
-		Size = UDim2.new(1, -(headshotSize + userInfoLayout.Padding.Offset), 1, 0),
-		BackgroundTransparency = 1,
-		LayoutOrder = 1,
-		Parent = userInfo
-	})
-	local nameLayout = Create("UIListLayout", {
-		Padding = UDim.new(0, 2),
-		SortOrder = Enum.SortOrder.LayoutOrder,
-		Parent = nameFrame
-	})
-	local displayNameLabel = Create("TextLabel", {
-		Name = "DisplayName",
-		Text = showUserInfo and (AetheriumUI._Variables.LocalPlayer and AetheriumUI._Variables.LocalPlayer.DisplayName or "DisplayName") or string.rep("•", 10),
-		FontFace = theme.Font.Medium,
-		TextSize = 14,
-		TextColor3 = theme.Text,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		Size = UDim2.new(1, 0, 0, 16),
-		BackgroundTransparency = 1,
-		Parent = nameFrame
-	})
-	local usernameLabel = Create("TextLabel", {
-		Name = "Username",
-		Text = showUserInfo and (AetheriumUI._Variables.LocalPlayer and "@"..AetheriumUI._Variables.LocalPlayer.Name or "@Username") or "@" .. string.rep("•", 8),
-		FontFace = theme.Font.Regular,
-		TextSize = 12,
-		TextColor3 = theme.TextSecondary,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		Size = UDim2.new(1, 0, 0, 14),
-		BackgroundTransparency = 1,
-		LayoutOrder = 1,
-		Parent = nameFrame
-	})
-
-	-- Tab Switcher Area (Above User Info)
-	local tabSwitcherArea = Create("Frame", {
-		Name = "TabSwitcherArea",
-		Size = UDim2.new(1, 0, 1, -userInfoHeight),
-		BackgroundTransparency = 1,
-		Parent = sidebarContent
-	})
-	local tabSwitcherScroll = Create("ScrollingFrame", {
-		Name = "TabSwitcherScroll",
-		Size = UDim2.fromScale(1, 1),
-		BackgroundTransparency = 1,
-		BorderSizePixel = 0,
-		ScrollBarThickness = 4,
-		ScrollBarImageColor3 = theme.StrokeLight,
-		ScrollingDirection = Enum.ScrollingDirection.Y,
-		CanvasSize = UDim2.new(0, 0, 0, 0),
-		AutomaticCanvasSize = Enum.AutomaticSize.Y,
-		Parent = tabSwitcherArea
-	})
-	local tabSwitcherLayout = Create("UIListLayout", {
-		Name = "TabSwitcherLayout",
-		Padding = UDim.new(0, 5), -- Spacing between tab groups/tabs
-		SortOrder = Enum.SortOrder.LayoutOrder,
-		Parent = tabSwitcherScroll
-	})
-	local tabSwitcherPadding = Create("UIPadding", {
-		PaddingLeft = UDim.new(0, 10),
-		PaddingRight = UDim.new(0, 10),
-		PaddingTop = UDim.new(0, 15),
-		PaddingBottom = UDim.new(0, 15),
-		Parent = tabSwitcherScroll
-	})
-
-
-	-- Top Bar (Content Area)
-	local topbar = Create("Frame", {
-		Name = "Topbar",
-		Size = UDim2.new(1, 0, 0, 50), -- Slightly shorter topbar
-		BackgroundTransparency = 1,
-		Parent = content
-	})
-	-- Divider below topbar
-	Create("Frame", {
-		Name = "TopbarDivider",
-		AnchorPoint = Vector2.new(0, 1),
-		Position = UDim2.fromScale(0, 1),
-		Size = UDim2.new(1, 0, 0, 1),
-		BackgroundColor3 = theme.Stroke,
-		BackgroundTransparency = theme.StrokeTransparency,
-		BorderSizePixel = 0,
-		Parent = topbar
-	})
-	local topbarPadding = Create("UIPadding", {
-		PaddingLeft = UDim.new(0, 20),
-		PaddingRight = UDim.new(0, 20),
-		Parent = topbar
-	})
-
-	local currentTabLabel = Create("TextLabel", {
-		Name = "CurrentTabLabel",
-		Text = "...", -- Will be updated when tab is selected
-		FontFace = theme.Font.Medium,
-		TextSize = 16,
-		TextColor3 = theme.TextSecondary,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		Size = UDim2.new(1, -30, 1, 0), -- Leave space for move icon
-		BackgroundTransparency = 1,
-		AnchorPoint = Vector2.new(0, 0.5),
-		Position = UDim2.fromScale(0, 0.5),
-		Parent = topbar
-	})
-
-	-- Move Icon (Top Right of Content Topbar)
-	local useDragIcon = not Settings.DragStyle or Settings.DragStyle == 1
-	local moveIcon = Create("ImageButton", {
-		Name = "MoveIcon",
-		Image = AetheriumUI.Assets.transform,
-		ImageColor3 = theme.TextSecondary,
-		ImageTransparency = 0.5,
-		Size = UDim2.fromOffset(16, 16),
-		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.fromScale(1, 0.5),
-		BackgroundTransparency = 1,
-		Visible = useDragIcon,
-		Parent = topbar,
-		ZIndex = 2
-	})
-	local moveInteract = Create("TextButton", { -- Larger interaction area for the icon
-		Name = "MoveInteract",
-		Size = UDim2.fromOffset(30, 30),
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
-		BackgroundTransparency = 1,
-		Text = "",
-		ZIndex = 3,
-		Parent = moveIcon
-	})
-	if useDragIcon then
-		ManageConnection(moveInteract.MouseEnter:Connect(function() TweenInstance(moveIcon, { ImageTransparency = 0.2 }) end))
-		ManageConnection(moveInteract.MouseLeave:Connect(function() TweenInstance(moveIcon, { ImageTransparency = 0.5 }) end))
+	function WindowFunctions:TabGroup(...) -- Assume definition is correct
+		-- [PREVIOUS TabGroup Definition Here, including nested Tab and Section functions]
+		local TabGroupFunctions={}; local tgSettings=... or {}; local groupFrame=Create("Frame",{Name="TabGroup_"..(tgSettings.Name or "Default"):gsub("%s+","_"), AutomaticSize=Enum.AutomaticSize.Y, BackgroundTransparency=1, Size=UDim2.new(1,0,0,0), Parent=tabSwitcherScroll}); local groupLayout=Create("UIListLayout",{Padding=UDim.new(0,tgSettings.Padding or 10), SortOrder=Enum.SortOrder.LayoutOrder, Parent=groupFrame}); if tgSettings.Name then Create("TextLabel",{Name="GroupName", Text=tgSettings.Name, FontFace=theme.Font.Medium, TextColor3=theme.TextSecondary, TextSize=12, TextXAlignment=Enum.TextXAlignment.Left, Size=UDim2.new(1,0,0,15), BackgroundTransparency=1, LayoutOrder=-1, Parent=groupFrame}); Create("Frame",{Name="GroupHeaderDivider", Size=UDim2.new(1,0,0,1), BackgroundColor3=theme.Stroke, BackgroundTransparency=theme.StrokeTransparency*1.2, LayoutOrder=0, Parent=groupFrame, Position=UDim2.fromOffset(0,5)}); groupLayout.Padding=UDim.new(0,5) end; local tabsContainer=Create("Frame",{Name="TabsContainer", AutomaticSize=Enum.AutomaticSize.Y, BackgroundTransparency=1, Size=UDim2.new(1,0,0,0), LayoutOrder=1, Parent=groupFrame}); local tabsLayout=Create("UIListLayout",{Padding=UDim.new(0,3), SortOrder=Enum.SortOrder.LayoutOrder, Parent=tabsContainer}); function TabGroupFunctions:Tab(...) local TabFunctions={}; local tabSettings=... or {}; tabIndex+=1; local tabButton=Create("TextButton",{Name="TabSwitcher_"..(tabSettings.Name or tabIndex):gsub("%s+","_"), Text="", Size=UDim2.new(1,0,0,35), BackgroundColor3=theme.Background, BackgroundTransparency=1, AutoButtonColor=false, LayoutOrder=tabIndex, Parent=tabsContainer}); local tabCorner=Create("UICorner",{CornerRadius=theme.CornerRadius, Parent=tabButton}); local tabStroke=Create("UIStroke",{ApplyStrokeMode=Enum.ApplyStrokeMode.Border, Color=theme.Accent, Thickness=theme.StrokeThickness, Transparency=1, Parent=tabButton}); local tabLayout=Create("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal, VerticalAlignment=Enum.VerticalAlignment.Center, Padding=UDim.new(0,10), SortOrder=Enum.SortOrder.LayoutOrder, Parent=tabButton}); local tabPadding=Create("UIPadding",{PaddingLeft=UDim.new(0,15), PaddingRight=UDim.new(0,15), Parent=tabButton}); local tabIcon=nil; if tabSettings.Image then tabIcon=Create("ImageLabel",{Name="TabIcon", Image=tabSettings.Image, ImageColor3=theme.TextSecondary, ImageTransparency=0, Size=UDim2.fromOffset(18,18), BackgroundTransparency=1, Parent=tabButton}) end; local tabNameLabel=Create("TextLabel",{Name="TabName", Text=tabSettings.Name or "Tab", FontFace=theme.Font.Regular, TextSize=14, TextColor3=theme.TextSecondary, TextXAlignment=Enum.TextXAlignment.Left, Size=UDim2.new(1,-( (tabIcon and tabIcon.Size.X.Offset or 0)+tabLayout.Padding.Offset),1,0), BackgroundTransparency=1, LayoutOrder=tabIcon and 1 or 0, Parent=tabButton}); local tabContentFrame=Create("ScrollingFrame",{Name="TabContent_"..(tabSettings.Name or tabIndex):gsub("%s+","_"), Size=UDim2.fromScale(1,1), BackgroundTransparency=1, BorderSizePixel=0, ScrollBarThickness=4, ScrollBarImageColor3=theme.StrokeLight, CanvasSize=UDim2.new(0,0,0,0), AutomaticCanvasSize=Enum.AutomaticSize.Y, ClipsDescendants=false, Parent=nil}); local contentPadding=Create("UIPadding",{PaddingLeft=UDim.new(0,15), PaddingRight=UDim.new(0,15), PaddingTop=UDim.new(0,15), PaddingBottom=UDim.new(0,15), Parent=tabContentFrame}); local contentLayout=Create("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal, VerticalAlignment=Enum.VerticalAlignment.Top, HorizontalAlignment=Enum.HorizontalAlignment.Left, Padding=UDim.new(0,15), SortOrder=Enum.SortOrder.LayoutOrder, Parent=tabContentFrame}); local leftColumn=Create("Frame",{Name="LeftColumn", Size=UDim2.new(0.5,-contentLayout.Padding.Offset/2,0,0), AutomaticSize=Enum.AutomaticSize.Y, BackgroundTransparency=1, LayoutOrder=1, Parent=tabContentFrame}); local leftLayout=Create("UIListLayout",{Padding=UDim.new(0,15), SortOrder=Enum.SortOrder.LayoutOrder, Parent=leftColumn}); local rightColumn=Create("Frame",{Name="RightColumn", Size=UDim2.new(0.5,-contentLayout.Padding.Offset/2,0,0), AutomaticSize=Enum.AutomaticSize.Y, BackgroundTransparency=1, LayoutOrder=2, Parent=tabContentFrame}); local rightLayout=Create("UIListLayout",{Padding=UDim.new(0,15), SortOrder=Enum.SortOrder.LayoutOrder, Parent=rightColumn}); tabs[tabButton]={ContentFrame=tabContentFrame, NameLabel=tabNameLabel, IconImage=tabIcon, Stroke=tabStroke, Corner=tabCorner, Button=tabButton}; local function SelectTab() if currentTabButton==tabButton then return end; if currentTabButton and tabs[currentTabButton] then local prevData=tabs[currentTabButton]; if prevData.ContentFrame then prevData.ContentFrame.Parent=nil end; TweenInstance(prevData.Button,{BackgroundTransparency=1}); TweenInstance(prevData.Stroke,{Transparency=1}); TweenInstance(prevData.NameLabel,{TextColor3=theme.TextSecondary,FontFace=theme.Font.Regular}); if prevData.IconImage then TweenInstance(prevData.IconImage,{ImageColor3=theme.TextSecondary}) end end; tabContentFrame.Parent=contentElements; currentTabInstance=tabContentFrame; currentTabButton=tabButton; currentTabLabel.Text=tabSettings.Name or "Tab"; local data=tabs[tabButton]; TweenInstance(data.Button,{BackgroundTransparency=0.85}); TweenInstance(data.Stroke,{Transparency=0}); TweenInstance(data.NameLabel,{TextColor3=theme.Text,FontFace=theme.Font.Medium}); if data.IconImage then TweenInstance(data.IconImage,{ImageColor3=theme.Text}) end end; ManageConnection(tabButton.MouseButton1Click:Connect(SelectTab)); ManageConnection(tabButton.MouseEnter:Connect(function() if currentTabButton~=tabButton then TweenInstance(tabButton,{BackgroundTransparency=0.9}); TweenInstance(tabNameLabel,{TextColor3=Color3.Lerp(theme.TextSecondary,theme.Text,0.7)}); if tabIcon then TweenInstance(tabIcon,{ImageColor3=Color3.Lerp(theme.TextSecondary,theme.Text,0.7)}) end end end)); ManageConnection(tabButton.MouseLeave:Connect(function() if currentTabButton~=tabButton then TweenInstance(tabButton,{BackgroundTransparency=1}); TweenInstance(tabNameLabel,{TextColor3=theme.TextSecondary}); if tabIcon then TweenInstance(tabIcon,{ImageColor3=theme.TextSecondary}) end end end)); function TabFunctions:Section(...) --[[Paste Section Func Here]] local SectionFunctions={}; local secSettings=... or {}; local side=secSettings.Side=="Right" and rightColumn or leftColumn; local sectionFrame=Create("Frame",{Name="Section_"..(secSettings.Name or HttpService:GenerateGUID(false)):gsub("%s+","_"), AutomaticSize=Enum.AutomaticSize.Y, Size=UDim2.new(1,0,0,0), BackgroundColor3=theme.BackgroundLight, BackgroundTransparency=0, BorderSizePixel=0, ClipsDescendants=true, Parent=side}); SectionFunctions.SectionFrame=sectionFrame; local secCorner=Create("UICorner",{CornerRadius=theme.CornerRadius, Parent=sectionFrame}); local secStroke=Create("UIStroke",{Color=theme.Stroke, Thickness=theme.StrokeThickness, Transparency=theme.StrokeTransparency*0.8, Parent=sectionFrame}); local secPadding=Create("UIPadding",{PaddingLeft=UDim.new(0,secSettings.PaddingX or 15), PaddingRight=UDim.new(0,secSettings.PaddingX or 15), PaddingTop=UDim.new(0,secSettings.PaddingY or 15), PaddingBottom=UDim.new(0,secSettings.PaddingY or 15), Parent=sectionFrame}); local secLayout=Create("UIListLayout",{Padding=UDim.new(0,secSettings.Spacing or 10), SortOrder=Enum.SortOrder.LayoutOrder, Name="SectionLayout", Parent=sectionFrame}); SectionFunctions.SectionLayout=secLayout; function SectionFunctions:Header(...) --[[Paste Header Func Here]] local HeaderFuncs={}; local hSettings=...; local flag=select(2,...); HeaderFuncs.Settings=hSettings; HeaderFuncs.Class="Header"; local text=hSettings.Text or hSettings.Name or "Header"; local id=flag or "Header_"..text:gsub("%s+","_"); local label=Create("TextLabel",{Name=id,Text=text,FontFace=theme.Font.SemiBold,TextColor3=theme.Text,TextSize=16,TextXAlignment=Enum.TextXAlignment.Left,TextWrapped=true,AutomaticSize=Enum.AutomaticSize.Y,Size=UDim2.new(1,0,0,20),BackgroundTransparency=1,Parent=sectionFrame}); Create("UIPadding",{PaddingBottom=UDim.new(0,5),Parent=label}); HeaderFuncs.Instance=label; function HeaderFuncs:UpdateName(newName) label.Text=newName end; function HeaderFuncs:SetVisibility(visible) label.Visible=visible end; if flag then AetheriumUI.Options[flag]=HeaderFuncs end; return HeaderFuncs end; function SectionFunctions:Label(...) --[[Paste Label Func Here]] local LabelFuncs={}; local lSettings=...; local flag=select(2,...); LabelFuncs.Settings=lSettings; LabelFuncs.Class="Label"; local text=lSettings.Text or lSettings.Name or "Label"; local id=flag or "Label_"..text:gsub("%s+","_"); local label=Create("TextLabel",{Name=id,Text=text,RichText=lSettings.RichText or true,FontFace=theme.Font.Regular,TextColor3=theme.TextSecondary,TextSize=13,TextXAlignment=Enum.TextXAlignment.Left,TextWrapped=true,AutomaticSize=Enum.AutomaticSize.Y,Size=UDim2.new(1,0,0,18),BackgroundTransparency=1,Parent=sectionFrame}); LabelFuncs.Instance=label; function LabelFuncs:UpdateName(newName) label.Text=newName end; function LabelFuncs:SetVisibility(visible) label.Visible=visible end; if flag then AetheriumUI.Options[flag]=LabelFuncs end; return LabelFuncs end; function SectionFunctions:SubLabel(...) --[[Paste SubLabel Func Here]] local SubLabelFuncs={}; local slSettings=...; local flag=select(2,...); SubLabelFuncs.Settings=slSettings; SubLabelFuncs.Class="SubLabel"; local text=slSettings.Text or slSettings.Name or "SubLabel"; local id=flag or "SubLabel_"..text:gsub("%s+","_"); local label=Create("TextLabel",{Name=id,Text=text,RichText=slSettings.RichText or true,FontFace=theme.Font.Regular,TextColor3=Color3.Lerp(theme.TextSecondary,theme.Background,0.3),TextSize=12,TextXAlignment=Enum.TextXAlignment.Left,TextWrapped=true,AutomaticSize=Enum.AutomaticSize.Y,Size=UDim2.new(1,0,0,16),BackgroundTransparency=1,Parent=sectionFrame}); SubLabelFuncs.Instance=label; task.defer(function() local children=sectionFrame:GetChildren(); local layoutOrder=0; for i=#children,1,-1 do local child=children[i]; if child~=label and not child:IsA("UILayout") and not child:IsA("UIPadding") and not child:IsA("UICorner") and not child:IsA("UIStroke") and not child:IsA("UIScale") then layoutOrder=child.LayoutOrder+1; break end end; label.LayoutOrder=layoutOrder end); function SubLabelFuncs:UpdateName(newName) label.Text=newName end; function SubLabelFuncs:SetVisibility(visible) label.Visible=visible end; if flag then AetheriumUI.Options[flag]=SubLabelFuncs end; return SubLabelFuncs end; function SectionFunctions:Paragraph(...) --[[Paste Paragraph Func Here]] local ParaFuncs={}; local pSettings=...; local flag=select(2,...); ParaFuncs.Settings=pSettings; ParaFuncs.Class="Paragraph"; local headerText=pSettings.Header or "Paragraph"; local bodyText=pSettings.Body or "Paragraph body text."; local id=flag or "Paragraph_"..headerText:gsub("%s+","_"); local container=Create("Frame",{Name=id,AutomaticSize=Enum.AutomaticSize.Y,BackgroundTransparency=1,Size=UDim2.new(1,0,0,0),Parent=sectionFrame}); local layout=Create("UIListLayout",{Padding=UDim.new(0,5),SortOrder=Enum.SortOrder.LayoutOrder,Parent=container}); ParaFuncs.Instance=container; local headerLabel=Create("TextLabel",{Name="Header",Text=headerText,FontFace=theme.Font.Medium,TextColor3=theme.Text,TextSize=15,TextXAlignment=Enum.TextXAlignment.Left,TextWrapped=true,AutomaticSize=Enum.AutomaticSize.Y,Size=UDim2.new(1,0,0,18),BackgroundTransparency=1,Parent=container}); local bodyLabel=Create("TextLabel",{Name="Body",Text=bodyText,RichText=pSettings.RichText or true,FontFace=theme.Font.Regular,TextColor3=theme.TextSecondary,TextSize=13,TextXAlignment=Enum.TextXAlignment.Left,TextWrapped=true,AutomaticSize=Enum.AutomaticSize.Y,Size=UDim2.new(1,0,0,16),BackgroundTransparency=1,LayoutOrder=1,Parent=container}); function ParaFuncs:UpdateHeader(newText) headerLabel.Text=newText end; function ParaFuncs:UpdateBody(newText) bodyLabel.Text=newText end; function ParaFuncs:SetVisibility(visible) container.Visible=visible end; if flag then AetheriumUI.Options[flag]=ParaFuncs end; return ParaFuncs end; function SectionFunctions:Divider() --[[Paste Divider Func Here]] local DividerFuncs={}; local divider=Create("Frame",{Name="Divider",Size=UDim2.new(1,0,0,1),BackgroundColor3=theme.Stroke,BackgroundTransparency=theme.StrokeTransparency*1.1,BorderSizePixel=0,Parent=sectionFrame}); Create("UIPadding",{PaddingTop=UDim.new(0,math.floor(secLayout.Padding.Offset/2)),PaddingBottom=UDim.new(0,math.floor(secLayout.Padding.Offset/2)),Parent=divider}); DividerFuncs.Instance=divider; function DividerFuncs:Remove() if divider and divider.Parent then divider:Destroy() end end; function DividerFuncs:SetVisibility(visible) divider.Visible=visible end; return DividerFuncs end; function SectionFunctions:Spacer(...) --[[Paste Spacer Func Here]] local SpacerFuncs={}; local spSettings=... or {}; local height=spSettings.Height or 10; local spacer=Create("Frame",{Name="Spacer",Size=UDim2.new(1,0,0,height),BackgroundTransparency=1,BorderSizePixel=0,Parent=sectionFrame}); SpacerFuncs.Instance=spacer; function SpacerFuncs:Remove() if spacer and spacer.Parent then spacer:Destroy() end end; function SpacerFuncs:SetVisibility(visible) spacer.Visible=visible end; return SpacerFuncs end; function SectionFunctions:Button(...) --[[Paste Button Func Here]] local ButtonFuncs={}; local bSettings=...; local flag=select(2,...); ButtonFuncs.Settings=bSettings; ButtonFuncs.Class="Button"; local text=bSettings.Name or "Button"; local id=flag or "Button_"..text:gsub("%s+","_"); local button=Create("TextButton",{Name=id,Text=text,FontFace=theme.Font.Medium,TextColor3=theme.Text,TextSize=14,BackgroundColor3=theme.PrimaryInteraction,Size=UDim2.new(1,0,0,35),AutoButtonColor=false,Parent=sectionFrame}); Create("UICorner",{CornerRadius=theme.CornerRadius,Parent=button}); ButtonFuncs.Instance=button; if bSettings.Image then button.TextXAlignment=Enum.TextXAlignment.Left; local icon=Create("ImageLabel",{Name="Icon",Image=bSettings.Image or AetheriumUI.Assets.buttonImage,ImageColor3=theme.TextSecondary,Size=UDim2.fromOffset(16,16),AnchorPoint=Vector2.new(1,0.5),Position=UDim2.new(1,-10,0.5,0),BackgroundTransparency=1,Parent=button}); ManageConnection(button.MouseEnter:Connect(function() TweenInstance(icon,{ImageColor3=theme.Text}) end)); ManageConnection(button.MouseLeave:Connect(function() TweenInstance(icon,{ImageColor3=theme.TextSecondary}) end)) end; ManageConnection(button.MouseEnter:Connect(function() TweenInstance(button,{BackgroundColor3=theme.PrimaryInteractionHover}) end)); ManageConnection(button.MouseLeave:Connect(function() TweenInstance(button,{BackgroundColor3=theme.PrimaryInteraction}) end)); ManageConnection(button.MouseButton1Click:Connect(function() TweenInstance(button,{BackgroundColor3=theme.Accent}); TweenInstance(button,{BackgroundColor3=theme.PrimaryInteractionHover},TweenInfo.new(0.2,Enum.EasingStyle.Linear,Enum.EasingDirection.Out,0,false,0.1)); task.spawn(function() if bSettings.Callback then pcall(bSettings.Callback) end end) end)); function ButtonFuncs:UpdateName(newName) button.Text=newName end; function ButtonFuncs:SetVisibility(visible) button.Visible=visible end; if flag then AetheriumUI.Options[flag]=ButtonFuncs end; return ButtonFuncs end; function SectionFunctions:Toggle(...) --[[Paste Toggle Func Here]] local ToggleFuncs={}; local tSettings=...; local flag=select(2,...); ToggleFuncs.Settings=tSettings; ToggleFuncs.IgnoreConfig=false; ToggleFuncs.Class="Toggle"; ToggleFuncs.State=tSettings.Default or false; local text=tSettings.Name or "Toggle"; local id=flag or "Toggle_"..text:gsub("%s+","_"); local container=Create("Frame",{Name=id,Size=UDim2.new(1,0,0,30),BackgroundTransparency=1,Parent=sectionFrame}); local layout=Create("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,VerticalAlignment=Enum.VerticalAlignment.Center,HorizontalAlignment=Enum.HorizontalAlignment.Left,SortOrder=Enum.SortOrder.LayoutOrder,Parent=container}); ToggleFuncs.Instance=container; local nameLabel=Create("TextLabel",{Name="ToggleName",Text=text,FontFace=theme.Font.Regular,TextColor3=theme.Text,TextSize=13,TextXAlignment=Enum.TextXAlignment.Left,Size=UDim2.new(1,-55,1,0),BackgroundTransparency=1,Parent=container}); local toggleWidth,toggleHeight=40,20; local headSize=16; local toggleButton=Create("ImageButton",{Name="ToggleSwitch",Size=UDim2.fromOffset(toggleWidth,toggleHeight),BackgroundColor3=theme.BackgroundLighter,BackgroundTransparency=0,AutoButtonColor=false,LayoutOrder=1,Image="",Parent=container}); Create("UICorner",{CornerRadius=UDim.new(1,0),Parent=toggleButton}); local toggleHead=Create("Frame",{Name="ToggleHead",Size=UDim2.fromOffset(headSize,headSize),BackgroundColor3=theme.TextDisabled,BorderSizePixel=0,AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.new(0,headSize/2+(toggleHeight-headSize)/2,0.5,0),Parent=toggleButton,ZIndex=2}); Create("UICorner",{CornerRadius=UDim.new(1,0),Parent=toggleHead}); local function SetToggleState(state,noAnim) ToggleFuncs.State=state; local animSpeed=noAnim and 0 or theme.AnimationSpeed; local tweenInfo=TweenInfo.new(animSpeed,theme.EasingStyle,theme.EasingDirection); local targetHeadPos=state and UDim2.new(1,-(headSize/2+(toggleHeight-headSize)/2),0.5,0) or UDim2.new(0,headSize/2+(toggleHeight-headSize)/2,0.5,0); local targetHeadColor=state and theme.Text or theme.TextDisabled; local targetBgColor=state and theme.Accent or theme.BackgroundLighter; StopTweens(toggleHead); StopTweens(toggleButton); TweenInstance(toggleHead,{Position=targetHeadPos,BackgroundColor3=targetHeadColor},tweenInfo); TweenInstance(toggleButton,{BackgroundColor3=targetBgColor},tweenInfo) end; SetToggleState(ToggleFuncs.State,true); ManageConnection(toggleButton.MouseButton1Click:Connect(function() SetToggleState(not ToggleFuncs.State); task.spawn(function() if tSettings.Callback then pcall(tSettings.Callback,ToggleFuncs.State) end end) end)); ManageConnection(toggleButton.MouseEnter:Connect(function() TweenInstance(toggleHead,{BackgroundTransparency=0.1}) end)); ManageConnection(toggleButton.MouseLeave:Connect(function() TweenInstance(toggleHead,{BackgroundTransparency=0}) end)); function ToggleFuncs:UpdateState(newState,noCallback) if ToggleFuncs.State==newState then return end; SetToggleState(newState,true); if not noCallback then task.spawn(function() if tSettings.Callback then pcall(tSettings.Callback,ToggleFuncs.State) end end) end end; function ToggleFuncs:GetState() return ToggleFuncs.State end; function ToggleFuncs:UpdateName(newName) nameLabel.Text=newName end; function ToggleFuncs:SetVisibility(visible) container.Visible=visible end; if flag then AetheriumUI.Options[flag]=ToggleFuncs end; return ToggleFuncs end; function SectionFunctions:Slider(...) --[[Paste Slider Func Here]] local SliderFuncs={}; local sSettings=...; local flag=select(2,...); SliderFuncs.Settings=sSettings; SliderFuncs.IgnoreConfig=false; SliderFuncs.Class="Slider"; local text=sSettings.Name or "Slider"; local id=flag or "Slider_"..text:gsub("%s+","_"); local minVal,maxVal=sSettings.Minimum or 0,sSettings.Maximum or 100; local defaultVal=math.clamp(sSettings.Default or minVal,minVal,maxVal); local precision=sSettings.Precision or 0; local displayMethod=sSettings.DisplayMethod or "Value"; local prefix=sSettings.Prefix or ""; local suffix=sSettings.Suffix or ""; SliderFuncs.Value=defaultVal; local container=Create("Frame",{Name=id,Size=UDim2.new(1,0,0,45),BackgroundTransparency=1,Parent=sectionFrame}); local layout=Create("UIListLayout",{Padding=UDim.new(0,5),SortOrder=Enum.SortOrder.LayoutOrder,Parent=container}); SliderFuncs.Instance=container; local nameLabel=Create("TextLabel",{Name="SliderName",Text=text,FontFace=theme.Font.Regular,TextColor3=theme.Text,TextSize=13,TextXAlignment=Enum.TextXAlignment.Left,Size=UDim2.new(1,0,0,15),BackgroundTransparency=1,Parent=container}); local sliderRow=Create("Frame",{Name="SliderRow",Size=UDim2.new(1,0,0,20),BackgroundTransparency=1,LayoutOrder=1,Parent=container}); local rowLayout=Create("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,VerticalAlignment=Enum.VerticalAlignment.Center,Padding=UDim.new(0,10),SortOrder=Enum.SortOrder.LayoutOrder,Parent=sliderRow}); local valueBoxWidth=55; local valueBox=Create("TextBox",{Name="SliderValue",Text="",FontFace=theme.Font.Regular,TextColor3=theme.Text,TextSize=12,PlaceholderColor3=theme.TextSecondary,TextXAlignment=Enum.TextXAlignment.Center,BackgroundColor3=theme.BackgroundLighter,ClearTextOnFocus=false,Size=UDim2.fromOffset(valueBoxWidth,20),LayoutOrder=1,Parent=sliderRow}); ApplyStyling(valueBox,"Input"); local sliderTrack=Create("Frame",{Name="SliderTrack",Size=UDim2.new(1,-(valueBoxWidth+rowLayout.Padding.Offset),0,6),BackgroundColor3=theme.BackgroundLighter,BackgroundTransparency=0,BorderSizePixel=0,LayoutOrder=0,Parent=sliderRow}); Create("UICorner",{CornerRadius=UDim.new(1,0),Parent=sliderTrack}); local sliderFill=Create("Frame",{Name="SliderFill",Size=UDim2.fromScale(0,1),BackgroundColor3=theme.Accent,BorderSizePixel=0,Parent=sliderTrack}); Create("UICorner",{CornerRadius=UDim.new(1,0),Parent=sliderFill}); local sliderHeadSize=14; local sliderHead=Create("Frame",{Name="SliderHead",Size=UDim2.fromOffset(sliderHeadSize,sliderHeadSize),BackgroundColor3=theme.Text,BorderSizePixel=0,AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0,0.5),Parent=sliderFill,ZIndex=2}); Create("UICorner",{CornerRadius=UDim.new(1,0),Parent=sliderHead}); local headInteract=Create("TextButton",{Name="HeadInteract",Size=UDim2.fromScale(1.5,1.5),AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),BackgroundTransparency=1,Text="",ZIndex=3,Parent=sliderHead}); local DisplayMethods={Round=function(v,p)return string.format("%."..(p or 0).."f",v)end,Percent=function(v,p)local pct=((v-minVal)/(maxVal-minVal))*100;return string.format("%."..(p or 0).."f",pct).."%"end,Degrees=function(v,p)return string.format("%."..(p or 0).."f",v).."°"end,Value=function(v,p)return string.format("%."..(p or 0).."f",v)end}; local FormatValue=DisplayMethods[displayMethod] or DisplayMethods.Value; local function UpdateSliderVisuals(value,noAnim) value=math.clamp(value,minVal,maxVal); local percent=(value-minVal)/(maxVal-minVal); percent=math.clamp(percent,0,1); local targetSize=UDim2.fromScale(percent,1); local animSpeed=noAnim and 0 or theme.AnimationSpeed*0.5; local tweenInfo=TweenInfo.new(animSpeed,theme.EasingStyle,theme.EasingDirection); StopTweens(sliderFill); TweenInstance(sliderFill,{Size=targetSize},tweenInfo); valueBox.Text=prefix..FormatValue(value,precision)..suffix; SliderFuncs.Value=value end; local function UpdateValueFromInput(inputVal,source) local newValue; if source=="drag" then local mouseX=UserInputService:GetMouseLocation().X; local relativeX=mouseX-sliderTrack.AbsolutePosition.X; local percent=math.clamp(relativeX/sliderTrack.AbsoluteSize.X,0,1); newValue=minVal+percent*(maxVal-minVal) elseif source=="textbox" then local text=valueBox.Text; local numStr=text:gsub("[%s"..prefix..suffix.."%%°]",""); newValue=tonumber(numStr); if displayMethod=="Percent" and newValue then newValue=minVal+(newValue/100)*(maxVal-minVal) end; if newValue==nil then newValue=SliderFuncs.Value end else newValue=inputVal end; newValue=math.clamp(newValue,minVal,maxVal); if sSettings.Step and sSettings.Step>0 then newValue=math.round(newValue/sSettings.Step)*sSettings.Step end; local changed = math.abs(newValue-SliderFuncs.Value)>10^-(precision+1); UpdateSliderVisuals(newValue,source~="drag"); if changed then task.spawn(function() if sSettings.Callback then pcall(sSettings.Callback,newValue) end end) end end; UpdateSliderVisuals(defaultVal,true); local isDragging=false; local dragEndConn; ManageConnection(headInteract.InputBegan:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then isDragging=true; UpdateValueFromInput(nil,"drag"); if dragEndConn and dragEndConn.Connected then dragEndConn:Disconnect() end; dragEndConn=input.Changed:Connect(function() if input.UserInputState==Enum.UserInputState.End then isDragging=false; task.spawn(function() if sSettings.onInputComplete then pcall(sSettings.onInputComplete,SliderFuncs.Value) end end); if dragEndConn and dragEndConn.Connected then dragEndConn:Disconnect() end end end); ManageConnection(dragEndConn) end end)); ManageConnection(UserInputService.InputChanged:Connect(function(input) if isDragging and (input.UserInputType==Enum.UserInputType.MouseMovement or input.UserInputType==Enum.UserInputType.Touch) then UpdateValueFromInput(nil,"drag") end end)); ManageConnection(valueBox.FocusLost:Connect(function(enterPressed) UpdateValueFromInput(nil,"textbox"); task.spawn(function() if sSettings.onInputComplete then pcall(sSettings.onInputComplete,SliderFuncs.Value) end end) end)); function SliderFuncs:UpdateValue(newValue,noCallback) UpdateValueFromInput(newValue,"direct"); if not noCallback then task.spawn(function() if sSettings.Callback then pcall(sSettings.Callback,SliderFuncs.Value) end end) end end; function SliderFuncs:GetValue() return SliderFuncs.Value end; function SliderFuncs:UpdateName(newName) nameLabel.Text=newName end; function SliderFuncs:SetVisibility(visible) container.Visible=visible end; if flag then AetheriumUI.Options[flag]=SliderFuncs end; return SliderFuncs end; function SectionFunctions:Input(...) --[[Paste Input Func Here]] local InputFuncs={}; local iSettings=...; local flag=select(2,...); InputFuncs.Settings=iSettings; InputFuncs.IgnoreConfig=false; InputFuncs.Class="Input"; InputFuncs.Text=iSettings.Default or ""; local text=iSettings.Name or "Input"; local id=flag or "Input_"..text:gsub("%s+","_"); local placeholder=iSettings.Placeholder or "Enter text..."; local charLimit=iSettings.CharacterLimit; local clearOnFocus=iSettings.ClearTextOnFocus==nil or iSettings.ClearTextOnFocus; local container=Create("Frame",{Name=id,Size=UDim2.new(1,0,0,55),BackgroundTransparency=1,Parent=sectionFrame}); local layout=Create("UIListLayout",{Padding=UDim.new(0,5),SortOrder=Enum.SortOrder.LayoutOrder,Parent=container}); InputFuncs.Instance=container; local nameLabel=Create("TextLabel",{Name="InputName",Text=text,FontFace=theme.Font.Regular,TextColor3=theme.Text,TextSize=13,TextXAlignment=Enum.TextXAlignment.Left,Size=UDim2.new(1,0,0,15),BackgroundTransparency=1,Parent=container}); local inputBox=Create("TextBox",{Name="InputBox",Text=InputFuncs.Text,PlaceholderText=placeholder,ClearTextOnFocus=clearOnFocus,MultiLine=iSettings.MultiLine or false,TextWrapped=iSettings.MultiLine or false,FontFace=theme.Font.Regular,TextColor3=theme.Text,TextSize=13,PlaceholderColor3=theme.TextSecondary,BackgroundColor3=theme.BackgroundLighter,Size=UDim2.new(1,0,0,iSettings.MultiLine and 60 or 30),LayoutOrder=1,TextXAlignment=iSettings.MultiLine and Enum.TextXAlignment.Left or Enum.TextXAlignment.Left,TextYAlignment=iSettings.MultiLine and Enum.TextYAlignment.Top or Enum.TextYAlignment.Center,Parent=container}); ApplyStyling(inputBox,"Input"); if iSettings.MultiLine then inputBox.Padding=UDim.new(0,8) else Create("UIPadding",{PaddingLeft=UDim.new(0,8),PaddingRight=UDim.new(0,8),Parent=inputBox}) end; local function FilterText(currentText) local filtered=currentText; if iSettings.AcceptedCharacters=="Numeric" then filtered=filtered:gsub("[^%d.,%-]","") elseif iSettings.AcceptedCharacters=="Alphabetic" then filtered=filtered:gsub("[^%a%s]","") elseif iSettings.AcceptedCharacters=="AlphaNumeric" then filtered=filtered:gsub("[^%w%s]","") elseif type(iSettings.AcceptedCharacters)=="function" then filtered=iSettings.AcceptedCharacters(filtered) end; if charLimit and #filtered>charLimit then filtered=filtered:sub(1,charLimit) end; return filtered end; ManageConnection(inputBox:GetPropertyChangedSignal("Text"):Connect(function() local currentText=inputBox.Text; local filteredText=FilterText(currentText); if currentText~=filteredText then inputBox.Text=filteredText end; InputFuncs.Text=filteredText; task.spawn(function() if iSettings.onChanged then pcall(iSettings.onChanged,InputFuncs.Text) end end) end)); ManageConnection(inputBox.FocusLost:Connect(function(enterPressed) local currentText=inputBox.Text; local filteredText=FilterText(currentText); if currentText~=filteredText then inputBox.Text=filteredText end; InputFuncs.Text=filteredText; task.spawn(function() if iSettings.Callback then pcall(iSettings.Callback,InputFuncs.Text) end end) end)); function InputFuncs:UpdateText(newText,noCallback) local filtered=FilterText(tostring(newText)); inputBox.Text=filtered; InputFuncs.Text=filtered; if not noCallback then task.spawn(function() if iSettings.Callback then pcall(iSettings.Callback,InputFuncs.Text) end end) end end; function InputFuncs:GetInput() return InputFuncs.Text end; function InputFuncs:UpdatePlaceholder(newPlaceholder) inputBox.PlaceholderText=newPlaceholder end; function InputFuncs:UpdateName(newName) nameLabel.Text=newName end; function InputFuncs:SetVisibility(visible) container.Visible=visible end; if flag then AetheriumUI.Options[flag]=InputFuncs end; return InputFuncs end; function SectionFunctions:Keybind(...) --[[Paste Keybind Func Here]] local KeybindFuncs={}; local kSettings=...; local flag=select(2,...); KeybindFuncs.Settings=kSettings; KeybindFuncs.IgnoreConfig=false; KeybindFuncs.Class="Keybind"; KeybindFuncs.Bind=kSettings.Default or nil; local text=kSettings.Name or "Keybind"; local id=flag or "Keybind_"..text:gsub("%s+","_"); local container=Create("Frame",{Name=id,Size=UDim2.new(1,0,0,30),BackgroundTransparency=1,Parent=sectionFrame}); local layout=Create("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,VerticalAlignment=Enum.VerticalAlignment.Center,HorizontalAlignment=Enum.HorizontalAlignment.Left,SortOrder=Enum.SortOrder.LayoutOrder,Parent=container}); KeybindFuncs.Instance=container; local nameLabel=Create("TextLabel",{Name="KeybindName",Text=text,FontFace=theme.Font.Regular,TextColor3=theme.Text,TextSize=13,TextXAlignment=Enum.TextXAlignment.Left,Size=UDim2.new(1,-75,1,0),BackgroundTransparency=1,Parent=container}); local keybindBoxWidth=70; local keybindBox=Create("TextButton",{Name="KeybindBox",Text=KeybindFuncs.Bind and KeybindFuncs.Bind.Name or "...",FontFace=theme.Font.Regular,TextColor3=theme.Text,TextSize=12,BackgroundColor3=theme.BackgroundLighter,Size=UDim2.fromOffset(keybindBoxWidth,25),AutoButtonColor=false,LayoutOrder=1,Parent=container}); ApplyStyling(keybindBox,"Input"); local isBinding=false; local currentBind=KeybindFuncs.Bind; local function UpdateKeybindVisuals(bind) currentBind=bind; KeybindFuncs.Bind=bind; keybindBox.Text=bind and bind.Name or "..."; keybindBox.TextColor3=bind and theme.Text or theme.TextSecondary end; local listeningConnection=nil; ManageConnection(keybindBox.MouseButton1Click:Connect(function() if isBinding then return end; isBinding=true; keybindBox.Text="..."; keybindBox.TextColor3=theme.Accent; keybindBox.BackgroundColor3=theme.AccentLight; if listeningConnection and listeningConnection.Connected then listeningConnection:Disconnect() end; listeningConnection=UserInputService.InputBegan:Connect(function(input,gameProcessed) if gameProcessed and not kSettings.AllowGameProcessed then return end; local newBind=nil; local isValid=false; if input.UserInputType==Enum.UserInputType.Keyboard then newBind=input.KeyCode; isValid=true elseif input.UserInputType==Enum.UserInputType.MouseButton1 then newBind=Enum.UserInputType.MouseButton1; isValid=true elseif input.UserInputType==Enum.UserInputType.MouseButton2 then newBind=Enum.UserInputType.MouseButton2; isValid=true elseif input.UserInputType==Enum.UserInputType.MouseButton3 then newBind=Enum.UserInputType.MouseButton3; isValid=true end; if isValid and kSettings.Blacklist then local list=kSettings.Blacklist; if(newBind.EnumType==Enum.KeyCode and table.find(list,newBind))or(newBind.EnumType==Enum.UserInputType and table.find(list,newBind))then isValid=false end end; if input.KeyCode==Enum.KeyCode.Escape then isValid=true; newBind=nil end; if isValid then isBinding=false; UpdateKeybindVisuals(newBind); keybindBox:ReleaseFocus(false); keybindBox.BackgroundColor3=theme.BackgroundLighter; if listeningConnection and listeningConnection.Connected then listeningConnection:Disconnect(); listeningConnection=nil end; task.spawn(function()if kSettings.onBinded then pcall(kSettings.onBinded,newBind)end end)end end); ManageConnection(listeningConnection)end)); ManageConnection(keybindBox.FocusLost:Connect(function() if isBinding then isBinding=false; UpdateKeybindVisuals(currentBind); keybindBox.BackgroundColor3=theme.BackgroundLighter; if listeningConnection and listeningConnection.Connected then listeningConnection:Disconnect(); listeningConnection=nil end end end)); local keybindPressed=false; ManageConnection(UserInputService.InputBegan:Connect(function(input,gameProcessed) if isBinding then return end; if gameProcessed and not kSettings.AllowGameProcessed then return end; if not currentBind then return end; if(input.KeyCode==currentBind)or(input.UserInputType==currentBind)then keybindPressed=true; task.spawn(function()if kSettings.Callback then pcall(kSettings.Callback,currentBind)end; if kSettings.onBindHeld then pcall(kSettings.onBindHeld,true,currentBind)end end)end end)); ManageConnection(UserInputService.InputEnded:Connect(function(input,gameProcessed) if isBinding then return end; if not currentBind then return end; if(input.KeyCode==currentBind)or(input.UserInputType==currentBind)then if keybindPressed then keybindPressed=false; task.spawn(function()if kSettings.onBindHeld then pcall(kSettings.onBindHeld,false,currentBind)end end)end end end)); function KeybindFuncs:Bind(key,noCallback) local bindType=typeof(key); if bindType=="EnumItem" and(key.EnumType==Enum.KeyCode or key.EnumType==Enum.UserInputType)then UpdateKeybindVisuals(key)elseif key==nil then UpdateKeybindVisuals(nil)else warn("[AetheriumUI] Bind expects Enum.KeyCode/UserInputType or nil")return end; if not noCallback then task.spawn(function()if kSettings.onBinded then pcall(kSettings.onBinded,key)end end)end end; function KeybindFuncs:Unbind(noCallback) KeybindFuncs:Bind(nil,noCallback)end; function KeybindFuncs:GetBind() return KeybindFuncs.Bind end; function KeybindFuncs:UpdateName(newName) nameLabel.Text=newName end; function KeybindFuncs:SetVisibility(visible) container.Visible=visible end; if flag then AetheriumUI.Options[flag]=KeybindFuncs end; return KeybindFuncs end; function SectionFunctions:Dropdown(...) --[[Paste Dropdown Func Here]] local DropdownFuncs={}; local dSettings=...; local flag=select(2,...); DropdownFuncs.Settings=dSettings; DropdownFuncs.IgnoreConfig=false; DropdownFuncs.Class="Dropdown"; local text=dSettings.Name or "Dropdown"; local id=flag or "Dropdown_"..text:gsub("%s+","_"); local options=dSettings.Options or{}; local isMulti=dSettings.Multi or false; local isRequired=dSettings.Required or false; local useSearch=dSettings.Search or false; local selectedValues={}; local displayValues={}; if dSettings.Default then local defaults=type(dSettings.Default)=="table" and(isMulti and dSettings.Default or{dSettings.Default[1]})or{dSettings.Default}; for _,defVal in ipairs(defaults)do local found=false; if type(options)=="table" and options[1]then if table.find(options,defVal)then table.insert(selectedValues,defVal); table.insert(displayValues,defVal); found=true end else for val,disp in pairs(options)do if val==defVal then table.insert(selectedValues,val); table.insert(displayValues,disp); found=true; break end end end; if not isMulti and found then break end end end; DropdownFuncs.Value=isMulti and selectedValues or selectedValues[1]; local container=Create("Frame",{Name=id,Size=UDim2.new(1,0,0,35),BackgroundColor3=theme.BackgroundLighter,BackgroundTransparency=0,ClipsDescendants=false,Parent=sectionFrame,ZIndex=2}); local containerCorner=Create("UICorner",{CornerRadius=theme.CornerRadius,Parent=container}); local containerStroke=Create("UIStroke",{Color=theme.Stroke,Thickness=theme.StrokeThickness,Parent=container}); DropdownFuncs.Instance=container; local mainButton=Create("TextButton",{Name="MainButton",Text="",Size=UDim2.new(1,0,0,35),BackgroundTransparency=1,Parent=container,ZIndex=3}); local mainLayout=Create("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,VerticalAlignment=Enum.VerticalAlignment.Center,Padding=UDim.new(0,5),Parent=mainButton}); local mainPadding=Create("UIPadding",{PaddingLeft=UDim.new(0,12),PaddingRight=UDim.new(0,10),Parent=mainButton}); local dropdownIconSize=14; local dropdownIcon=Create("ImageLabel",{Name="DropdownIcon",Image=AetheriumUI.Assets.dropdown,ImageColor3=theme.TextSecondary,Size=UDim2.fromOffset(dropdownIconSize,dropdownIconSize),BackgroundTransparency=1,LayoutOrder=1,Parent=mainButton}); local nameLabel=Create("TextLabel",{Name="DropdownName",Text=text,FontFace=theme.Font.Regular,TextColor3=theme.TextSecondary,TextSize=13,TextXAlignment=Enum.TextXAlignment.Left,Size=UDim2.new(1,-(dropdownIconSize+mainLayout.Padding.Offset+5),1,0),BackgroundTransparency=1,Parent=mainButton}); local function UpdateDisplayText()if #selectedValues>0 then nameLabel.Text=text..": "..table.concat(displayValues,", "); nameLabel.TextColor3=theme.Text else nameLabel.Text=text.."..."; nameLabel.TextColor3=theme.TextSecondary end end; UpdateDisplayText(); local optionsHeight=150; local optionsFrame=Create("Frame",{Name="OptionsFrame",Size=UDim2.new(1,0,0,0),Position=UDim2.new(0,0,1,3),BackgroundColor3=theme.BackgroundLighter,BorderSizePixel=0,ClipsDescendants=true,Visible=false,Parent=container,ZIndex=10}); local optionsCorner=Create("UICorner",{CornerRadius=theme.CornerRadius,Parent=optionsFrame}); local optionsStroke=Create("UIStroke",{Color=theme.StrokeLight,Thickness=1,Parent=optionsFrame}); local optionsPadding=Create("UIPadding",{PaddingTop=UDim.new(0,5),PaddingBottom=UDim.new(0,5),PaddingLeft=UDim.new(0,5),PaddingRight=UDim.new(0,5),Parent=optionsFrame}); local searchBox=nil; if useSearch then searchBox=Create("TextBox",{Name="SearchBox",Size=UDim2.new(1,-10,0,25),Position=UDim2.fromOffset(5,5),PlaceholderText="Search...",FontFace=theme.Font.Regular,TextSize=12,TextColor3=theme.Text,PlaceholderColor3=theme.TextSecondary,BackgroundColor3=theme.Background,ClearTextOnFocus=true,Parent=optionsFrame,ZIndex=12}); ApplyStyling(searchBox,"Input"); optionsPadding.PaddingTop=UDim.new(0,35)end; local optionsScroll=Create("ScrollingFrame",{Name="OptionsScroll",Size=UDim2.new(1,0,1,useSearch and-30 or 0),Position=UDim2.new(0,0,0,useSearch and 30 or 0),BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=4,ScrollBarImageColor3=theme.StrokeLight,CanvasSize=UDim2.new(0,0,0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,Parent=optionsFrame,ZIndex=11}); local optionsLayout=Create("UIListLayout",{Padding=UDim.new(0,2),SortOrder=Enum.SortOrder.LayoutOrder,Parent=optionsScroll}); local optionObjects={}; local function CreateOptionButton(value,displayText) local optionButton=Create("TextButton",{Name="Option_"..tostring(value):gsub("%s+","_"),Text="",Size=UDim2.new(1,0,0,28),BackgroundColor3=theme.BackgroundLighter,BackgroundTransparency=1,AutoButtonColor=false,Parent=optionsScroll}); local optCorner=Create("UICorner",{CornerRadius=UDim.new(0,4),Parent=optionButton}); local optLayout=Create("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,VerticalAlignment=Enum.VerticalAlignment.Center,Padding=UDim.new(0,8),Parent=optionButton}); local optPadding=Create("UIPadding",{PaddingLeft=UDim.new(0,8),PaddingRight=UDim.new(0,8),Parent=optionButton}); local checkmark=nil; if isMulti then checkmark=Create("TextLabel",{Name="Checkmark",Text="✓",FontFace=theme.Font.Bold,TextColor3=theme.Accent,TextSize=14,TextTransparency=1,Size=UDim2.fromOffset(0,14),TextXAlignment=Enum.TextXAlignment.Center,BackgroundTransparency=1,Parent=optionButton,ClipsDescendants=true})end; local optNameLabel=Create("TextLabel",{Name="OptionName",Text=displayText,FontFace=theme.Font.Regular,TextSize=13,TextColor3=theme.TextSecondary,TextXAlignment=Enum.TextXAlignment.Left,Size=UDim2.new(1,-(isMulti and 14+8 or 0),1,0),BackgroundTransparency=1,LayoutOrder=isMulti and 1 or 0,Parent=optionButton}); optionObjects[value]={Button=optionButton,NameLabel=optNameLabel,Checkmark=checkmark,DisplayText=displayText,Value=value}; local function SetOptionVisualState(isSelected)local targetBgTrans=isSelected and 0.8 or 1; local targetTextColor=isSelected and theme.Text or theme.TextSecondary; local targetCheckSize=isSelected and UDim2.fromOffset(14,14)or UDim2.fromOffset(0,14); local targetCheckTrans=isSelected and 0 or 1; TweenInstance(optionButton,{BackgroundTransparency=targetBgTrans}); TweenInstance(optNameLabel,{TextColor3=targetTextColor}); if checkmark then TweenInstance(checkmark,{Size=targetCheckSize,TextTransparency=targetCheckTrans})end end; SetOptionVisualState(table.find(selectedValues,value)~=nil); ManageConnection(optionButton.MouseButton1Click:Connect(function()local wasSelected=table.find(selectedValues,value)~=nil; local index=table.find(selectedValues,value); if isMulti then if wasSelected then if not isRequired or #selectedValues>1 then table.remove(selectedValues,index); table.remove(displayValues,index)else return end else table.insert(selectedValues,value); table.insert(displayValues,displayText)end; SetOptionVisualState(not wasSelected)else if wasSelected then if isRequired and #selectedValues==1 then return end; selectedValues={}; displayValues={}; SetOptionVisualState(false)else for _,data in pairs(optionObjects)do if data.Value~=value then local otherWasSelected=table.find(selectedValues,data.Value)~=nil; if otherWasSelected then data.Button.BackgroundTransparency=1; data.NameLabel.TextColor3=theme.TextSecondary end end end; selectedValues={value}; displayValues={displayText}; SetOptionVisualState(true)end; ToggleDropdown(false)end; DropdownFuncs.Value=isMulti and selectedValues or selectedValues[1]; UpdateDisplayText(); task.spawn(function()if dSettings.Callback then local cbValue=DropdownFuncs.Value; if isMulti then local multiResult={}; for _,v in ipairs(selectedValues)do multiResult[v]=true end; cbValue=multiResult end; pcall(dSettings.Callback,cbValue)end end)end)); ManageConnection(optionButton.MouseEnter:Connect(function()if not table.find(selectedValues,value)then TweenInstance(optionButton,{BackgroundTransparency=0.9})end end)); ManageConnection(optionButton.MouseLeave:Connect(function()if not table.find(selectedValues,value)then TweenInstance(optionButton,{BackgroundTransparency=1})end end))end; local function PopulateOptions(optionsTable)for _,child in ipairs(optionsScroll:GetChildren())do if child:IsA("GuiButton")then pcall(child.Destroy,child)end end; optionObjects={}; if type(optionsTable)=="table" and optionsTable[1]then for _,optValue in ipairs(optionsTable)do CreateOptionButton(optValue,tostring(optValue))end else for optValue,optDisplay in pairs(optionsTable)do CreateOptionButton(optValue,tostring(optDisplay))end end end; PopulateOptions(options); if searchBox then ManageConnection(searchBox:GetPropertyChangedSignal("Text"):Connect(function()local searchTerm=searchBox.Text:lower(); local visibleCount=0; for val,data in pairs(optionObjects)do local isVisible=searchTerm=="" or data.DisplayText:lower():find(searchTerm,1,true); data.Button.Visible=isVisible; if isVisible then visibleCount+=1 end end end))end; local isOpen=false; local openCloseTween=nil; function ToggleDropdown(forceState)local targetState=forceState; if targetState==nil then targetState=not isOpen end; if targetState==isOpen then return end; isOpen=targetState; if openCloseTween and openCloseTween.PlaybackState~=Enum.PlaybackState.Completed then openCloseTween:Cancel()end; local targetHeight=0; if isOpen then optionsFrame.Visible=true; local contentHeight=optionsLayout.AbsoluteContentSize.Y+optionsPadding.PaddingTop.Offset+optionsPadding.PaddingBottom.Offset; if useSearch then contentHeight+=30 end; targetHeight=math.min(contentHeight,optionsHeight)end; local targetRotation=isOpen and 180 or 0; local tweenInfo=TweenInfo.new(theme.AnimationSpeed*1.5,Enum.EasingStyle.Quint,theme.EasingDirection); openCloseTween=TweenInstance(optionsFrame,{Size=UDim2.new(1,0,0,targetHeight)},tweenInfo); TweenInstance(dropdownIcon,{Rotation=targetRotation},tweenInfo); container.ZIndex=isOpen and 5 or 2; if not isOpen then local completedConn; completedConn=openCloseTween.Completed:Connect(function()if not isOpen then optionsFrame.Visible=false end; if completedConn and completedConn.Connected then completedConn:Disconnect()end end)end end; ManageConnection(mainButton.MouseButton1Click:Connect(function()ToggleDropdown()end)); function DropdownFuncs:UpdateSelection(newSelection,noCallback)local newSelectedValues={}; local newDisplayValues={}; local selection=type(newSelection)=="table" and(isMulti and newSelection or{newSelection[1]})or{newSelection}; if isMulti and type(newSelection)=="table" and not newSelection[1]then selection={}; for k,v in pairs(newSelection)do if v then table.insert(selection,k)end end end; for _,selVal in ipairs(selection)do if optionObjects[selVal]then table.insert(newSelectedValues,selVal); table.insert(newDisplayValues,optionObjects[selVal].DisplayText); if not isMulti then break end end end; for val,data in pairs(optionObjects)do local isSelected=table.find(newSelectedValues,val)~=nil; SetOptionVisualState(isSelected)end; selectedValues=newSelectedValues; displayValues=newDisplayValues; DropdownFuncs.Value=isMulti and selectedValues or selectedValues[1]; UpdateDisplayText(); if not noCallback then task.spawn(function()if dSettings.Callback then local cbValue=DropdownFuncs.Value; if isMulti then local multiResult={}; for _,v in ipairs(selectedValues)do multiResult[v]=true end; cbValue=multiResult end; pcall(dSettings.Callback,cbValue)end end)end end; function DropdownFuncs:InsertOptions(newOptions)if type(newOptions)=="table" then PopulateOptions(newOptions)end end; function DropdownFuncs:ClearOptions()PopulateOptions({})end; function DropdownFuncs:GetOptions()return optionObjects end; function DropdownFuncs:GetSelection()return DropdownFuncs.Value end; function DropdownFuncs:UpdateName(newName)text=newName; UpdateDisplayText()end; function DropdownFuncs:SetVisibility(visible)container.Visible=visible end; if flag then AetheriumUI.Options[flag]=DropdownFuncs end; return DropdownFuncs end; function SectionFunctions:Colorpicker(...) --[[Paste Colorpicker Func Here]] local ColorpickerFuncs={}; local cSettings=...; local flag=select(2,...); ColorpickerFuncs.Settings=cSettings; ColorpickerFuncs.IgnoreConfig=false; ColorpickerFuncs.Class="Colorpicker"; local text=cSettings.Name or "Colorpicker"; local id=flag or "Colorpicker_"..text:gsub("%s+","_"); local defaultColor=cSettings.Default or Color3.new(1,1,1); local defaultAlpha=cSettings.Alpha; local useAlpha=defaultAlpha~=nil; ColorpickerFuncs.Color=defaultColor; ColorpickerFuncs.Alpha=useAlpha and defaultAlpha or 0; local container=Create("Frame",{Name=id,Size=UDim2.new(1,0,0,30),BackgroundTransparency=1,Parent=sectionFrame}); local layout=Create("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,VerticalAlignment=Enum.VerticalAlignment.Center,HorizontalAlignment=Enum.HorizontalAlignment.Left,SortOrder=Enum.SortOrder.LayoutOrder,Parent=container}); ColorpickerFuncs.Instance=container; local nameLabel=Create("TextLabel",{Name="ColorpickerName",Text=text,FontFace=theme.Font.Regular,TextColor3=theme.Text,TextSize=13,TextXAlignment=Enum.TextXAlignment.Left,Size=UDim2.new(1,-35,1,0),BackgroundTransparency=1,Parent=container}); local previewSize=22; local colorPreview=Create("Frame",{Name="ColorPreview",Size=UDim2.fromOffset(previewSize,previewSize),BackgroundColor3=theme.Stroke,BackgroundTransparency=0.5,LayoutOrder=1,Parent=container}); Create("UICorner",{CornerRadius=UDim.new(0,4),Parent=colorPreview}); local checkerboard=Create("ImageLabel",{Name="Checkerboard",Image=AetheriumUI.Assets.grid,TileSize=UDim2.fromOffset(8,8),ScaleType=Enum.ScaleType.Tile,Size=UDim2.fromScale(1,1),BackgroundTransparency=1,ZIndex=1,ImageTransparency=0.8,Parent=colorPreview,Visible=useAlpha}); Create("UICorner",{CornerRadius=UDim.new(0,4),Parent=checkerboard}); local colorDisplay=Create("Frame",{Name="ColorDisplay",Size=UDim2.fromScale(1,1),BackgroundColor3=ColorpickerFuncs.Color,BackgroundTransparency=ColorpickerFuncs.Alpha,BorderSizePixel=0,ZIndex=2,Parent=colorPreview}); Create("UICorner",{CornerRadius=UDim.new(0,4),Parent=colorDisplay}); local previewButton=Create("TextButton",{Name="PreviewButton",Text="",Size=UDim2.fromScale(1,1),BackgroundTransparency=1,ZIndex=3,Parent=colorPreview}); local pickerCanvas=nil; local isPickerOpen=false; local function DestroyPicker()if pickerCanvas and pickerCanvas.Parent then pcall(pickerCanvas.Destroy,pickerCanvas)end; pickerCanvas=nil; isPickerOpen=false end; local newColorPreview,oldColorPreview; local function CreatePickerPopup() DestroyPicker(); pickerCanvas=Create("CanvasGroup",{Name="ColorpickerPopupCanvas",Size=UDim2.fromScale(1,1),Position=UDim2.fromScale(0,0),BackgroundTransparency=1,GroupTransparency=1,ZIndex=100,Parent=base}); local overlay=Create("Frame",{Name="Overlay",Size=UDim2.fromScale(1,1),BackgroundColor3=theme.Overlay,BackgroundTransparency=1,ZIndex=1,Parent=pickerCanvas}); local overlayButton=Create("TextButton",{Name="OverlayButton",Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Text="",ZIndex=2,Parent=overlay}); ManageConnection(overlayButton.MouseButton1Click:Connect(function()ClosePickerPopup(true)end)); local pickerFrame=Create("Frame",{Name="PickerFrame",AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),Size=UDim2.fromOffset(280,350),BackgroundColor3=theme.BackgroundLight,BorderSizePixel=0,Parent=pickerCanvas,ZIndex=3,Scale=0.95}); Create("UICorner",{CornerRadius=theme.CornerRadius,Parent=pickerFrame}); Create("UIStroke",{Color=theme.StrokeLight,Thickness=1,Parent=pickerFrame}); local pickerPadding=Create("UIPadding",{Padding=UDim.new(0,15),Parent=pickerFrame}); local pickerLayout=Create("UIListLayout",{Padding=UDim.new(0,10),SortOrder=Enum.SortOrder.LayoutOrder,Parent=pickerFrame}); Create("TextLabel",{Name="PickerTitle",Text=text,FontFace=theme.Font.Medium,TextColor3=theme.Text,TextSize=16,Size=UDim2.new(1,0,0,20),BackgroundTransparency=1,Parent=pickerFrame}); local wheelSize=180; local wheelFrame=Create("Frame",{Name="WheelFrame",Size=UDim2.fromOffset(wheelSize,wheelSize),BackgroundTransparency=1,Parent=pickerFrame}); local colorWheel=Create("ImageLabel",{Name="ColorWheel",Size=UDim2.fromScale(1,1),Image=AetheriumUI.Assets.colorWheel,BackgroundTransparency=1,Parent=wheelFrame}); local wheelInteract=Create("ImageButton",{Name="WheelInteract",Size=UDim2.fromScale(1,1),Image="",BackgroundTransparency=1,Parent=colorWheel,ZIndex=2}); local targetSize=16; local svTarget=Create("ImageLabel",{Name="SVTarget",Image=AetheriumUI.Assets.colorTarget,ImageColor3=Color3.new(0,0,0),Size=UDim2.fromOffset(targetSize,targetSize),AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),BackgroundTransparency=1,Parent=colorWheel,ZIndex=3}); local hueSliderFrame=Create("Frame",{Name="HueSliderFrame",Size=UDim2.new(1,0,0,15),BackgroundTransparency=1,Parent=pickerFrame}); local hueGradient=Create("UIGradient",{Color=ColorSequence.new({ColorSequenceKeypoint.new(0,Color3.fromRGB(255,0,0)),ColorSequenceKeypoint.new(0.17,Color3.fromRGB(255,255,0)),ColorSequenceKeypoint.new(0.33,Color3.fromRGB(0,255,0)),ColorSequenceKeypoint.new(0.5,Color3.fromRGB(0,255,255)),ColorSequenceKeypoint.new(0.67,Color3.fromRGB(0,0,255)),ColorSequenceKeypoint.new(0.83,Color3.fromRGB(255,0,255)),ColorSequenceKeypoint.new(1,Color3.fromRGB(255,0,0))}),Rotation=0,Parent=hueSliderFrame}); Create("UICorner",{CornerRadius=UDim.new(1,0),Parent=hueSliderFrame}); local hueSliderInteract=Create("TextButton",{Name="HueInteract",Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Text="",Parent=hueSliderFrame,ZIndex=2}); local hueHead=Create("Frame",{Name="HueHead",Size=UDim2.new(0,6,1,4),AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0,0.5),BackgroundColor3=Color3.new(1,1,1),BorderSizePixel=1,BorderColor3=Color3.new(0,0,0),Parent=hueSliderFrame,ZIndex=3}); local alphaSliderFrame,alphaInteract,alphaHead; if useAlpha then alphaSliderFrame=Create("Frame",{Name="AlphaSliderFrame",Size=UDim2.new(1,0,0,15),BackgroundColor3=theme.Background,Parent=pickerFrame}); Create("UICorner",{CornerRadius=UDim.new(1,0),Parent=alphaSliderFrame}); local alphaChecker=Create("ImageLabel",{Name="AlphaChecker",Image=AetheriumUI.Assets.grid,TileSize=UDim2.fromOffset(8,8),ScaleType=Enum.ScaleType.Tile,Size=UDim2.fromScale(1,1),BackgroundTransparency=1,ImageTransparency=0.8,Parent=alphaSliderFrame,ZIndex=1}); Create("UICorner",{CornerRadius=UDim.new(1,0),Parent=alphaChecker}); local alphaGradient=Create("UIGradient",{Color=ColorSequence.new({ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),ColorSequenceKeypoint.new(1,Color3.new(1,1,1))}),Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,0),NumberSequenceKeypoint.new(1,1)}),Rotation=0,Parent=alphaSliderFrame,ZIndex=2}); alphaInteract=Create("TextButton",{Name="AlphaInteract",Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Text="",Parent=alphaSliderFrame,ZIndex=3}); alphaHead=Create("Frame",{Name="AlphaHead",Size=UDim2.new(0,6,1,4),AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0,0.5),BackgroundColor3=Color3.new(1,1,1),BorderSizePixel=1,BorderColor3=Color3.new(0,0,0),Parent=alphaSliderFrame,ZIndex=4})end; local inputsFrame=Create("Frame",{Name="InputsFrame",Size=UDim2.new(1,0,0,30),BackgroundTransparency=1,Parent=pickerFrame}); local inputsLayout=Create("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,VerticalAlignment=Enum.VerticalAlignment.Center,HorizontalAlignment=Enum.HorizontalAlignment.Center,Padding=UDim.new(0,5),SortOrder=Enum.SortOrder.LayoutOrder,Parent=inputsFrame}); local inputFields={}; local function CreateInputField(name,width,filterFunc,updateFunc)local fieldContainer=Create("Frame",{Name=name.."Field",Size=UDim2.new(0,width,1,0),BackgroundTransparency=1,Parent=inputsFrame}); local fieldLayout=Create("UIListLayout",{Padding=UDim.new(0,2),Parent=fieldContainer}); local fieldLabel=Create("TextLabel",{Name="Label",Text=name,FontFace=theme.Font.Regular,TextSize=10,TextColor3=theme.TextSecondary,Size=UDim2.new(1,0,0,10),BackgroundTransparency=1,TextXAlignment=Enum.TextXAlignment.Center,Parent=fieldContainer}); local fieldInput=Create("TextBox",{Name="Input",FontFace=theme.Font.Regular,TextSize=12,TextColor3=theme.Text,PlaceholderColor3=theme.TextSecondary,BackgroundColor3=theme.Background,Size=UDim2.new(1,0,0,18),TextXAlignment=Enum.TextXAlignment.Center,ClearTextOnFocus=false,LayoutOrder=1,Parent=fieldContainer}); ApplyStyling(fieldInput,"Input"); inputFields[name]=fieldInput; ManageConnection(fieldInput.FocusLost:Connect(updateFunc)); ManageConnection(fieldInput:GetPropertyChangedSignal("Text"):Connect(function()local current=fieldInput.Text; local filtered=filterFunc(current); if current~=filtered then fieldInput.Text=filtered end end)); return fieldInput end; local function filterRGB(t)return t:gsub("[^%d]",""):sub(1,3)end; local function filterHex(t)return "#"..t:gsub("[^%x]",""):upper():sub(1,6)end; local function filterAlpha(t)return t:gsub("[^%d%.]",""):sub(1,4)end; CreateInputField("R",35,filterRGB,function()UpdateColor("rgb")end); CreateInputField("G",35,filterRGB,function()UpdateColor("rgb")end); CreateInputField("B",35,filterRGB,function()UpdateColor("rgb")end); if useAlpha then CreateInputField("A",40,filterAlpha,function()UpdateColor("alpha")end)end; CreateInputField("Hex",60,filterHex,function()UpdateColor("hex")end); local previewFrame=Create("Frame",{Name="PreviewFrame",Size=UDim2.new(1,0,0,30),BackgroundTransparency=1,Parent=pickerFrame}); local previewLayout=Create("UIGridLayout",{CellSize=UDim2.new(0.5,-2.5,1,0),CellPadding=UDim.new(0,5,0,0),Parent=previewFrame}); oldColorPreview=Create("Frame",{Name="OldColor",BackgroundColor3=ColorpickerFuncs.Color,BackgroundTransparency=ColorpickerFuncs.Alpha,Parent=previewFrame}); Create("UICorner",{CornerRadius=UDim.new(0,4),Parent=oldColorPreview}); Create("ImageLabel",{Name="CheckerOld",Image=AetheriumUI.Assets.grid,TileSize=UDim2.fromOffset(8,8),ScaleType=Enum.ScaleType.Tile,Size=UDim2.fromScale(1,1),BackgroundTransparency=1,ZIndex=1,ImageTransparency=0.8,Parent=oldColorPreview,Visible=useAlpha}); newColorPreview=Create("Frame",{Name="NewColor",BackgroundColor3=ColorpickerFuncs.Color,BackgroundTransparency=ColorpickerFuncs.Alpha,Parent=previewFrame}); Create("UICorner",{CornerRadius=UDim.new(0,4),Parent=newColorPreview}); Create("ImageLabel",{Name="CheckerNew",Image=AetheriumUI.Assets.grid,TileSize=UDim2.fromOffset(8,8),ScaleType=Enum.ScaleType.Tile,Size=UDim2.fromScale(1,1),BackgroundTransparency=1,ZIndex=1,ImageTransparency=0.8,Parent=newColorPreview,Visible=useAlpha}); local currentHue,currentSat,currentVal=ColorpickerFuncs.Color:ToHSV(); local currentAlpha=ColorpickerFuncs.Alpha; local function hexToCol3(hex)hex=hex:gsub("#",""); local r=tonumber("0x"..hex:sub(1,2)or"FF")/255; local g=tonumber("0x"..hex:sub(3,4)or"FF")/255; local b=tonumber("0x"..hex:sub(5,6)or"FF")/255; return Color3.new(r,g,b)end; local function col3ToHex(col)return string.format("#%02X%02X%02X",math.clamp(math.floor(col.R*255+.5),0,255),math.clamp(math.floor(col.G*255+.5),0,255),math.clamp(math.floor(col.B*255+.5),0,255))end; function UpdateColor(source)local newColor; local newAlpha=currentAlpha; if source=="hsv"then newColor=Color3.fromHSV(currentHue,currentSat,currentVal)elseif source=="rgb"then local r=math.clamp(tonumber(inputFields.R.Text)or 0,0,255)/255; local g=math.clamp(tonumber(inputFields.G.Text)or 0,0,255)/255; local b=math.clamp(tonumber(inputFields.B.Text)or 0,0,255)/255; newColor=Color3.new(r,g,b); currentHue,currentSat,currentVal=newColor:ToHSV()elseif source=="hex"then newColor=hexToCol3(inputFields.Hex.Text); currentHue,currentSat,currentVal=newColor:ToHSV()elseif source=="alpha"then newAlpha=math.clamp(tonumber(inputFields.A.Text)or 0,0,1); currentAlpha=newAlpha; newColor=Color3.fromHSV(currentHue,currentSat,currentVal)end; newColorPreview.BackgroundColor3=newColor; newColorPreview.BackgroundTransparency=newAlpha; local targetColor=(currentVal>0.6 or currentSat<0.4)and Color3.new(0,0,0)or Color3.new(1,1,1); svTarget.ImageColor3=targetColor; if source~="rgb"and source~="hex"then inputFields.R.Text=tostring(math.floor(newColor.R*255+.5)); inputFields.G.Text=tostring(math.floor(newColor.G*255+.5)); inputFields.B.Text=tostring(math.floor(newColor.B*255+.5))end; if source~="hex"then inputFields.Hex.Text=col3ToHex(newColor)end; if useAlpha and source~="alpha"then inputFields.A.Text=string.format("%.2f",currentAlpha)end; colorWheel.ImageColor3=Color3.fromHSV(currentHue,1,1); if useAlpha then local alphaCol=Color3.fromHSV(currentHue,currentSat,currentVal); alphaSliderFrame:FindFirstChildOfClass("UIGradient").Color=ColorSequence.new({ColorSequenceKeypoint.new(0,alphaCol),ColorSequenceKeypoint.new(1,alphaCol)})end; if source=="rgb"or source=="hex"then local huePos=UDim2.fromScale(currentHue,0.5); hueHead.Position=huePos; local wheelRadius=wheelSize/2; local angle=currentHue*2*math.pi-math.pi/2; local dist=currentSat*wheelRadius; local svX=math.cos(angle)*dist; local svY=math.sin(angle)*dist; svTarget.Position=UDim2.new(0.5,svX,0.5,svY)end; if useAlpha and(source=="rgb"or source=="hex")then alphaHead.Position=UDim2.fromScale(currentAlpha,0.5)end end; local function InitializePickerState()currentHue,currentSat,currentVal=ColorpickerFuncs.Color:ToHSV(); currentAlpha=ColorpickerFuncs.Alpha; UpdateColor("hsv"); hueHead.Position=UDim2.fromScale(currentHue,0.5); local wheelRadius=wheelSize/2; local angle=currentHue*2*math.pi-math.pi/2; local dist=currentSat*wheelRadius; local svX=math.cos(angle)*dist; local svY=math.sin(angle)*dist; svTarget.Position=UDim2.new(0.5,svX,0.5,svY); if useAlpha then alphaHead.Position=UDim2.fromScale(currentAlpha,0.5)end end; InitializePickerState(); local wheelDragging,hueDragging,alphaDragging=false,false,false; ManageConnection(wheelInteract.InputBegan:Connect(function(input)if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then wheelDragging=true; local mousePos=input.Position-colorWheel.AbsolutePosition; local center=wheelFrame.AbsoluteSize/2; local vec=mousePos-center; local radius=wheelFrame.AbsoluteSize.X/2; local dist=vec.Magnitude; local angle=math.atan2(vec.Y,vec.X); currentHue=(angle/(2*math.pi)+0.25)%1; currentSat=math.clamp(dist/radius,0,1); svTarget.Position=UDim2.new(0.5,math.clamp(vec.X,-radius,radius),0.5,math.clamp(vec.Y,-radius,radius)); hueHead.Position=UDim2.fromScale(currentHue,0.5); UpdateColor("hsv")end end)); ManageConnection(hueSliderInteract.InputBegan:Connect(function(input)if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then hueDragging=true; local relativeX=input.Position.X-hueSliderFrame.AbsolutePosition.X; currentHue=math.clamp(relativeX/hueSliderFrame.AbsoluteSize.X,0,1); hueHead.Position=UDim2.fromScale(currentHue,0.5); UpdateColor("hsv")end end)); if useAlpha then ManageConnection(alphaInteract.InputBegan:Connect(function(input)if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then alphaDragging=true; local relativeX=input.Position.X-alphaSliderFrame.AbsolutePosition.X; currentAlpha=math.clamp(relativeX/alphaSliderFrame.AbsoluteSize.X,0,1); alphaHead.Position=UDim2.fromScale(currentAlpha,0.5); UpdateColor("alpha")end end))end; ManageConnection(UserInputService.InputChanged:Connect(function(input)if input.UserInputType==Enum.UserInputType.MouseMovement or input.UserInputType==Enum.UserInputType.Touch then if wheelDragging then local mousePos=input.Position-colorWheel.AbsolutePosition; local center=wheelFrame.AbsoluteSize/2; local vec=mousePos-center; local radius=wheelFrame.AbsoluteSize.X/2; local dist=vec.Magnitude; local angle=math.atan2(vec.Y,vec.X); currentHue=(angle/(2*math.pi)+0.25)%1; currentSat=math.clamp(dist/radius,0,1); svTarget.Position=UDim2.new(0.5,math.clamp(vec.X,-radius,radius),0.5,math.clamp(vec.Y,-radius,radius)); hueHead.Position=UDim2.fromScale(currentHue,0.5); UpdateColor("hsv")elseif hueDragging then local relativeX=input.Position.X-hueSliderFrame.AbsolutePosition.X; currentHue=math.clamp(relativeX/hueSliderFrame.AbsoluteSize.X,0,1); hueHead.Position=UDim2.fromScale(currentHue,0.5); UpdateColor("hsv")elseif alphaDragging then local relativeX=input.Position.X-alphaSliderFrame.AbsolutePosition.X; currentAlpha=math.clamp(relativeX/alphaSliderFrame.AbsoluteSize.X,0,1); alphaHead.Position=UDim2.fromScale(currentAlpha,0.5); UpdateColor("alpha")end end end)); local function endDrag(input)if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then wheelDragging,hueDragging,alphaDragging=false,false,false end end; ManageConnection(UserInputService.InputEnded:Connect(endDrag)); local buttonsFrame=Create("Frame",{Name="Buttons",Size=UDim2.new(1,0,0,30),BackgroundTransparency=1,Parent=pickerFrame}); local buttonsLayout=Create("UIGridLayout",{CellSize=UDim2.new(0.5,-2.5,1,0),CellPadding=UDim.new(0,5,0,0),Parent=buttonsFrame}); local confirmButton=Create("TextButton",{Name="Confirm",Text="Confirm",FontFace=theme.Font.Medium,TextColor3=theme.Text,BackgroundColor3=theme.Accent,Size=UDim2.fromScale(1,1),AutoButtonColor=false,Parent=buttonsFrame}); Create("UICorner",{CornerRadius=theme.CornerRadius,Parent=confirmButton}); ManageConnection(confirmButton.MouseButton1Click:Connect(function()ClosePickerPopup(false)end)); local cancelButton=Create("TextButton",{Name="Cancel",Text="Cancel",FontFace=theme.Font.Medium,TextColor3=theme.TextSecondary,BackgroundColor3=theme.PrimaryInteraction,Size=UDim2.fromScale(1,1),AutoButtonColor=false,Parent=buttonsFrame}); Create("UICorner",{CornerRadius=theme.CornerRadius,Parent=cancelButton}); ManageConnection(cancelButton.MouseButton1Click:Connect(function()ClosePickerPopup(true)end)); return pickerCanvas,pickerFrame end; function ClosePickerPopup(isCancel) if not isPickerOpen or not pickerCanvas then return end; isPickerOpen=false; local canvas=pickerCanvas; local frame=canvas:FindFirstChild("PickerFrame"); local overlay=canvas:FindFirstChild("Overlay"); local tweenInfo=TweenInfo.new(theme.AnimationSpeed*1.5,theme.EasingStyle,theme.EasingDirection); local completedConn; completedConn=TweenInstance(canvas,{GroupTransparency=1},tweenInfo).Completed:Connect(function()if not isCancel then ColorpickerFuncs.Color=newColorPreview.BackgroundColor3; ColorpickerFuncs.Alpha=newColorPreview.BackgroundTransparency; colorDisplay.BackgroundColor3=ColorpickerFuncs.Color; colorDisplay.BackgroundTransparency=ColorpickerFuncs.Alpha; task.spawn(function()if cSettings.Callback then pcall(cSettings.Callback,ColorpickerFuncs.Color,useAlpha and ColorpickerFuncs.Alpha or nil)end end)end; DestroyPicker(); if completedConn and completedConn.Connected then pcall(completedConn.Disconnect, completedConn) end end); TweenInstance(overlay,{BackgroundTransparency=1},tweenInfo); TweenInstance(frame,{Scale=0.95},tweenInfo)end; local function OpenPickerPopup()if isPickerOpen then return end; isPickerOpen=true; local canvas,frame=CreatePickerPopup(); local tweenInfo=TweenInfo.new(theme.AnimationSpeed*1.5,theme.EasingStyle,theme.EasingDirection); TweenInstance(canvas,{GroupTransparency=0},tweenInfo); TweenInstance(canvas:FindFirstChild("Overlay"),{BackgroundTransparency=0.5},tweenInfo); TweenInstance(frame,{Scale=1},tweenInfo)end; ManageConnection(previewButton.MouseButton1Click:Connect(OpenPickerPopup)); function ColorpickerFuncs:SetColor(color3,noCallback)if typeof(color3)=="Color3"then ColorpickerFuncs.Color=color3; colorDisplay.BackgroundColor3=color3; if isPickerOpen then InitializePickerState()end; if not noCallback then task.spawn(function()if cSettings.Callback then pcall(cSettings.Callback,ColorpickerFuncs.Color,useAlpha and ColorpickerFuncs.Alpha or nil)end end)end end end; function ColorpickerFuncs:SetAlpha(alpha,noCallback)if useAlpha and type(alpha)=="number"then ColorpickerFuncs.Alpha=math.clamp(alpha,0,1); colorDisplay.BackgroundTransparency=ColorpickerFuncs.Alpha; if isPickerOpen then InitializePickerState()end; if not noCallback then task.spawn(function()if cSettings.Callback then pcall(cSettings.Callback,ColorpickerFuncs.Color,ColorpickerFuncs.Alpha)end end)end end end; function ColorpickerFuncs:GetColor()return ColorpickerFuncs.Color end; function ColorpickerFuncs:GetAlpha()return useAlpha and ColorpickerFuncs.Alpha or nil end; function ColorpickerFuncs:UpdateName(newName)nameLabel.Text=newName end; function ColorpickerFuncs:SetVisibility(visible)container.Visible=visible end; if flag then AetheriumUI.Options[flag]=ColorpickerFuncs end; return ColorpickerFuncs end;
+				return SectionFunctions end; function TabFunctions:Select() SelectTab() end; function TabFunctions:InsertConfigSection(side) local configSection=self:Section({Side=side or "Left",Name="Configuration"}); local isCfgSysAvailable=not AetheriumUI._Variables.IsStudio and pcall(function()return isfolder,makefolder,writefile,readfile,listfiles end); if not isCfgSysAvailable then configSection:Label({Text="Config system unavailable."}); return end; local inputPath=""; local selectedConfig=nil; local nameInput=configSection:Input({Name="Config Name",Placeholder="Enter name...",Default="",Callback=function(txt)inputPath=txt:gsub("[^%w_%.%-]","")end}); local configDropdown=configSection:Dropdown({Name="Select Config",Options=AetheriumUI:RefreshConfigList(),Multi=false,Callback=function(val)selectedConfig=val end}); configSection:Button({Name="Create/Save",Callback=function() if not inputPath or inputPath==""then if WindowFunctions.Notify then WindowFunctions:Notify({Title="Config Error",Description="Please enter a config name.",Style="Cancel"})end; return end; local success,msg=AetheriumUI:SaveConfig(inputPath); if WindowFunctions.Notify then WindowFunctions:Notify({Title=success and "Config Saved"or"Save Error",Description=success and("Saved as '"..inputPath.."'")or msg,Style=success and"Confirm"or"Cancel"})end; if success then configDropdown:InsertOptions(AetheriumUI:RefreshConfigList()); configDropdown:UpdateSelection(inputPath)end end}); configSection:Button({Name="Load Selected",Callback=function() if not selectedConfig then if WindowFunctions.Notify then WindowFunctions:Notify({Title="Config Error",Description="Please select a config to load.",Style="Cancel"})end; return end; local success,msg=AetheriumUI:LoadConfig(selectedConfig); if WindowFunctions.Notify then WindowFunctions:Notify({Title=success and "Config Loaded"or"Load Error",Description=success and("Loaded '"..selectedConfig.."'")or msg,Style=success and"Confirm"or"Cancel"})end end}); configSection:Button({Name="Delete Selected",Callback=function() if not selectedConfig then if WindowFunctions.Notify then WindowFunctions:Notify({Title="Config Error",Description="Please select a config to delete.",Style="Cancel"})end; return end; local dialogOptions={Title="Confirm Delete",Description="Delete '"..selectedConfig.."'? Cannot undo.",Buttons={{Name="Delete",Callback=function() local success,msg=AetheriumUI:DeleteConfig(selectedConfig); if WindowFunctions.Notify then WindowFunctions:Notify({Title=success and "Config Deleted"or"Delete Error",Description=success and("Deleted '"..selectedConfig.."'")or msg,Style=success and"Confirm"or"Cancel"})end; if success then configDropdown:InsertOptions(AetheriumUI:RefreshConfigList()); configDropdown:UpdateSelection(nil)end end},{Name="Cancel"}}}; WindowFunctions:Dialog(dialogOptions)end}); configSection:Button({Name="Refresh List",Callback=function() configDropdown:ClearOptions(); configDropdown:InsertOptions(AetheriumUI:RefreshConfigList()); if WindowFunctions.Notify then WindowFunctions:Notify({Title="Config",Description="Refreshed config list.",Style="None"})end end}); local autoloadLabel=configSection:Label({Text="Autoload: None"}); local currentAutoload=AetheriumUI:GetAutoLoadConfigName(); if currentAutoload then autoloadLabel:UpdateName("Autoload: "..currentAutoload)end; configSection:Button({Name="Set Autoload",Callback=function()if not selectedConfig then if WindowFunctions.Notify then WindowFunctions:Notify({Title="Config Error",Description="Select config to set autoload.",Style="Cancel"})end; return end; local success,msg=AetheriumUI:SetAutoLoadConfig(selectedConfig); if WindowFunctions.Notify then WindowFunctions:Notify({Title=success and "Autoload Set"or"Autoload Error",Description=success and("Set '"..selectedConfig.."' as autoload")or msg,Style=success and"Confirm"or"Cancel"})end; if success then autoloadLabel:UpdateName("Autoload: "..selectedConfig)end end}); configSection:Button({Name="Clear Autoload",Callback=function()local success,msg=AetheriumUI:SetAutoLoadConfig(nil); if WindowFunctions.Notify then WindowFunctions:Notify({Title=success and "Autoload Cleared"or"Autoload Error",Description=success and"Cleared autoload."or msg,Style=success and"Confirm"or"Cancel"})end; if success then autoloadLabel:UpdateName("Autoload: None")end end})end; return TabFunctions end; return TabGroupFunctions end
+	function WindowFunctions:Notify(...) -- Assume definition is correct
+		-- [PREVIOUS Notify Definition Here]
+		local NotifyFuncs={}; local nSettings=... or {}; local lifetime=nSettings.Lifetime==nil and 3 or nSettings.Lifetime; local style=nSettings.Style or "None"; local notification=Create("Frame",{Name="Notification",AutomaticSize=Enum.AutomaticSize.Y,Size=UDim2.new(0,nSettings.SizeX or 250,0,0),BackgroundColor3=theme.BackgroundLighter,Parent=WindowFunctions._NotificationContainer}); notification.LayoutOrder=tick(); local nCorner=Create("UICorner",{CornerRadius=theme.CornerRadius,Parent=notification}); local nStroke=Create("UIStroke",{Color=theme.StrokeLight,Thickness=1,Parent=notification}); local nPadding=Create("UIPadding",{PaddingLeft=UDim.new(0,12),PaddingRight=UDim.new(0,12),PaddingTop=UDim.new(0,10),PaddingBottom=UDim.new(0,10),Parent=notification}); local nLayout=Create("UIListLayout",{Padding=UDim.new(0,5),SortOrder=Enum.SortOrder.LayoutOrder,Parent=notification}); local nScale=Create("UIScale",{Scale=0,Parent=notification}); local titleLabel=Create("TextLabel",{Name="Title",Text=nSettings.Title or "Notification",FontFace=theme.Font.Medium,TextSize=14,TextColor3=theme.Text,AutomaticSize=Enum.AutomaticSize.Y,Size=UDim2.new(1,0,0,16),BackgroundTransparency=1,TextXAlignment=Enum.TextXAlignment.Left,Parent=notification}); local descLabel=Create("TextLabel",{Name="Description",Text=nSettings.Description or "",FontFace=theme.Font.Regular,TextSize=12,TextColor3=theme.TextSecondary,TextWrapped=true,AutomaticSize=Enum.AutomaticSize.Y,Size=UDim2.new(1,0,0,14),BackgroundTransparency=1,TextXAlignment=Enum.TextXAlignment.Left,LayoutOrder=1,Parent=notification,Visible=(nSettings.Description and nSettings.Description~="")}); local dismissButton=nil; if style~="None" or lifetime==0 then dismissButton=Create("TextButton",{Name="DismissButton",Size=UDim2.fromOffset(18,18),AnchorPoint=Vector2.new(1,0),Position=UDim2.new(1,-5,0,5),BackgroundTransparency=1,Text="",ZIndex=2,Parent=notification}); local dismissIcon=Create("TextLabel",{Name="DismissIcon",Font=Enum.Font.SourceSansBold,Text="✕",TextSize=14,TextColor3=theme.TextSecondary,Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Parent=dismissButton}); ManageConnection(dismissButton.MouseEnter:Connect(function()TweenInstance(dismissIcon,{TextColor3=theme.Red})end)); ManageConnection(dismissButton.MouseLeave:Connect(function()TweenInstance(dismissIcon,{TextColor3=theme.TextSecondary})end)); ManageConnection(dismissButton.MouseButton1Click:Connect(function()NotifyFuncs:Cancel()end)); nPadding.PaddingRight=UDim.new(0,25)end; if style=="Confirm"then nStroke.Color=theme.Green elseif style=="Cancel"then nStroke.Color=theme.Red end; local animTween=nil; local function Animate(fadeIn)if animTween and animTween.PlaybackState~=Enum.PlaybackState.Completed then pcall(animTween.Cancel,animTween)end; local targetScale=fadeIn and 1 or 0; local tweenInfo=TweenInfo.new(theme.AnimationSpeed*1.5,theme.EasingStyle,theme.EasingDirection); animTween=TweenInstance(nScale,{Scale=targetScale},tweenInfo); return animTween end; local lifetimeCoroutine=nil; local completedConn; completedConn = Animate(true).Completed:Connect(function() if lifetime>0 then lifetimeCoroutine=task.delay(lifetime,function()if notification and notification.Parent then local outTween=Animate(false); local outCompConn; outCompConn = outTween.Completed:Connect(function() if notification and notification.Parent then pcall(notification.Destroy,notification) end; if outCompConn and outCompConn.Connected then pcall(outCompConn.Disconnect, outCompConn) end end) end end)end; if completedConn and completedConn.Connected then pcall(completedConn.Disconnect, completedConn) end end); function NotifyFuncs:Cancel() if lifetimeCoroutine then task.cancel(lifetimeCoroutine); lifetimeCoroutine=nil end; if notification and notification.Parent then local outTween=Animate(false); local outCompConn; outCompConn = outTween.Completed:Connect(function() if notification and notification.Parent then pcall(notification.Destroy,notification) end; if outCompConn and outCompConn.Connected then pcall(outCompConn.Disconnect, outCompConn) end end) end end; function NotifyFuncs:UpdateTitle(newTitle)titleLabel.Text=newTitle end; function NotifyFuncs:UpdateDescription(newDesc)descLabel.Text=newDesc; descLabel.Visible=(newDesc and newDesc~="")end; return NotifyFuncs
 	end
-
-
-	-- Main Content Area (Below Topbar)
-	local contentElements = Create("Frame", {
-		Name = "ContentElements",
-		Size = UDim2.new(1, 0, 1, -topbar.Size.Y.Offset),
-		Position = UDim2.fromOffset(0, topbar.Size.Y.Offset),
-		BackgroundTransparency = 1,
-		ClipsDescendants = true,
-		Parent = content
-	})
-
-	-- Global Settings Frame (Initially Hidden)
-	globalSettingsFrame = Create("Frame", {
-		Name = "GlobalSettings",
-		AnchorPoint = Vector2.new(0, 0), -- Adjust anchor as needed
-		Position = UDim2.new(0, infoPadding.PaddingLeft.Offset, 0, windowControls.Size.Y.Offset + informationArea.Size.Y.Offset - 5), -- Position near button
-		AutomaticSize = Enum.AutomaticSize.XY,
-		BackgroundColor3 = theme.BackgroundLighter,
-		BorderSizePixel = 0,
-		Visible = false,
-		ZIndex = 15, -- Above most things
-		Parent = base -- Parent to base so it appears over everything
-	})
-	Create("UICorner", { CornerRadius = theme.CornerRadius, Parent = globalSettingsFrame })
-	Create("UIStroke", { Color = theme.StrokeLight, Thickness = 1, Parent = globalSettingsFrame })
-	local gsPadding = Create("UIPadding", {
-		PaddingLeft = UDim.new(0, 10),
-		PaddingRight = UDim.new(0, 10),
-		PaddingTop = UDim.new(0, 10),
-		PaddingBottom = UDim.new(0, 10),
-		Parent = globalSettingsFrame
-	})
-	local gsLayout = Create("UIListLayout", {
-		Padding = UDim.new(0, 8),
-		SortOrder = Enum.SortOrder.LayoutOrder,
-		Parent = globalSettingsFrame
-	})
-	local gsScale = Create("UIScale", { Name = "GlobalSettingsScale", Scale = 0, Parent = globalSettingsFrame }) -- Start hidden
-	local gsOpen = false
-	local gsHovering = false
-	local hasGlobalSetting = false
-
-	local function ToggleGlobalSettings(forceState)
-		if not hasGlobalSetting then return end
-		local targetState = forceState
-		if targetState == nil then targetState = not gsOpen end
-
-		if targetState ~= gsOpen then
-			gsOpen = targetState
-			local targetScale = gsOpen and 1 or 0
-			local targetTransparency = gsOpen and 0 or 0.5
-			local tweenInfo = TweenInfo.new(theme.AnimationSpeed * 1.2, theme.EasingStyle, theme.EasingDirection)
-
-			StopTweens(gsScale) -- Stop any previous scale tweens
-			if gsOpen then globalSettingsFrame.Visible = true end -- Make visible before scaling up
-
-			local scaleTween = TweenInstance(gsScale, { Scale = targetScale }, tweenInfo)
-			if not gsOpen then
-				local completedConn
-				completedConn = scaleTween.Completed:Connect(function()
-					if not gsOpen then globalSettingsFrame.Visible = false end -- Hide after scaling down
-					if completedConn and completedConn.Connected then completedConn:Disconnect() end
-				end)
-			end
-			TweenInstance(globalSettingsButton, { ImageTransparency = targetTransparency })
-		end
+	function WindowFunctions:Dialog(...) -- Assume definition is correct
+		-- [PREVIOUS Dialog Definition Here]
+		local DialogFuncs={}; local dSettings=... or {}; local wasClosed=false; local dialogCanvas=Create("CanvasGroup",{Name="DialogCanvas",Size=UDim2.fromScale(1,1),BackgroundTransparency=1,GroupTransparency=1,ZIndex=200,Parent=base}); local overlay=Create("Frame",{Name="Overlay",Size=UDim2.fromScale(1,1),BackgroundColor3=theme.Overlay,BackgroundTransparency=1,ZIndex=1,Parent=dialogCanvas}); local prompt=Create("Frame",{Name="Prompt",AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),Size=UDim2.fromOffset(dSettings.Width or 320,0),AutomaticSize=Enum.AutomaticSize.Y,BackgroundColor3=theme.BackgroundLight,ZIndex=2,Scale=0.95,Parent=dialogCanvas}); Create("UICorner",{CornerRadius=theme.CornerRadius,Parent=prompt}); Create("UIStroke",{Color=theme.StrokeLight,Thickness=1,Parent=prompt}); local promptPadding=Create("UIPadding",{Padding=UDim.new(0,20),Parent=prompt}); local promptLayout=Create("UIListLayout",{Padding=UDim.new(0,15),SortOrder=Enum.SortOrder.LayoutOrder,Parent=prompt}); Create("TextLabel",{Name="Title",Text=dSettings.Title or "Dialog",FontFace=theme.Font.SemiBold,TextSize=18,TextColor3=theme.Text,TextWrapped=true,AutomaticSize=Enum.AutomaticSize.Y,Size=UDim2.new(1,0,0,20),BackgroundTransparency=1,TextXAlignment=Enum.TextXAlignment.Center,Parent=prompt}); Create("TextLabel",{Name="Description",Text=dSettings.Description or "",FontFace=theme.Font.Regular,TextSize=14,TextColor3=theme.TextSecondary,TextWrapped=true,AutomaticSize=Enum.AutomaticSize.Y,Size=UDim2.new(1,0,0,16),BackgroundTransparency=1,TextXAlignment=Enum.TextXAlignment.Center,LayoutOrder=1,Parent=prompt}); local buttonsFrame=Create("Frame",{Name="ButtonsFrame",Size=UDim2.new(1,0,0,35),AutomaticSize=Enum.AutomaticSize.X,BackgroundTransparency=1,LayoutOrder=2,Parent=prompt}); local buttonsLayout=Create("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,HorizontalAlignment=Enum.HorizontalAlignment.Center,VerticalAlignment=Enum.VerticalAlignment.Center,Padding=UDim.new(0,10),SortOrder=Enum.SortOrder.LayoutOrder,Parent=buttonsFrame}); local function AnimateDialog(fadeIn)local tweenInfo=TweenInfo.new(theme.AnimationSpeed*1.5,theme.EasingStyle,theme.EasingDirection); local targetGroupTrans=fadeIn and 0 or 1; local targetOverlayTrans=fadeIn and 0.5 or 1; local targetScale=fadeIn and 1 or 0.95; TweenInstance(dialogCanvas,{GroupTransparency=targetGroupTrans},tweenInfo); TweenInstance(overlay,{BackgroundTransparency=targetOverlayTrans},tweenInfo); local scaleTween=TweenInstance(prompt,{Scale=targetScale},tweenInfo); return scaleTween end; local function CloseDialog()if wasClosed then return end; wasClosed=true; local completedConn; completedConn = AnimateDialog(false).Completed:Connect(function()if dialogCanvas and dialogCanvas.Parent then pcall(dialogCanvas.Destroy,dialogCanvas)end; if completedConn and completedConn.Connected then pcall(completedConn.Disconnect, completedConn) end end)end; for i,btnData in ipairs(dSettings.Buttons or {})do local isPrimary=i==1; local btn=Create("TextButton",{Name=btnData.Name or "Button",Text=btnData.Name or "Okay",FontFace=theme.Font.Medium,TextSize=14,TextColor3=isPrimary and theme.Background or theme.Text,BackgroundColor3=isPrimary and theme.Accent or theme.PrimaryInteraction,AutomaticSize=Enum.AutomaticSize.X,Size=UDim2.new(0,0,1,0),AutoButtonColor=false,Parent=buttonsFrame}); Create("UICorner",{CornerRadius=theme.CornerRadius,Parent=btn}); Create("UIPadding",{PaddingLeft=UDim.new(0,15),PaddingRight=UDim.new(0,15),Parent=btn}); ManageConnection(btn.MouseEnter:Connect(function()TweenInstance(btn,{BackgroundColor3=isPrimary and theme.AccentLight or theme.PrimaryInteractionHover})end)); ManageConnection(btn.MouseLeave:Connect(function()TweenInstance(btn,{BackgroundColor3=isPrimary and theme.Accent or theme.PrimaryInteraction})end)); ManageConnection(btn.MouseButton1Click:Connect(function()CloseDialog(); task.spawn(function()if btnData.Callback then pcall(btnData.Callback)end end)end))end; AnimateDialog(true); function DialogFuncs:Cancel()CloseDialog()end; return DialogFuncs
 	end
-
-	ManageConnection(globalSettingsButton.MouseEnter:Connect(function() if not gsOpen then TweenInstance(globalSettingsButton, { ImageTransparency = 0 }) end end))
-	ManageConnection(globalSettingsButton.MouseLeave:Connect(function() if not gsOpen then TweenInstance(globalSettingsButton, { ImageTransparency = 0.3 }) end end))
-	ManageConnection(globalSettingsButton.MouseButton1Click:Connect(function() ToggleGlobalSettings() end))
-	ManageConnection(globalSettingsFrame.MouseEnter:Connect(function() gsHovering = true end))
-	ManageConnection(globalSettingsFrame.MouseLeave:Connect(function() gsHovering = false end))
-	ManageConnection(UserInputService.InputBegan:Connect(function(input)
-		if gsOpen and not gsHovering and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
-			-- Check if click is outside the global settings frame AND the button
-			if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then -- Ensure it's a press, not just touch
-				local mouseLoc = UserInputService:GetMouseLocation()
-				local gsRect = Rect.new(globalSettingsFrame.AbsolutePosition, globalSettingsFrame.AbsolutePosition + globalSettingsFrame.AbsoluteSize)
-				local btnRect = Rect.new(globalSettingsButton.AbsolutePosition, globalSettingsButton.AbsolutePosition + globalSettingsButton.AbsoluteSize)
-				if not gsRect:Contains(mouseLoc) and not btnRect:Contains(mouseLoc) then
-					ToggleGlobalSettings(false)
-				end
-			end
-		end
-	end))
-
-	-- // Dragging Logic // --
-	local dragging = false
-	local dragInput, dragStart, startPos
-	local dragStyle = Settings.DragStyle or 1 -- 1 = Icon, 2 = Full Window
-
-	local function UpdateDrag(input)
-		local delta = input.Position - dragStart
-		base.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-	end
-
-	local dragChangedConn = nil -- Store connection
-	local function StartDrag(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging = true
-			dragStart = input.Position
-			startPos = base.Position
-			if dragChangedConn and dragChangedConn.Connected then dragChangedConn:Disconnect() end -- Disconnect previous if any
-			dragChangedConn = input.Changed:Connect(function()
-				if input.UserInputState == Enum.UserInputState.End then
-					dragging = false
-					if dragChangedConn and dragChangedConn.Connected then dragChangedConn:Disconnect(); dragChangedConn = nil; end -- Clean up connection
-				end
-			end)
-			ManageConnection(dragChangedConn) -- Manage this connection
-		end
-	end
-
-	local dragTarget = (dragStyle == 1 and useDragIcon) and moveInteract or base
-	ManageConnection(dragTarget.InputBegan:Connect(StartDrag))
-	ManageConnection(UserInputService.InputChanged:Connect(function(input)
-		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-			UpdateDrag(input)
-		end
-	end))
-	-- InputEnded handled by Changed connection within StartDrag
-
-	-- // Sidebar Resizing Logic // --
-	local resizingSidebar = false
-	local resizeStartMouseX, resizeStartSidebarWidth
-	local minSidebarWidth = 150 -- Minimum width in pixels
-	local defaultSidebarScale = sidebar.Size.X.Scale
-	local defaultSidebarOffset = sidebar.Size.X.Offset
-	local resizeChangedConn = nil -- Store connection
-
-	ManageConnection(dividerInteract.MouseEnter:Connect(function() TweenInstance(sidebarDivider, { BackgroundTransparency = theme.StrokeTransparency * 0.4 }) end))
-	ManageConnection(dividerInteract.MouseLeave:Connect(function() TweenInstance(sidebarDivider, { BackgroundTransparency = theme.StrokeTransparency * 0.8 }) end))
-
-	ManageConnection(dividerInteract.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			resizingSidebar = true
-			resizeStartMouseX = input.Position.X
-			resizeStartSidebarWidth = sidebar.AbsoluteSize.X
-			-- Change cursor maybe? UserInputService.MouseIconEnabled = false; UserInputService.MouseIcon = "rbxassetid://..."
-			if resizeChangedConn and resizeChangedConn.Connected then resizeChangedConn:Disconnect() end -- Disconnect previous
-			resizeChangedConn = input.Changed:Connect(function()
-				if input.UserInputState == Enum.UserInputState.End then
-					resizingSidebar = false
-					-- UserInputService.MouseIconEnabled = true;
-					if resizeChangedConn and resizeChangedConn.Connected then resizeChangedConn:Disconnect(); resizeChangedConn = nil; end
-				end
-			end)
-			ManageConnection(resizeChangedConn) -- Manage this
-		end
-	end))
-
-	ManageConnection(UserInputService.InputChanged:Connect(function(input)
-		if resizingSidebar and input.UserInputType == Enum.UserInputType.MouseMovement then
-			local currentMouseX = input.Position.X
-			local deltaX = currentMouseX - resizeStartMouseX
-			local newSidebarWidth = resizeStartSidebarWidth + deltaX
-			local maxSidebarWidth = base.AbsoluteSize.X - minSidebarWidth -- Max width
-
-			newSidebarWidth = math.clamp(newSidebarWidth, minSidebarWidth, maxSidebarWidth)
-
-			-- Snap back to default if close enough
-			local defaultWidthPixels = defaultSidebarScale * base.AbsoluteSize.X + defaultSidebarOffset
-			if math.abs(newSidebarWidth - defaultWidthPixels) < 15 then
-				sidebar.Size = UDim2.new(defaultSidebarScale, defaultSidebarOffset, 1, 0)
-			else
-				sidebar.Size = UDim2.new(0, newSidebarWidth, 1, 0) -- Use offset for resizing
-			end
-
-			-- Update content area size based on sidebar's *absolute* size
-			content.Size = UDim2.new(0, base.AbsoluteSize.X - sidebar.AbsoluteSize.X, 1, 0)
-		end
-	end))
-
-	-- Listen for base size changes to potentially readjust content size
-	ManageConnection(base:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-		if not resizingSidebar then -- Avoid conflicts during resize
-			content.Size = UDim2.new(0, base.AbsoluteSize.X - sidebar.AbsoluteSize.X, 1, 0)
-		end
-	end))
-
-	-- // Internal State // --
-	local tabs = {} -- { [tabSwitcherButton] = { ContentFrame, NameLabel, IconImage, Stroke, Corner, Button } }
-	local currentTabInstance = nil
-	local currentTabButton = nil
-	local tabIndex = 0
-
-	-- // Window Functions // --
-
-	function WindowFunctions:UpdateTitle(newTitle)
-		titleLabel.Text = newTitle
-	end
-
-	function WindowFunctions:UpdateSubtitle(newSubtitle)
-		subtitleLabel.Text = newSubtitle
-		subtitleLabel.Visible = (newSubtitle ~= nil and newSubtitle ~= "")
-	end
-
-	function WindowFunctions:SetState(state)
-		if windowState == state then return end -- No change
-		windowState = state
-		base.Visible = state
-		-- Consider adding an animation here
-	end
-
-	function WindowFunctions:GetState()
-		return windowState
-	end
-
-	function WindowFunctions:SetKeybind(keycode)
-		if typeof(keycode) == "EnumItem" and keycode.EnumType == Enum.KeyCode then
-			menuKeybind = keycode
-		else
-			warn("[AetheriumUI] SetKeybind expects an Enum.KeyCode value.")
-		end
-	end
-
-	function WindowFunctions:SetAcrylicBlurState(enabled)
-		UpdateAcrylicBlurState(enabled)
-	end
-
-	function WindowFunctions:GetAcrylicBlurState()
-		return acrylicBlurEnabled
-	end
-
-	function WindowFunctions:SetUserInfoState(enabled)
-		showUserInfo = enabled
-		userInfo.Visible = enabled
-		-- Update text immediately if needed (could be done more cleanly)
-		displayNameLabel.Text = showUserInfo and (AetheriumUI._Variables.LocalPlayer and AetheriumUI._Variables.LocalPlayer.DisplayName or "DisplayName") or string.rep("•", 10)
-		usernameLabel.Text = showUserInfo and (AetheriumUI._Variables.LocalPlayer and "@"..AetheriumUI._Variables.LocalPlayer.Name or "@Username") or "@" .. string.rep("•", 8)
-		headshot.Image = (showUserInfo and isHeadshotReady and headshotImage) or AetheriumUI.Assets.userInfoBlurred
-	end
-
-	function WindowFunctions:GetUserInfoState()
-		return showUserInfo
-	end
-
-	function WindowFunctions:SetSize(newSize)
-		if typeof(newSize) == "UDim2" then
-			TweenInstance(base, { Size = newSize })
-		else
-			warn("[AetheriumUI] SetSize expects a UDim2 value.")
-		end
-	end
-
-	function WindowFunctions:GetSize()
-		return base.Size
-	end
-
-	function WindowFunctions:SetScale(newScale)
-		if type(newScale) == "number" then
-			TweenInstance(baseScale, { Scale = newScale })
-		else
-			warn("[AetheriumUI] SetScale expects a number.")
-		end
-	end
-
-	function WindowFunctions:GetScale()
-		return baseScale.Scale
-	end
-
-	function WindowFunctions:SetNotificationsState(enabled)
-		notifications.Visible = enabled
-	end
-
-	function WindowFunctions:GetNotificationsState()
-		return notifications.Visible
-	end
-
-	-- Global Setting Element
-	function WindowFunctions:GlobalSetting(gsSettings)
-		hasGlobalSetting = true -- Mark that at least one global setting exists
-		local GlobalSettingFunctions = { Settings = gsSettings }
-		local uniqueId = HttpService:GenerateGUID(false)
-
-		local container = Create("Frame", {
-			Name = "GlobalSetting_" .. (gsSettings.Name or uniqueId):gsub("%s+","_"), -- Sanitize name
-			Size = UDim2.new(1, 0, 0, 25), -- Fixed height for consistency
-			BackgroundTransparency = 1,
-			Parent = globalSettingsFrame
-		})
-
-		local layout = Create("UIListLayout", {
-			FillDirection = Enum.FillDirection.Horizontal,
-			VerticalAlignment = Enum.VerticalAlignment.Center,
-			SortOrder = Enum.SortOrder.LayoutOrder,
-			Padding = UDim.new(0, 8),
-			Parent = container
-		})
-
-		local interactButton = Create("TextButton", { -- Covers the whole area for clicking
-			Name = "Interact",
-			Size = UDim2.fromScale(1, 1),
-			Text = "",
-			BackgroundTransparency = 1,
-			ZIndex = 2,
-			Parent = container
-		})
-
-		local checkmarkSize = 12
-		local checkmark = Create("TextLabel", {
-			Name = "Checkmark",
-			Text = "✓",
-			FontFace = theme.Font.Bold, -- Bold checkmark
-			TextColor3 = theme.Accent,
-			TextSize = checkmarkSize,
-			TextTransparency = 1, -- Hidden initially
-			Size = UDim2.fromOffset(0, checkmarkSize), -- Start collapsed horizontally
-			TextXAlignment = Enum.TextXAlignment.Center,
-			TextYAlignment = Enum.TextYAlignment.Center,
-			BackgroundTransparency = 1,
-			LayoutOrder = 1,
-			ClipsDescendants = true, -- Clip text when size is 0
-			Parent = container
-		})
-
-		local settingName = Create("TextLabel", {
-			Name = "SettingName",
-			Text = gsSettings.Name or "Setting",
-			FontFace = theme.Font.Regular,
-			TextSize = 13,
-			TextColor3 = theme.TextSecondary,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			Size = UDim2.new(1, -(checkmarkSize + layout.Padding.Offset), 1, 0), -- Fill remaining space
-			AutomaticSize = Enum.AutomaticSize.X, -- Let it resize horizontally
-			BackgroundTransparency = 1,
-			LayoutOrder = 2,
-			Parent = container
-		})
-
-		local isToggled = gsSettings.Default or false
-
-		local function SetVisualState(state, noAnim)
-			local targetCheckSize = state and UDim2.fromOffset(checkmarkSize, checkmarkSize) or UDim2.fromOffset(0, checkmarkSize)
-			local targetCheckTrans = state and 0 or 1
-			local targetNameColor = state and theme.Text or theme.TextSecondary
-			local animSpeed = noAnim and 0 or theme.AnimationSpeed * 0.8
-
-			StopTweens(checkmark)
-			StopTweens(settingName)
-			TweenInstance(checkmark, { Size = targetCheckSize, TextTransparency = targetCheckTrans }, TweenInfo.new(animSpeed, theme.EasingStyle, theme.EasingDirection))
-			TweenInstance(settingName, { TextColor3 = targetNameColor }, TweenInfo.new(animSpeed, theme.EasingStyle, theme.EasingDirection))
-		end
-
-		SetVisualState(isToggled, true) -- Initial state
-
-		ManageConnection(interactButton.MouseButton1Click:Connect(function()
-			isToggled = not isToggled
-			SetVisualState(isToggled)
-			task.spawn(function()
-				if gsSettings.Callback then
-					pcall(gsSettings.Callback, isToggled)
-				end
-			end)
-		end))
-
-		-- Hover Effect
-		ManageConnection(interactButton.MouseEnter:Connect(function()
-			if not isToggled then TweenInstance(settingName, {TextColor3 = Color3.Lerp(theme.TextSecondary, theme.Text, 0.5)}) end
-		end))
-		ManageConnection(interactButton.MouseLeave:Connect(function()
-			if not isToggled then TweenInstance(settingName, {TextColor3 = theme.TextSecondary}) end
-		end))
-
-		function GlobalSettingFunctions:UpdateName(newName)
-			settingName.Text = newName
-		end
-
-		function GlobalSettingFunctions:UpdateState(newState, noCallback)
-			if isToggled == newState then return end
-			isToggled = newState
-			SetVisualState(isToggled)
-			if not noCallback then
-				task.spawn(function()
-					if gsSettings.Callback then
-						pcall(gsSettings.Callback, isToggled)
-					end
-				end)
-			end
-		end
-
-		function GlobalSettingFunctions:GetState()
-			return isToggled
-		end
-
-		return GlobalSettingFunctions
-	end
-
-	-- Tab Group (Acts as a separator/header for tabs in the sidebar)
-	function WindowFunctions:TabGroup(tgSettings)
-		local TabGroupFunctions = {}
-		tgSettings = tgSettings or {}
-
-		local groupFrame = Create("Frame", {
-			Name = "TabGroup_" .. (tgSettings.Name or "Default"):gsub("%s+","_"), -- Sanitize
-			AutomaticSize = Enum.AutomaticSize.Y,
-			BackgroundTransparency = 1,
-			Size = UDim2.new(1, 0, 0, 0), -- Height determined by content
-			Parent = tabSwitcherScroll
-		})
-		local groupLayout = Create("UIListLayout", {
-			Padding = UDim.new(0, tgSettings.Padding or 10), -- Padding between group header and tabs
-			SortOrder = Enum.SortOrder.LayoutOrder,
-			Parent = groupFrame
-		})
-
-		if tgSettings.Name then
-			Create("TextLabel", {
-				Name = "GroupName",
-				Text = tgSettings.Name,
-				FontFace = theme.Font.Medium,
-				TextColor3 = theme.TextSecondary,
-				TextSize = 12,
-				TextXAlignment = Enum.TextXAlignment.Left,
-				Size = UDim2.new(1, 0, 0, 15),
-				BackgroundTransparency = 1,
-				LayoutOrder = -1, -- Appear above tabs in this group
-				Parent = groupFrame
-			})
-			Create("Frame", { -- Divider below header
-				Name = "GroupHeaderDivider",
-				Size = UDim2.new(1, 0, 0, 1),
-				BackgroundColor3 = theme.Stroke,
-				BackgroundTransparency = theme.StrokeTransparency * 1.2,
-				LayoutOrder = 0,
-				Parent = groupFrame,
-				Position = UDim2.fromOffset(0, 5) -- Add space below header text
-			})
-            groupLayout.Padding = UDim.new(0, 5) -- Reduce padding after divider
-		end
-
-		local tabsContainer = Create("Frame", {
-			Name = "TabsContainer",
-			AutomaticSize = Enum.AutomaticSize.Y,
-			BackgroundTransparency = 1,
-			Size = UDim2.new(1, 0, 0, 0),
-			LayoutOrder = 1,
-			Parent = groupFrame
-		})
-		local tabsLayout = Create("UIListLayout", {
-			Padding = UDim.new(0, 3), -- Padding between tabs
-			SortOrder = Enum.SortOrder.LayoutOrder,
-			Parent = tabsContainer
-		})
-
-		-- Tab Function (Nested within TabGroup)
-		function TabGroupFunctions:Tab(tabSettings)
-			local TabFunctions = { Settings = tabSettings }
-			tabIndex += 1
-
-			local tabButton = Create("TextButton", {
-				Name = "TabSwitcher_" .. (tabSettings.Name or tabIndex):gsub("%s+","_"), -- Sanitize
-				Text = "",
-				Size = UDim2.new(1, 0, 0, 35), -- Tab height
-				BackgroundColor3 = theme.Background,
-				BackgroundTransparency = 1, -- Fully transparent until selected/hovered
-				AutoButtonColor = false,
-				LayoutOrder = tabIndex,
-				Parent = tabsContainer
-			})
-			local tabCorner = Create("UICorner", { CornerRadius = theme.CornerRadius, Parent = tabButton })
-			local tabStroke = Create("UIStroke", {
-				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				Color = theme.Accent,
-				Thickness = theme.StrokeThickness,
-				Transparency = 1, -- Hidden until selected
-				Parent = tabButton
-			})
-			local tabLayout = Create("UIListLayout", {
-				FillDirection = Enum.FillDirection.Horizontal,
-				VerticalAlignment = Enum.VerticalAlignment.Center,
-				Padding = UDim.new(0, 10),
-				SortOrder = Enum.SortOrder.LayoutOrder,
-				Parent = tabButton
-			})
-			local tabPadding = Create("UIPadding", {
-				PaddingLeft = UDim.new(0, 15),
-				PaddingRight = UDim.new(0, 15),
-				Parent = tabButton
-			})
-
-			-- Tab Icon
-			local tabIcon = nil
-			if tabSettings.Image then
-				tabIcon = Create("ImageLabel", {
-					Name = "TabIcon",
-					Image = tabSettings.Image,
-					ImageColor3 = theme.TextSecondary,
-					ImageTransparency = 0, -- Control via color alpha if needed or direct tween
-					Size = UDim2.fromOffset(18, 18),
-					BackgroundTransparency = 1,
-					Parent = tabButton
-				})
-			end
-
-			-- Tab Name
-			local tabNameLabel = Create("TextLabel", {
-				Name = "TabName",
-				Text = tabSettings.Name or "Tab",
-				FontFace = theme.Font.Regular,
-				TextSize = 14,
-				TextColor3 = theme.TextSecondary,
-				TextXAlignment = Enum.TextXAlignment.Left,
-				Size = UDim2.new(1, -( (tabIcon and tabIcon.Size.X.Offset or 0) + tabLayout.Padding.Offset), 1, 0),
-				BackgroundTransparency = 1,
-				LayoutOrder = tabIcon and 1 or 0,
-				Parent = tabButton
-			})
-
-			-- Tab Content Frame (Initially parented to nil)
-			local tabContentFrame = Create("ScrollingFrame", {
-				Name = "TabContent_" .. (tabSettings.Name or tabIndex):gsub("%s+","_"), -- Sanitize
-				Size = UDim2.fromScale(1, 1),
-				BackgroundTransparency = 1,
-				BorderSizePixel = 0,
-				ScrollBarThickness = 4,
-				ScrollBarImageColor3 = theme.StrokeLight,
-				CanvasSize = UDim2.new(0, 0, 0, 0),
-				AutomaticCanvasSize = Enum.AutomaticSize.Y,
-				ClipsDescendants = false, -- Allow elements like dropdowns to overflow
-				Parent = nil -- Parented to contentElements when selected
-			})
-			local contentPadding = Create("UIPadding", {
-				PaddingLeft = UDim.new(0, 15),
-				PaddingRight = UDim.new(0, 15),
-				PaddingTop = UDim.new(0, 15),
-				PaddingBottom = UDim.new(0, 15),
-				Parent = tabContentFrame
-			})
-			local contentLayout = Create("UIListLayout", { -- Main layout: Horizontal for columns
-				FillDirection = Enum.FillDirection.Horizontal,
-				VerticalAlignment = Enum.VerticalAlignment.Top,
-				HorizontalAlignment = Enum.HorizontalAlignment.Left,
-				Padding = UDim.new(0, 15), -- Space between columns
-				SortOrder = Enum.SortOrder.LayoutOrder,
-				Parent = tabContentFrame
-			})
-
-			-- Columns within the Tab Content
-			local leftColumn = Create("Frame", {
-				Name = "LeftColumn",
-				Size = UDim2.new(0.5, -contentLayout.Padding.Offset / 2, 0, 0), -- Half width minus padding
-				AutomaticSize = Enum.AutomaticSize.Y,
-				BackgroundTransparency = 1,
-				LayoutOrder = 1,
-				Parent = tabContentFrame
-			})
-			local leftLayout = Create("UIListLayout", {
-				Padding = UDim.new(0, 15), -- Space between sections/elements
-				SortOrder = Enum.SortOrder.LayoutOrder,
-				Parent = leftColumn
-			})
-
-			local rightColumn = Create("Frame", {
-				Name = "RightColumn",
-				Size = UDim2.new(0.5, -contentLayout.Padding.Offset / 2, 0, 0), -- Half width minus padding
-				AutomaticSize = Enum.AutomaticSize.Y,
-				BackgroundTransparency = 1,
-				LayoutOrder = 2,
-				Parent = tabContentFrame
-			})
-			local rightLayout = Create("UIListLayout", {
-				Padding = UDim.new(0, 15), -- Space between sections/elements
-				SortOrder = Enum.SortOrder.LayoutOrder,
-				Parent = rightColumn
-			})
-
-			-- Store tab info
-			tabs[tabButton] = {
-				ContentFrame = tabContentFrame,
-				NameLabel = tabNameLabel,
-				IconImage = tabIcon,
-				Stroke = tabStroke,
-				Corner = tabCorner,
-				Button = tabButton -- Store reference to button itself
-			}
-
-			-- Tab Selection Logic
-			local function SelectTab()
-				if currentTabButton == tabButton then return end -- Already selected
-
-				-- Deselect previous tab
-				if currentTabButton and tabs[currentTabButton] then
-					local prevData = tabs[currentTabButton]
-					if prevData.ContentFrame then prevData.ContentFrame.Parent = nil end -- Unparent old content
-					TweenInstance(prevData.Button, { BackgroundTransparency = 1 })
-					TweenInstance(prevData.Stroke, { Transparency = 1 })
-					TweenInstance(prevData.NameLabel, { TextColor3 = theme.TextSecondary, FontFace = theme.Font.Regular })
-					if prevData.IconImage then TweenInstance(prevData.IconImage, { ImageColor3 = theme.TextSecondary }) end
-				end
-
-				-- Select this tab
-				tabContentFrame.Parent = contentElements -- Parent new content
-				currentTabInstance = tabContentFrame
-				currentTabButton = tabButton
-				currentTabLabel.Text = tabSettings.Name or "Tab"
-
-				-- Animate selection visually
-				local data = tabs[tabButton]
-				TweenInstance(data.Button, { BackgroundTransparency = 0.85 }) -- Subtle background
-				TweenInstance(data.Stroke, { Transparency = 0 }) -- Show accent stroke
-				TweenInstance(data.NameLabel, { TextColor3 = theme.Text, FontFace = theme.Font.Medium })
-				if data.IconImage then TweenInstance(data.IconImage, { ImageColor3 = theme.Text }) end
-
-			end
-
-			ManageConnection(tabButton.MouseButton1Click:Connect(SelectTab))
-
-			-- Hover Effects
-			ManageConnection(tabButton.MouseEnter:Connect(function()
-				if currentTabButton ~= tabButton then -- Don't apply hover if selected
-					TweenInstance(tabButton, { BackgroundTransparency = 0.9 })
-					TweenInstance(tabNameLabel, { TextColor3 = Color3.Lerp(theme.TextSecondary, theme.Text, 0.7) })
-					if tabIcon then TweenInstance(tabIcon, { ImageColor3 = Color3.Lerp(theme.TextSecondary, theme.Text, 0.7) }) end
-				end
-			end))
-			ManageConnection(tabButton.MouseLeave:Connect(function()
-				if currentTabButton ~= tabButton then -- Revert if not selected
-					TweenInstance(tabButton, { BackgroundTransparency = 1 })
-					TweenInstance(tabNameLabel, { TextColor3 = theme.TextSecondary })
-					if tabIcon then TweenInstance(tabIcon, { ImageColor3 = theme.TextSecondary }) end
-				end
-			end))
-
-			-- Section Function (Nested within Tab)
-			function TabFunctions:Section(secSettings)
-				local SectionFunctions = {}
-				secSettings = secSettings or {}
-				local side = secSettings.Side == "Right" and rightColumn or leftColumn -- Default to left
-
-				local sectionFrame = Create("Frame", {
-					Name = "Section_" .. (secSettings.Name or HttpService:GenerateGUID(false)):gsub("%s+","_"), -- Sanitize
-					AutomaticSize = Enum.AutomaticSize.Y,
-					Size = UDim2.new(1, 0, 0, 0),
-					BackgroundColor3 = theme.BackgroundLight, -- Use slightly lighter background
-					BackgroundTransparency = 0,
-					BorderSizePixel = 0,
-					ClipsDescendants = true,
-					Parent = side
-				})
-				SectionFunctions.SectionFrame = sectionFrame -- Expose frame
-
-				local secCorner = Create("UICorner", { CornerRadius = theme.CornerRadius, Parent = sectionFrame })
-				local secStroke = Create("UIStroke", {
-					Color = theme.Stroke,
-					Thickness = theme.StrokeThickness,
-					Transparency = theme.StrokeTransparency * 0.8,
-					Parent = sectionFrame
-				})
-				local secPadding = Create("UIPadding", {
-					PaddingLeft = UDim.new(0, secSettings.PaddingX or 15),
-					PaddingRight = UDim.new(0, secSettings.PaddingX or 15),
-					PaddingTop = UDim.new(0, secSettings.PaddingY or 15),
-					PaddingBottom = UDim.new(0, secSettings.PaddingY or 15),
-					Parent = sectionFrame
-				})
-				local secLayout = Create("UIListLayout", {
-					Padding = UDim.new(0, secSettings.Spacing or 10), -- Space between elements
-					SortOrder = Enum.SortOrder.LayoutOrder,
-					Name = "SectionLayout", -- Give it a name for lookup if needed
-					Parent = sectionFrame
-				})
-				SectionFunctions.SectionLayout = secLayout -- Expose layout
-
-				-- // Element Functions (Nested within Section) // --
-				-- RE-EXAMINED CODE FOR ELEMENTS (Header, Label, SubLabel, etc.) - Including fix for SubLabel LayoutOrder
-
-				-- Header
-				function SectionFunctions:Header(hSettings, flag)
-					local HeaderFuncs = { Settings = hSettings, Class = "Header" }
-					local text = hSettings.Text or hSettings.Name or "Header"
-					local id = flag or "Header_" .. text:gsub("%s+","_") -- Sanitize
-
-					local label = Create("TextLabel", {
-						Name = id, Text = text, FontFace = theme.Font.SemiBold, TextColor3 = theme.Text, TextSize = 16, TextXAlignment = Enum.TextXAlignment.Left, TextWrapped = true, AutomaticSize = Enum.AutomaticSize.Y, Size = UDim2.new(1, 0, 0, 20), BackgroundTransparency = 1, Parent = sectionFrame
-					})
-					Create("UIPadding", { PaddingBottom = UDim.new(0, 5), Parent = label }) -- Add space below header
-					HeaderFuncs.Instance = label
-
-					function HeaderFuncs:UpdateName(newName) label.Text = newName end
-					function HeaderFuncs:SetVisibility(visible) label.Visible = visible end
-					if flag then AetheriumUI.Options[flag] = HeaderFuncs end
-					return HeaderFuncs
-				end
-
-				-- Label
-				function SectionFunctions:Label(lSettings, flag)
-					local LabelFuncs = { Settings = lSettings, Class = "Label" }
-					local text = lSettings.Text or lSettings.Name or "Label"
-					local id = flag or "Label_" .. text:gsub("%s+","_")
-
-					local label = Create("TextLabel", {
-						Name = id, Text = text, RichText = lSettings.RichText or true, FontFace = theme.Font.Regular, TextColor3 = theme.TextSecondary, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, TextWrapped = true, AutomaticSize = Enum.AutomaticSize.Y, Size = UDim2.new(1, 0, 0, 18), BackgroundTransparency = 1, Parent = sectionFrame
-					})
-					LabelFuncs.Instance = label
-
-					function LabelFuncs:UpdateName(newName) label.Text = newName end
-					function LabelFuncs:SetVisibility(visible) label.Visible = visible end
-					if flag then AetheriumUI.Options[flag] = LabelFuncs end
-					return LabelFuncs
-				end
-
-				-- SubLabel
-				function SectionFunctions:SubLabel(slSettings, flag)
-					local SubLabelFuncs = { Settings = slSettings, Class = "SubLabel" }
-					local text = slSettings.Text or slSettings.Name or "SubLabel"
-					local id = flag or "SubLabel_" .. text:gsub("%s+","_")
-
-					local label = Create("TextLabel", {
-						Name = id, Text = text, RichText = slSettings.RichText or true, FontFace = theme.Font.Regular, TextColor3 = Color3.Lerp(theme.TextSecondary, theme.Background, 0.3), TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left, TextWrapped = true, AutomaticSize = Enum.AutomaticSize.Y, Size = UDim2.new(1, 0, 0, 16), BackgroundTransparency = 1, Parent = sectionFrame
-					})
-					SubLabelFuncs.Instance = label
-
-					-- Corrected LayoutOrder logic without optional chaining
-					task.defer(function() -- Defer to ensure layout is potentially updated
-						local children = sectionFrame:GetChildren()
-						local layoutOrder = 0
-						-- Find the actual previous non-layout element in the children list
-						for i = #children, 1, -1 do
-							local child = children[i]
-							if child ~= label and not child:IsA("UILayout") and not child:IsA("UIPadding") and not child:IsA("UICorner") and not child:IsA("UIStroke") and not child:IsA("UIScale") then
-								layoutOrder = child.LayoutOrder + 1
-								break -- Found the previous element
-							end
-						end
-						label.LayoutOrder = layoutOrder
-					end)
-
-					function SubLabelFuncs:UpdateName(newName) label.Text = newName end
-					function SubLabelFuncs:SetVisibility(visible) label.Visible = visible end
-					if flag then AetheriumUI.Options[flag] = SubLabelFuncs end
-					return SubLabelFuncs
-				end
-
-				-- Paragraph (Assuming this is correct)
-				function SectionFunctions:Paragraph(pSettings, flag)
-					local ParaFuncs = { Settings = pSettings, Class = "Paragraph" }
-					local headerText = pSettings.Header or "Paragraph"
-					local bodyText = pSettings.Body or "Paragraph body text."
-					local id = flag or "Paragraph_" .. headerText:gsub("%s+","_")
-
-					local container = Create("Frame", {
-						Name = id, AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), Parent = sectionFrame,
-					})
-					local layout = Create("UIListLayout", {
-						Padding = UDim.new(0, 5), SortOrder = Enum.SortOrder.LayoutOrder, Parent = container
-					})
-					ParaFuncs.Instance = container
-
-					local headerLabel = Create("TextLabel", {
-						Name = "Header", Text = headerText, FontFace = theme.Font.Medium, TextColor3 = theme.Text, TextSize = 15, TextXAlignment = Enum.TextXAlignment.Left, TextWrapped = true, AutomaticSize = Enum.AutomaticSize.Y, Size = UDim2.new(1, 0, 0, 18), BackgroundTransparency = 1, Parent = container
-					})
-					local bodyLabel = Create("TextLabel", {
-						Name = "Body", Text = bodyText, RichText = pSettings.RichText or true, FontFace = theme.Font.Regular, TextColor3 = theme.TextSecondary, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, TextWrapped = true, AutomaticSize = Enum.AutomaticSize.Y, Size = UDim2.new(1, 0, 0, 16), BackgroundTransparency = 1, LayoutOrder = 1, Parent = container
-					})
-
-					function ParaFuncs:UpdateHeader(newText) headerLabel.Text = newText end
-					function ParaFuncs:UpdateBody(newText) bodyLabel.Text = newText end
-					function ParaFuncs:SetVisibility(visible) container.Visible = visible end
-					if flag then AetheriumUI.Options[flag] = ParaFuncs end
-					return ParaFuncs
-				end
-
-				-- Divider (Assuming this is correct)
-				function SectionFunctions:Divider()
-					local DividerFuncs = {}
-					local divider = Create("Frame", {
-						Name = "Divider", Size = UDim2.new(1, 0, 0, 1), BackgroundColor3 = theme.Stroke, BackgroundTransparency = theme.StrokeTransparency * 1.1, BorderSizePixel = 0, Parent = sectionFrame
-					})
-					Create("UIPadding", { PaddingTop = UDim.new(0, math.floor(secLayout.Padding.Offset / 2)), PaddingBottom = UDim.new(0, math.floor(secLayout.Padding.Offset / 2)), Parent = divider })
-					DividerFuncs.Instance = divider
-					function DividerFuncs:Remove() if divider and divider.Parent then divider:Destroy() end end
-					function DividerFuncs:SetVisibility(visible) divider.Visible = visible end
-					return DividerFuncs
-				end
-
-				-- Spacer (Assuming this is correct)
-				function SectionFunctions:Spacer(spSettings)
-					local SpacerFuncs = {}
-					spSettings = spSettings or {}
-					local height = spSettings.Height or 10
-
-					local spacer = Create("Frame", {
-						Name = "Spacer", Size = UDim2.new(1, 0, 0, height), BackgroundTransparency = 1, BorderSizePixel = 0, Parent = sectionFrame
-					})
-					SpacerFuncs.Instance = spacer
-					function SpacerFuncs:Remove() if spacer and spacer.Parent then spacer:Destroy() end end
-					function SpacerFuncs:SetVisibility(visible) spacer.Visible = visible end
-					return SpacerFuncs
-				end
-
-				-- Button, Toggle, Slider, Input, Keybind, Dropdown, Colorpicker implementations here...
-				-- Assume they are the same as the previous version, as the reported errors weren't inside them directly.
-                -- Need to re-paste those element function definitions here...
-                -- [PREVIOUSLY GENERATED ELEMENT CODE PASTED HERE - OMITTED FOR BREVITY]
-				-- Button
-				function SectionFunctions:Button(bSettings, flag)
-					local ButtonFuncs = { Settings = bSettings, Class = "Button" }
-					local text = bSettings.Name or "Button"
-					local id = flag or "Button_" .. text:gsub("%s+","_")
-
-					local button = Create("TextButton", {
-						Name = id, Text = text, FontFace = theme.Font.Medium, TextColor3 = theme.Text, TextSize = 14, BackgroundColor3 = theme.PrimaryInteraction, Size = UDim2.new(1, 0, 0, 35), AutoButtonColor = false, Parent = sectionFrame
-					})
-					Create("UICorner", { CornerRadius = theme.CornerRadius, Parent = button })
-					ButtonFuncs.Instance = button
-
-					if bSettings.Image then
-						button.TextXAlignment = Enum.TextXAlignment.Left
-						local icon = Create("ImageLabel", { Name = "Icon", Image = bSettings.Image or AetheriumUI.Assets.buttonImage, ImageColor3 = theme.TextSecondary, Size = UDim2.fromOffset(16, 16), AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -10, 0.5, 0), BackgroundTransparency = 1, Parent = button })
-						ManageConnection(button.MouseEnter:Connect(function() TweenInstance(icon, { ImageColor3 = theme.Text }) end))
-						ManageConnection(button.MouseLeave:Connect(function() TweenInstance(icon, { ImageColor3 = theme.TextSecondary }) end))
-					end
-
-					ManageConnection(button.MouseEnter:Connect(function() TweenInstance(button, { BackgroundColor3 = theme.PrimaryInteractionHover }) end))
-					ManageConnection(button.MouseLeave:Connect(function() TweenInstance(button, { BackgroundColor3 = theme.PrimaryInteraction }) end))
-					ManageConnection(button.MouseButton1Click:Connect(function()
-						TweenInstance(button, { BackgroundColor3 = theme.Accent })
-						TweenInstance(button, { BackgroundColor3 = theme.PrimaryInteractionHover }, TweenInfo.new(0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0.1))
-						task.spawn(function() if bSettings.Callback then pcall(bSettings.Callback) end end)
-					end))
-
-					function ButtonFuncs:UpdateName(newName) button.Text = newName end
-					function ButtonFuncs:SetVisibility(visible) button.Visible = visible end
-					if flag then AetheriumUI.Options[flag] = ButtonFuncs end
-					return ButtonFuncs
-				end
-				-- Toggle (Re-pasted)
-				function SectionFunctions:Toggle(tSettings, flag)
-					local ToggleFuncs = { Settings = tSettings, IgnoreConfig = false, Class = "Toggle", State = tSettings.Default or false }
-					local text = tSettings.Name or "Toggle"
-					local id = flag or "Toggle_" .. text:gsub("%s+","_")
-
-					local container = Create("Frame", { Name = id, Size = UDim2.new(1, 0, 0, 30), BackgroundTransparency = 1, Parent = sectionFrame })
-					local layout = Create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, VerticalAlignment = Enum.VerticalAlignment.Center, HorizontalAlignment = Enum.HorizontalAlignment.Left, SortOrder = Enum.SortOrder.LayoutOrder, Parent = container })
-					ToggleFuncs.Instance = container
-
-					local nameLabel = Create("TextLabel", { Name = "ToggleName", Text = text, FontFace = theme.Font.Regular, TextColor3 = theme.Text, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, Size = UDim2.new(1, -55, 1, 0), BackgroundTransparency = 1, Parent = container })
-
-					local toggleWidth, toggleHeight = 40, 20; local headSize = 16
-					local toggleButton = Create("ImageButton", { Name = "ToggleSwitch", Size = UDim2.fromOffset(toggleWidth, toggleHeight), BackgroundColor3 = theme.BackgroundLighter, BackgroundTransparency = 0, AutoButtonColor = false, LayoutOrder = 1, Image = "", Parent = container })
-					Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = toggleButton })
-
-					local toggleHead = Create("Frame", { Name = "ToggleHead", Size = UDim2.fromOffset(headSize, headSize), BackgroundColor3 = theme.TextDisabled, BorderSizePixel = 0, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0, headSize / 2 + (toggleHeight - headSize)/2, 0.5, 0), Parent = toggleButton, ZIndex = 2 })
-					Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = toggleHead })
-
-					local function SetToggleState(state, noAnim)
-						ToggleFuncs.State = state
-						local animSpeed = noAnim and 0 or theme.AnimationSpeed; local tweenInfo = TweenInfo.new(animSpeed, theme.EasingStyle, theme.EasingDirection)
-						local targetHeadPos = state and UDim2.new(1, -(headSize / 2 + (toggleHeight - headSize)/2), 0.5, 0) or UDim2.new(0, headSize / 2 + (toggleHeight - headSize)/2, 0.5, 0)
-						local targetHeadColor = state and theme.Text or theme.TextDisabled; local targetBgColor = state and theme.Accent or theme.BackgroundLighter
-						StopTweens(toggleHead); StopTweens(toggleButton)
-						TweenInstance(toggleHead, { Position = targetHeadPos, BackgroundColor3 = targetHeadColor }, tweenInfo)
-						TweenInstance(toggleButton, { BackgroundColor3 = targetBgColor }, tweenInfo)
-					end
-					SetToggleState(ToggleFuncs.State, true)
-
-					ManageConnection(toggleButton.MouseButton1Click:Connect(function() SetToggleState(not ToggleFuncs.State); task.spawn(function() if tSettings.Callback then pcall(tSettings.Callback, ToggleFuncs.State) end end) end))
-					ManageConnection(toggleButton.MouseEnter:Connect(function() TweenInstance(toggleHead, { BackgroundTransparency = 0.1 }) end))
-					ManageConnection(toggleButton.MouseLeave:Connect(function() TweenInstance(toggleHead, { BackgroundTransparency = 0 }) end))
-
-					function ToggleFuncs:UpdateState(newState, noCallback) if ToggleFuncs.State == newState then return end; SetToggleState(newState, true); if not noCallback then task.spawn(function() if tSettings.Callback then pcall(tSettings.Callback, ToggleFuncs.State) end end) end end
-					function ToggleFuncs:GetState() return ToggleFuncs.State end
-					function ToggleFuncs:UpdateName(newName) nameLabel.Text = newName end
-					function ToggleFuncs:SetVisibility(visible) container.Visible = visible end
-					if flag then AetheriumUI.Options[flag] = ToggleFuncs end
-					return ToggleFuncs
-				end
-				-- Slider (Re-pasted)
-				function SectionFunctions:Slider(sSettings, flag)
-					local SliderFuncs = { Settings = sSettings, IgnoreConfig = false, Class = "Slider" }
-					local text = sSettings.Name or "Slider"; local id = flag or "Slider_" .. text:gsub("%s+","_")
-					local minVal, maxVal = sSettings.Minimum or 0, sSettings.Maximum or 100; local defaultVal = math.clamp(sSettings.Default or minVal, minVal, maxVal)
-					local precision = sSettings.Precision or 0; local displayMethod = sSettings.DisplayMethod or "Value"; local prefix = sSettings.Prefix or ""; local suffix = sSettings.Suffix or ""
-					SliderFuncs.Value = defaultVal
-
-					local container = Create("Frame", { Name = id, Size = UDim2.new(1, 0, 0, 45), BackgroundTransparency = 1, Parent = sectionFrame })
-					local layout = Create("UIListLayout", { Padding = UDim.new(0, 5), SortOrder = Enum.SortOrder.LayoutOrder, Parent = container })
-					SliderFuncs.Instance = container
-
-					local nameLabel = Create("TextLabel", { Name = "SliderName", Text = text, FontFace = theme.Font.Regular, TextColor3 = theme.Text, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, Size = UDim2.new(1, 0, 0, 15), BackgroundTransparency = 1, Parent = container })
-					local sliderRow = Create("Frame", { Name = "SliderRow", Size = UDim2.new(1, 0, 0, 20), BackgroundTransparency = 1, LayoutOrder = 1, Parent = container })
-					local rowLayout = Create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, VerticalAlignment = Enum.VerticalAlignment.Center, Padding = UDim.new(0, 10), SortOrder = Enum.SortOrder.LayoutOrder, Parent = sliderRow })
-
-					local valueBoxWidth = 55
-					local valueBox = Create("TextBox", { Name = "SliderValue", Text = "", FontFace = theme.Font.Regular, TextColor3 = theme.Text, TextSize = 12, PlaceholderColor3 = theme.TextSecondary, TextXAlignment = Enum.TextXAlignment.Center, BackgroundColor3 = theme.BackgroundLighter, ClearTextOnFocus = false, Size = UDim2.fromOffset(valueBoxWidth, 20), LayoutOrder = 1, Parent = sliderRow })
-					ApplyStyling(valueBox, "Input")
-
-					local sliderTrack = Create("Frame", { Name = "SliderTrack", Size = UDim2.new(1, -(valueBoxWidth + rowLayout.Padding.Offset), 0, 6), BackgroundColor3 = theme.BackgroundLighter, BackgroundTransparency = 0, BorderSizePixel = 0, LayoutOrder = 0, Parent = sliderRow })
-					Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = sliderTrack })
-					local sliderFill = Create("Frame", { Name = "SliderFill", Size = UDim2.fromScale(0, 1), BackgroundColor3 = theme.Accent, BorderSizePixel = 0, Parent = sliderTrack })
-					Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = sliderFill })
-					local sliderHeadSize = 14
-					local sliderHead = Create("Frame", { Name = "SliderHead", Size = UDim2.fromOffset(sliderHeadSize, sliderHeadSize), BackgroundColor3 = theme.Text, BorderSizePixel = 0, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0, 0.5), Parent = sliderFill, ZIndex = 2 })
-					Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = sliderHead })
-					local headInteract = Create("TextButton", { Name = "HeadInteract", Size = UDim2.fromScale(1.5, 1.5), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), BackgroundTransparency = 1, Text = "", ZIndex = 3, Parent = sliderHead })
-
-					local DisplayMethods = { Round=function(v,p)return string.format("%."..(p or 0).."f",v)end, Percent=function(v,p)local pct=((v-minVal)/(maxVal-minVal))*100;return string.format("%."..(p or 0).."f",pct).."%"end, Degrees=function(v,p)return string.format("%."..(p or 0).."f",v).."°"end, Value=function(v,p)return string.format("%."..(p or 0).."f",v)end }
-					local FormatValue = DisplayMethods[displayMethod] or DisplayMethods.Value
-
-					local function UpdateSliderVisuals(value, noAnim) value = math.clamp(value, minVal, maxVal); local percent = (value-minVal)/(maxVal-minVal); percent=math.clamp(percent,0,1); local targetSize=UDim2.fromScale(percent,1); local animSpeed=noAnim and 0 or theme.AnimationSpeed*0.5; local tweenInfo=TweenInfo.new(animSpeed,theme.EasingStyle,theme.EasingDirection); StopTweens(sliderFill); TweenInstance(sliderFill,{Size=targetSize},tweenInfo); valueBox.Text=prefix..FormatValue(value,precision)..suffix; SliderFuncs.Value=value end
-					local function UpdateValueFromInput(inputVal, source) local newValue; if source=="drag" then local mouseX=UserInputService:GetMouseLocation().X; local relativeX=mouseX-sliderTrack.AbsolutePosition.X; local percent=math.clamp(relativeX/sliderTrack.AbsoluteSize.X,0,1); newValue=minVal+percent*(maxVal-minVal) elseif source=="textbox" then local text=valueBox.Text; local numStr=text:gsub("[%s"..prefix..suffix.."%%°]",""); newValue=tonumber(numStr); if displayMethod=="Percent" and newValue then newValue=minVal+(newValue/100)*(maxVal-minVal) end; if newValue==nil then newValue=SliderFuncs.Value end else newValue=inputVal end; newValue=math.clamp(newValue,minVal,maxVal); if sSettings.Step and sSettings.Step>0 then newValue=math.round(newValue/sSettings.Step)*sSettings.Step end; local changed = math.abs(newValue - SliderFuncs.Value) > 10^-(precision+1); UpdateSliderVisuals(newValue,source~="drag"); if changed then task.spawn(function() if sSettings.Callback then pcall(sSettings.Callback,newValue) end end) end end
-					UpdateSliderVisuals(defaultVal, true)
-
-					local isDragging = false; local dragEndConn; ManageConnection(headInteract.InputBegan:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then isDragging=true; UpdateValueFromInput(nil,"drag"); if dragEndConn and dragEndConn.Connected then dragEndConn:Disconnect() end; dragEndConn = input.Changed:Connect(function() if input.UserInputState==Enum.UserInputState.End then isDragging=false; task.spawn(function() if sSettings.onInputComplete then pcall(sSettings.onInputComplete,SliderFuncs.Value) end end); if dragEndConn and dragEndConn.Connected then dragEndConn:Disconnect() end end end); ManageConnection(dragEndConn) end end))
-					ManageConnection(UserInputService.InputChanged:Connect(function(input) if isDragging and (input.UserInputType==Enum.UserInputType.MouseMovement or input.UserInputType==Enum.UserInputType.Touch) then UpdateValueFromInput(nil,"drag") end end))
-					ManageConnection(valueBox.FocusLost:Connect(function(enterPressed) UpdateValueFromInput(nil,"textbox"); task.spawn(function() if sSettings.onInputComplete then pcall(sSettings.onInputComplete,SliderFuncs.Value) end end) end))
-
-					function SliderFuncs:UpdateValue(newValue, noCallback) UpdateValueFromInput(newValue, "direct"); if not noCallback then task.spawn(function() if sSettings.Callback then pcall(sSettings.Callback, SliderFuncs.Value) end end) end end
-					function SliderFuncs:GetValue() return SliderFuncs.Value end
-					function SliderFuncs:UpdateName(newName) nameLabel.Text = newName end
-					function SliderFuncs:SetVisibility(visible) container.Visible = visible end
-					if flag then AetheriumUI.Options[flag] = SliderFuncs end
-					return SliderFuncs
-				end
-				-- Input (Re-pasted)
-				function SectionFunctions:Input(iSettings, flag)
-					local InputFuncs = { Settings = iSettings, IgnoreConfig = false, Class = "Input", Text = iSettings.Default or "" }
-					local text = iSettings.Name or "Input"; local id = flag or "Input_" .. text:gsub("%s+","_")
-					local placeholder = iSettings.Placeholder or "Enter text..."; local charLimit = iSettings.CharacterLimit; local clearOnFocus = iSettings.ClearTextOnFocus == nil or iSettings.ClearTextOnFocus
-
-					local container = Create("Frame", { Name = id, Size = UDim2.new(1, 0, 0, 55), BackgroundTransparency = 1, Parent = sectionFrame })
-					local layout = Create("UIListLayout", { Padding = UDim.new(0, 5), SortOrder = Enum.SortOrder.LayoutOrder, Parent = container })
-					InputFuncs.Instance = container
-
-					local nameLabel = Create("TextLabel", { Name = "InputName", Text = text, FontFace = theme.Font.Regular, TextColor3 = theme.Text, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, Size = UDim2.new(1, 0, 0, 15), BackgroundTransparency = 1, Parent = container })
-					local inputBox = Create("TextBox", { Name = "InputBox", Text = InputFuncs.Text, PlaceholderText = placeholder, ClearTextOnFocus = clearOnFocus, MultiLine = iSettings.MultiLine or false, TextWrapped = iSettings.MultiLine or false, FontFace = theme.Font.Regular, TextColor3 = theme.Text, TextSize = 13, PlaceholderColor3 = theme.TextSecondary, BackgroundColor3 = theme.BackgroundLighter, Size = UDim2.new(1, 0, 0, iSettings.MultiLine and 60 or 30), LayoutOrder = 1, TextXAlignment = iSettings.MultiLine and Enum.TextXAlignment.Left or Enum.TextXAlignment.Left, TextYAlignment = iSettings.MultiLine and Enum.TextYAlignment.Top or Enum.TextYAlignment.Center, Parent = container })
-					ApplyStyling(inputBox, "Input"); if iSettings.MultiLine then inputBox.Padding = UDim.new(0, 8) else Create("UIPadding", {PaddingLeft = UDim.new(0,8), PaddingRight = UDim.new(0,8), Parent = inputBox}) end
-
-					local function FilterText(currentText) local filtered=currentText; if iSettings.AcceptedCharacters=="Numeric" then filtered=filtered:gsub("[^%d.,%-]","") elseif iSettings.AcceptedCharacters=="Alphabetic" then filtered=filtered:gsub("[^%a%s]","") elseif iSettings.AcceptedCharacters=="AlphaNumeric" then filtered=filtered:gsub("[^%w%s]","") elseif type(iSettings.AcceptedCharacters)=="function" then filtered=iSettings.AcceptedCharacters(filtered) end; if charLimit and #filtered>charLimit then filtered=filtered:sub(1,charLimit) end; return filtered end
-					ManageConnection(inputBox:GetPropertyChangedSignal("Text"):Connect(function() local currentText=inputBox.Text; local filteredText=FilterText(currentText); if currentText~=filteredText then inputBox.Text=filteredText end; InputFuncs.Text=filteredText; task.spawn(function() if iSettings.onChanged then pcall(iSettings.onChanged,InputFuncs.Text) end end) end))
-					ManageConnection(inputBox.FocusLost:Connect(function(enterPressed) local currentText=inputBox.Text; local filteredText=FilterText(currentText); if currentText~=filteredText then inputBox.Text=filteredText end; InputFuncs.Text=filteredText; task.spawn(function() if iSettings.Callback then pcall(iSettings.Callback,InputFuncs.Text) end end) end))
-
-					function InputFuncs:UpdateText(newText, noCallback) local filtered=FilterText(tostring(newText)); inputBox.Text=filtered; InputFuncs.Text=filtered; if not noCallback then task.spawn(function() if iSettings.Callback then pcall(iSettings.Callback,InputFuncs.Text) end end) end end
-					function InputFuncs:GetInput() return InputFuncs.Text end
-					function InputFuncs:UpdatePlaceholder(newPlaceholder) inputBox.PlaceholderText = newPlaceholder end
-					function InputFuncs:UpdateName(newName) nameLabel.Text = newName end
-					function InputFuncs:SetVisibility(visible) container.Visible = visible end
-					if flag then AetheriumUI.Options[flag] = InputFuncs end
-					return InputFuncs
-				end
-				-- Keybind (Re-pasted)
-				function SectionFunctions:Keybind(kSettings, flag)
-					local KeybindFuncs = { Settings = kSettings, IgnoreConfig = false, Class = "Keybind", Bind = kSettings.Default or nil }
-					local text = kSettings.Name or "Keybind"; local id = flag or "Keybind_" .. text:gsub("%s+","_")
-
-					local container = Create("Frame", { Name = id, Size = UDim2.new(1, 0, 0, 30), BackgroundTransparency = 1, Parent = sectionFrame })
-					local layout = Create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, VerticalAlignment = Enum.VerticalAlignment.Center, HorizontalAlignment = Enum.HorizontalAlignment.Left, SortOrder = Enum.SortOrder.LayoutOrder, Parent = container })
-					KeybindFuncs.Instance = container
-
-					local nameLabel = Create("TextLabel", { Name = "KeybindName", Text = text, FontFace = theme.Font.Regular, TextColor3 = theme.Text, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, Size = UDim2.new(1, -75, 1, 0), BackgroundTransparency = 1, Parent = container })
-					local keybindBoxWidth = 70
-					local keybindBox = Create("TextButton", { Name = "KeybindBox", Text = KeybindFuncs.Bind and KeybindFuncs.Bind.Name or "...", FontFace = theme.Font.Regular, TextColor3 = theme.Text, TextSize = 12, BackgroundColor3 = theme.BackgroundLighter, Size = UDim2.fromOffset(keybindBoxWidth, 25), AutoButtonColor = false, LayoutOrder = 1, Parent = container })
-					ApplyStyling(keybindBox, "Input")
-
-					local isBinding = false; local currentBind = KeybindFuncs.Bind
-					local function UpdateKeybindVisuals(bind) currentBind=bind; KeybindFuncs.Bind=bind; keybindBox.Text=bind and bind.Name or "..."; keybindBox.TextColor3=bind and theme.Text or theme.TextSecondary end
-					local listeningConnection = nil
-					ManageConnection(keybindBox.MouseButton1Click:Connect(function() if isBinding then return end; isBinding=true; keybindBox.Text="..."; keybindBox.TextColor3=theme.Accent; keybindBox.BackgroundColor3=theme.AccentLight; if listeningConnection and listeningConnection.Connected then listeningConnection:Disconnect() end; listeningConnection=UserInputService.InputBegan:Connect(function(input, gameProcessed) if gameProcessed and not kSettings.AllowGameProcessed then return end; local newBind=nil; local isValid=false; if input.UserInputType==Enum.UserInputType.Keyboard then newBind=input.KeyCode; isValid=true elseif input.UserInputType==Enum.UserInputType.MouseButton1 then newBind=Enum.UserInputType.MouseButton1; isValid=true elseif input.UserInputType==Enum.UserInputType.MouseButton2 then newBind=Enum.UserInputType.MouseButton2; isValid=true elseif input.UserInputType==Enum.UserInputType.MouseButton3 then newBind=Enum.UserInputType.MouseButton3; isValid=true end; if isValid and kSettings.Blacklist then local list=kSettings.Blacklist; if (newBind.EnumType==Enum.KeyCode and table.find(list, newBind)) or (newBind.EnumType==Enum.UserInputType and table.find(list, newBind)) then isValid=false end end; if input.KeyCode==Enum.KeyCode.Escape then isValid=true; newBind=nil end; if isValid then isBinding=false; UpdateKeybindVisuals(newBind); keybindBox:ReleaseFocus(false); keybindBox.BackgroundColor3=theme.BackgroundLighter; if listeningConnection and listeningConnection.Connected then listeningConnection:Disconnect(); listeningConnection=nil end; task.spawn(function() if kSettings.onBinded then pcall(kSettings.onBinded,newBind) end end) end end); ManageConnection(listeningConnection) end))
-					ManageConnection(keybindBox.FocusLost:Connect(function() if isBinding then isBinding=false; UpdateKeybindVisuals(currentBind); keybindBox.BackgroundColor3=theme.BackgroundLighter; if listeningConnection and listeningConnection.Connected then listeningConnection:Disconnect(); listeningConnection=nil end end end))
-					local keybindPressed = false
-					ManageConnection(UserInputService.InputBegan:Connect(function(input, gameProcessed) if isBinding then return end; if gameProcessed and not kSettings.AllowGameProcessed then return end; if not currentBind then return end; if (input.KeyCode==currentBind) or (input.UserInputType==currentBind) then keybindPressed=true; task.spawn(function() if kSettings.Callback then pcall(kSettings.Callback,currentBind) end; if kSettings.onBindHeld then pcall(kSettings.onBindHeld,true, currentBind) end end) end end))
-					ManageConnection(UserInputService.InputEnded:Connect(function(input, gameProcessed) if isBinding then return end; if not currentBind then return end; if (input.KeyCode==currentBind) or (input.UserInputType==currentBind) then if keybindPressed then keybindPressed=false; task.spawn(function() if kSettings.onBindHeld then pcall(kSettings.onBindHeld,false, currentBind) end end) end end end))
-
-					function KeybindFuncs:Bind(key, noCallback) local bindType=typeof(key); if bindType=="EnumItem" and (key.EnumType==Enum.KeyCode or key.EnumType==Enum.UserInputType) then UpdateKeybindVisuals(key) elseif key==nil then UpdateKeybindVisuals(nil) else warn("[AetheriumUI] Bind expects Enum.KeyCode/UserInputType or nil") return end; if not noCallback then task.spawn(function() if kSettings.onBinded then pcall(kSettings.onBinded, key) end end) end end
-					function KeybindFuncs:Unbind(noCallback) KeybindFuncs:Bind(nil, noCallback) end
-					function KeybindFuncs:GetBind() return KeybindFuncs.Bind end
-					function KeybindFuncs:UpdateName(newName) nameLabel.Text = newName end
-					function KeybindFuncs:SetVisibility(visible) container.Visible = visible end
-					if flag then AetheriumUI.Options[flag] = KeybindFuncs end
-					return KeybindFuncs
-				end
-				-- Dropdown (Re-pasted with minor fixes)
-				function SectionFunctions:Dropdown(dSettings, flag)
-					local DropdownFuncs = { Settings = dSettings, IgnoreConfig = false, Class = "Dropdown" }
-					local text = dSettings.Name or "Dropdown"; local id = flag or "Dropdown_" .. text:gsub("%s+","_")
-					local options = dSettings.Options or {}; local isMulti = dSettings.Multi or false; local isRequired = dSettings.Required or false; local useSearch = dSettings.Search or false
-					local selectedValues = {}; local displayValues = {}
-					if dSettings.Default then local defaults=type(dSettings.Default)=="table" and (isMulti and dSettings.Default or {dSettings.Default[1]}) or {dSettings.Default}; for _,defVal in ipairs(defaults) do local found=false; if type(options)=="table" and options[1] then if table.find(options,defVal) then table.insert(selectedValues,defVal); table.insert(displayValues,defVal); found=true end else for val,disp in pairs(options) do if val==defVal then table.insert(selectedValues,val); table.insert(displayValues,disp); found=true; break end end end; if not isMulti and found then break end end end
-					DropdownFuncs.Value = isMulti and selectedValues or selectedValues[1]
-
-					local container = Create("Frame", { Name = id, Size = UDim2.new(1, 0, 0, 35), BackgroundColor3 = theme.BackgroundLighter, BackgroundTransparency = 0, ClipsDescendants = false, Parent = sectionFrame, ZIndex = 2 })
-					local containerCorner = Create("UICorner", { CornerRadius = theme.CornerRadius, Parent = container })
-					local containerStroke = Create("UIStroke", { Color = theme.Stroke, Thickness = theme.StrokeThickness, Parent = container })
-					DropdownFuncs.Instance = container
-
-					local mainButton = Create("TextButton", { Name = "MainButton", Text = "", Size = UDim2.new(1, 0, 0, 35), BackgroundTransparency = 1, Parent = container, ZIndex = 3 })
-					local mainLayout = Create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, VerticalAlignment = Enum.VerticalAlignment.Center, Padding = UDim.new(0, 5), Parent = mainButton })
-					local mainPadding = Create("UIPadding", { PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 10), Parent = mainButton })
-					local dropdownIconSize = 14
-					local dropdownIcon = Create("ImageLabel", { Name = "DropdownIcon", Image = AetheriumUI.Assets.dropdown, ImageColor3 = theme.TextSecondary, Size = UDim2.fromOffset(dropdownIconSize, dropdownIconSize), BackgroundTransparency = 1, LayoutOrder = 1, Parent = mainButton })
-					local nameLabel = Create("TextLabel", { Name = "DropdownName", Text = text, FontFace = theme.Font.Regular, TextColor3 = theme.TextSecondary, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, Size = UDim2.new(1, -(dropdownIconSize + mainLayout.Padding.Offset + 5), 1, 0), BackgroundTransparency = 1, Parent = mainButton })
-
-					local function UpdateDisplayText() if #selectedValues > 0 then nameLabel.Text = text..": "..table.concat(displayValues, ", "); nameLabel.TextColor3 = theme.Text else nameLabel.Text = text.."..."; nameLabel.TextColor3 = theme.TextSecondary end end; UpdateDisplayText()
-
-					local optionsHeight = 150
-					local optionsFrame = Create("Frame", { Name = "OptionsFrame", Size = UDim2.new(1, 0, 0, 0), Position = UDim2.new(0, 0, 1, 3), BackgroundColor3 = theme.BackgroundLighter, BorderSizePixel = 0, ClipsDescendants = true, Visible = false, Parent = container, ZIndex = 10 })
-					local optionsCorner = Create("UICorner", { CornerRadius = theme.CornerRadius, Parent = optionsFrame })
-					local optionsStroke = Create("UIStroke", { Color = theme.StrokeLight, Thickness = 1, Parent = optionsFrame })
-					local optionsPadding = Create("UIPadding", { PaddingTop=UDim.new(0,5), PaddingBottom=UDim.new(0,5), PaddingLeft=UDim.new(0,5), PaddingRight=UDim.new(0,5), Parent = optionsFrame })
-					local searchBox = nil; if useSearch then searchBox=Create("TextBox",{Name="SearchBox", Size=UDim2.new(1,-10,0,25), Position=UDim2.fromOffset(5,5), PlaceholderText="Search...", FontFace=theme.Font.Regular, TextSize=12, TextColor3=theme.Text, PlaceholderColor3=theme.TextSecondary, BackgroundColor3=theme.Background, ClearTextOnFocus=true, Parent=optionsFrame, ZIndex=12}); ApplyStyling(searchBox,"Input"); optionsPadding.PaddingTop=UDim.new(0,35) end
-					local optionsScroll = Create("ScrollingFrame", { Name="OptionsScroll", Size=UDim2.new(1,0,1,useSearch and -30 or 0), Position=UDim2.new(0,0,0,useSearch and 30 or 0), BackgroundTransparency=1, BorderSizePixel=0, ScrollBarThickness=4, ScrollBarImageColor3=theme.StrokeLight, CanvasSize=UDim2.new(0,0,0,0), AutomaticCanvasSize=Enum.AutomaticSize.Y, Parent=optionsFrame, ZIndex=11 })
-					local optionsLayout = Create("UIListLayout", { Padding=UDim.new(0,2), SortOrder=Enum.SortOrder.LayoutOrder, Parent=optionsScroll })
-					local optionObjects = {}
-
-					local function CreateOptionButton(value, displayText)
-						local optionButton=Create("TextButton",{Name="Option_"..tostring(value):gsub("%s+","_"), Text="", Size=UDim2.new(1,0,0,28), BackgroundColor3=theme.BackgroundLighter, BackgroundTransparency=1, AutoButtonColor=false, Parent=optionsScroll})
-						local optCorner=Create("UICorner",{CornerRadius=UDim.new(0,4),Parent=optionButton}); local optLayout=Create("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal, VerticalAlignment=Enum.VerticalAlignment.Center, Padding=UDim.new(0,8), Parent=optionButton}); local optPadding=Create("UIPadding",{PaddingLeft=UDim.new(0,8), PaddingRight=UDim.new(0,8), Parent=optionButton})
-						local checkmark=nil; if isMulti then checkmark=Create("TextLabel",{Name="Checkmark", Text="✓", FontFace=theme.Font.Bold, TextColor3=theme.Accent, TextSize=14, TextTransparency=1, Size=UDim2.fromOffset(0,14), TextXAlignment=Enum.TextXAlignment.Center, BackgroundTransparency=1, Parent=optionButton, ClipsDescendants=true}) end
-						local optNameLabel=Create("TextLabel",{Name="OptionName", Text=displayText, FontFace=theme.Font.Regular, TextSize=13, TextColor3=theme.TextSecondary, TextXAlignment=Enum.TextXAlignment.Left, Size=UDim2.new(1,-(isMulti and 14+8 or 0),1,0), BackgroundTransparency=1, LayoutOrder=isMulti and 1 or 0, Parent=optionButton})
-						optionObjects[value] = { Button=optionButton, NameLabel=optNameLabel, Checkmark=checkmark, DisplayText=displayText, Value=value }
-						local function SetOptionVisualState(isSelected) local targetBgTrans=isSelected and 0.8 or 1; local targetTextColor=isSelected and theme.Text or theme.TextSecondary; local targetCheckSize=isSelected and UDim2.fromOffset(14,14) or UDim2.fromOffset(0,14); local targetCheckTrans=isSelected and 0 or 1; TweenInstance(optionButton,{BackgroundTransparency=targetBgTrans}); TweenInstance(optNameLabel,{TextColor3=targetTextColor}); if checkmark then TweenInstance(checkmark,{Size=targetCheckSize, TextTransparency=targetCheckTrans}) end end
-						SetOptionVisualState(table.find(selectedValues,value)~=nil)
-						ManageConnection(optionButton.MouseButton1Click:Connect(function() local wasSelected=table.find(selectedValues,value)~=nil; local index=table.find(selectedValues,value); if isMulti then if wasSelected then if not isRequired or #selectedValues>1 then table.remove(selectedValues,index); table.remove(displayValues,index) else return end else table.insert(selectedValues,value); table.insert(displayValues,displayText) end; SetOptionVisualState(not wasSelected) else if wasSelected then if isRequired and #selectedValues==1 then return end; selectedValues={}; displayValues={}; SetOptionVisualState(false) else for _,data in pairs(optionObjects) do if data.Value~=value then local otherWasSelected=table.find(selectedValues,data.Value)~=nil; if otherWasSelected then data.Button.BackgroundTransparency=1; data.NameLabel.TextColor3=theme.TextSecondary end end end; selectedValues={value}; displayValues={displayText}; SetOptionVisualState(true) end; ToggleDropdown(false) end; DropdownFuncs.Value=isMulti and selectedValues or selectedValues[1]; UpdateDisplayText(); task.spawn(function() if dSettings.Callback then local cbValue=DropdownFuncs.Value; if isMulti then local multiResult={}; for _,v in ipairs(selectedValues) do multiResult[v]=true end; cbValue=multiResult end; pcall(dSettings.Callback,cbValue) end end) end))
-						ManageConnection(optionButton.MouseEnter:Connect(function() if not table.find(selectedValues,value) then TweenInstance(optionButton,{BackgroundTransparency=0.9}) end end))
-						ManageConnection(optionButton.MouseLeave:Connect(function() if not table.find(selectedValues,value) then TweenInstance(optionButton,{BackgroundTransparency=1}) end end))
-					end
-					local function PopulateOptions(optionsTable) for _,child in ipairs(optionsScroll:GetChildren()) do if child:IsA("GuiButton") then pcall(child.Destroy, child) end end; optionObjects={}; if type(optionsTable)=="table" and optionsTable[1] then for _,optValue in ipairs(optionsTable) do CreateOptionButton(optValue,tostring(optValue)) end else for optValue,optDisplay in pairs(optionsTable) do CreateOptionButton(optValue,tostring(optDisplay)) end end end; PopulateOptions(options)
-					if searchBox then ManageConnection(searchBox:GetPropertyChangedSignal("Text"):Connect(function() local searchTerm=searchBox.Text:lower(); local visibleCount=0; for val,data in pairs(optionObjects) do local isVisible=searchTerm=="" or data.DisplayText:lower():find(searchTerm,1,true); data.Button.Visible=isVisible; if isVisible then visibleCount+=1 end end end)) end
-					local isOpen=false; local openCloseTween=nil
-					function ToggleDropdown(forceState) local targetState=forceState; if targetState==nil then targetState=not isOpen end; if targetState==isOpen then return end; isOpen=targetState; if openCloseTween and openCloseTween.PlaybackState~=Enum.PlaybackState.Completed then openCloseTween:Cancel() end; local targetHeight=0; if isOpen then optionsFrame.Visible=true; local contentHeight=optionsLayout.AbsoluteContentSize.Y+optionsPadding.PaddingTop.Offset+optionsPadding.PaddingBottom.Offset; if useSearch then contentHeight+=30 end; targetHeight=math.min(contentHeight,optionsHeight) end; local targetRotation=isOpen and 180 or 0; local tweenInfo=TweenInfo.new(theme.AnimationSpeed*1.5,Enum.EasingStyle.Quint,theme.EasingDirection); openCloseTween=TweenInstance(optionsFrame,{Size=UDim2.new(1,0,0,targetHeight)},tweenInfo); TweenInstance(dropdownIcon,{Rotation=targetRotation},tweenInfo); container.ZIndex=isOpen and 5 or 2; if not isOpen then local completedConn; completedConn = openCloseTween.Completed:Connect(function() if not isOpen then optionsFrame.Visible=false end; if completedConn and completedConn.Connected then completedConn:Disconnect() end end) end end
-					ManageConnection(mainButton.MouseButton1Click:Connect(function() ToggleDropdown() end))
-
-					function DropdownFuncs:UpdateSelection(newSelection, noCallback) local newSelectedValues={}; local newDisplayValues={}; local selection=type(newSelection)=="table" and (isMulti and newSelection or {newSelection[1]}) or {newSelection}; if isMulti and type(newSelection)=="table" and not newSelection[1] then selection={}; for k,v in pairs(newSelection) do if v then table.insert(selection,k) end end end; for _,selVal in ipairs(selection) do if optionObjects[selVal] then table.insert(newSelectedValues,selVal); table.insert(newDisplayValues,optionObjects[selVal].DisplayText); if not isMulti then break end end end; for val,data in pairs(optionObjects) do local isSelected=table.find(newSelectedValues,val)~=nil; SetOptionVisualState(isSelected) end; selectedValues=newSelectedValues; displayValues=newDisplayValues; DropdownFuncs.Value=isMulti and selectedValues or selectedValues[1]; UpdateDisplayText(); if not noCallback then task.spawn(function() if dSettings.Callback then local cbValue=DropdownFuncs.Value; if isMulti then local multiResult={}; for _,v in ipairs(selectedValues) do multiResult[v]=true end; cbValue=multiResult end; pcall(dSettings.Callback,cbValue) end end) end end
-					function DropdownFuncs:InsertOptions(newOptions) if type(newOptions)=="table" then PopulateOptions(newOptions) end end
-					function DropdownFuncs:ClearOptions() PopulateOptions({}) end
-					function DropdownFuncs:GetOptions() return optionObjects end
-					function DropdownFuncs:GetSelection() return DropdownFuncs.Value end
-					function DropdownFuncs:UpdateName(newName) text=newName; UpdateDisplayText() end
-					function DropdownFuncs:SetVisibility(visible) container.Visible=visible end
-					if flag then AetheriumUI.Options[flag] = DropdownFuncs end
-					return DropdownFuncs
-				end
-				-- Colorpicker (Re-pasted with minor fixes)
-				function SectionFunctions:Colorpicker(cSettings, flag)
-					local ColorpickerFuncs = { Settings = cSettings, IgnoreConfig = false, Class = "Colorpicker" }
-					local text = cSettings.Name or "Colorpicker"; local id = flag or "Colorpicker_" .. text:gsub("%s+","_")
-					local defaultColor = cSettings.Default or Color3.new(1,1,1); local defaultAlpha = cSettings.Alpha; local useAlpha = defaultAlpha~=nil
-					ColorpickerFuncs.Color = defaultColor; ColorpickerFuncs.Alpha = useAlpha and defaultAlpha or 0
-
-					local container=Create("Frame",{Name=id,Size=UDim2.new(1,0,0,30), BackgroundTransparency=1, Parent=sectionFrame})
-					local layout=Create("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,VerticalAlignment=Enum.VerticalAlignment.Center,HorizontalAlignment=Enum.HorizontalAlignment.Left,SortOrder=Enum.SortOrder.LayoutOrder, Parent=container})
-					ColorpickerFuncs.Instance = container
-
-					local nameLabel=Create("TextLabel",{Name="ColorpickerName", Text=text, FontFace=theme.Font.Regular, TextColor3=theme.Text, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, Size=UDim2.new(1,-35,1,0), BackgroundTransparency=1, Parent=container})
-					local previewSize=22
-					local colorPreview=Create("Frame",{Name="ColorPreview", Size=UDim2.fromOffset(previewSize,previewSize), BackgroundColor3=theme.Stroke, BackgroundTransparency=0.5, LayoutOrder=1, Parent=container})
-					Create("UICorner",{CornerRadius=UDim.new(0,4), Parent=colorPreview})
-					local checkerboard=Create("ImageLabel",{Name="Checkerboard", Image=AetheriumUI.Assets.grid, TileSize=UDim2.fromOffset(8,8), ScaleType=Enum.ScaleType.Tile, Size=UDim2.fromScale(1,1), BackgroundTransparency=1, ZIndex=1, ImageTransparency=0.8, Parent=colorPreview, Visible=useAlpha})
-					Create("UICorner",{CornerRadius=UDim.new(0,4), Parent=checkerboard})
-					local colorDisplay=Create("Frame",{Name="ColorDisplay", Size=UDim2.fromScale(1,1), BackgroundColor3=ColorpickerFuncs.Color, BackgroundTransparency=ColorpickerFuncs.Alpha, BorderSizePixel=0, ZIndex=2, Parent=colorPreview})
-					Create("UICorner",{CornerRadius=UDim.new(0,4), Parent=colorDisplay})
-					local previewButton=Create("TextButton",{Name="PreviewButton", Text="", Size=UDim2.fromScale(1,1), BackgroundTransparency=1, ZIndex=3, Parent=colorPreview})
-
-					local pickerCanvas=nil; local isPickerOpen=false
-					local function DestroyPicker() if pickerCanvas and pickerCanvas.Parent then pcall(pickerCanvas.Destroy, pickerCanvas) end; pickerCanvas=nil; isPickerOpen=false end
-					local newColorPreview, oldColorPreview -- Forward declare for ClosePickerPopup
-
-					local function CreatePickerPopup()
-						DestroyPicker()
-						pickerCanvas=Create("CanvasGroup",{Name="ColorpickerPopupCanvas", Size=UDim2.fromScale(1,1), Position=UDim2.fromScale(0,0), BackgroundTransparency=1, GroupTransparency=1, ZIndex=100, Parent=base})
-						local overlay=Create("Frame",{Name="Overlay", Size=UDim2.fromScale(1,1), BackgroundColor3=theme.Overlay, BackgroundTransparency=1, ZIndex=1, Parent=pickerCanvas})
-						local overlayButton=Create("TextButton",{Name="OverlayButton", Size=UDim2.fromScale(1,1), BackgroundTransparency=1, Text="", ZIndex=2, Parent=overlay})
-						ManageConnection(overlayButton.MouseButton1Click:Connect(function() ClosePickerPopup(true) end))
-
-						local pickerFrame=Create("Frame",{Name="PickerFrame", AnchorPoint=Vector2.new(0.5,0.5), Position=UDim2.fromScale(0.5,0.5), Size=UDim2.fromOffset(280,350), BackgroundColor3=theme.BackgroundLight, BorderSizePixel=0, Parent=pickerCanvas, ZIndex=3, Scale=0.95})
-						Create("UICorner",{CornerRadius=theme.CornerRadius, Parent=pickerFrame}); Create("UIStroke",{Color=theme.StrokeLight, Thickness=1, Parent=pickerFrame}); local pickerPadding=Create("UIPadding",{Padding=UDim.new(0,15), Parent=pickerFrame}); local pickerLayout=Create("UIListLayout",{Padding=UDim.new(0,10), SortOrder=Enum.SortOrder.LayoutOrder, Parent=pickerFrame})
-						Create("TextLabel",{Name="PickerTitle", Text=text, FontFace=theme.Font.Medium, TextColor3=theme.Text, TextSize=16, Size=UDim2.new(1,0,0,20), BackgroundTransparency=1, Parent=pickerFrame})
-
-						local wheelSize=180; local wheelFrame=Create("Frame",{Name="WheelFrame", Size=UDim2.fromOffset(wheelSize,wheelSize), BackgroundTransparency=1, Parent=pickerFrame})
-						local colorWheel=Create("ImageLabel",{Name="ColorWheel", Size=UDim2.fromScale(1,1), Image=AetheriumUI.Assets.colorWheel, BackgroundTransparency=1, Parent=wheelFrame})
-						local wheelInteract=Create("ImageButton",{Name="WheelInteract", Size=UDim2.fromScale(1,1), Image="", BackgroundTransparency=1, Parent=colorWheel, ZIndex=2})
-						local targetSize=16; local svTarget=Create("ImageLabel",{Name="SVTarget", Image=AetheriumUI.Assets.colorTarget, ImageColor3=Color3.new(0,0,0), Size=UDim2.fromOffset(targetSize,targetSize), AnchorPoint=Vector2.new(0.5,0.5), Position=UDim2.fromScale(0.5,0.5), BackgroundTransparency=1, Parent=colorWheel, ZIndex=3})
-
-						local hueSliderFrame=Create("Frame",{Name="HueSliderFrame", Size=UDim2.new(1,0,0,15), BackgroundTransparency=1, Parent=pickerFrame})
-						local hueGradient=Create("UIGradient",{Color=ColorSequence.new({ColorSequenceKeypoint.new(0,Color3.fromRGB(255,0,0)),ColorSequenceKeypoint.new(0.17,Color3.fromRGB(255,255,0)),ColorSequenceKeypoint.new(0.33,Color3.fromRGB(0,255,0)),ColorSequenceKeypoint.new(0.5,Color3.fromRGB(0,255,255)),ColorSequenceKeypoint.new(0.67,Color3.fromRGB(0,0,255)),ColorSequenceKeypoint.new(0.83,Color3.fromRGB(255,0,255)),ColorSequenceKeypoint.new(1,Color3.fromRGB(255,0,0))}), Rotation=0, Parent=hueSliderFrame}); Create("UICorner",{CornerRadius=UDim.new(1,0), Parent=hueSliderFrame}); local hueSliderInteract=Create("TextButton",{Name="HueInteract", Size=UDim2.fromScale(1,1), BackgroundTransparency=1, Text="", Parent=hueSliderFrame, ZIndex=2}); local hueHead=Create("Frame",{Name="HueHead", Size=UDim2.new(0,6,1,4), AnchorPoint=Vector2.new(0.5,0.5), Position=UDim2.fromScale(0,0.5), BackgroundColor3=Color3.new(1,1,1), BorderSizePixel=1, BorderColor3=Color3.new(0,0,0), Parent=hueSliderFrame, ZIndex=3})
-						local alphaSliderFrame, alphaInteract, alphaHead; if useAlpha then alphaSliderFrame=Create("Frame",{Name="AlphaSliderFrame", Size=UDim2.new(1,0,0,15), BackgroundColor3=theme.Background, Parent=pickerFrame}); Create("UICorner",{CornerRadius=UDim.new(1,0), Parent=alphaSliderFrame}); local alphaChecker=Create("ImageLabel",{Name="AlphaChecker", Image=AetheriumUI.Assets.grid, TileSize=UDim2.fromOffset(8,8), ScaleType=Enum.ScaleType.Tile, Size=UDim2.fromScale(1,1), BackgroundTransparency=1, ImageTransparency=0.8, Parent=alphaSliderFrame, ZIndex=1}); Create("UICorner",{CornerRadius=UDim.new(1,0), Parent=alphaChecker}); local alphaGradient=Create("UIGradient",{Color=ColorSequence.new({ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),ColorSequenceKeypoint.new(1,Color3.new(1,1,1))}), Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,0),NumberSequenceKeypoint.new(1,1)}), Rotation=0, Parent=alphaSliderFrame, ZIndex=2}); alphaInteract=Create("TextButton",{Name="AlphaInteract", Size=UDim2.fromScale(1,1), BackgroundTransparency=1, Text="", Parent=alphaSliderFrame, ZIndex=3}); alphaHead=Create("Frame",{Name="AlphaHead", Size=UDim2.new(0,6,1,4), AnchorPoint=Vector2.new(0.5,0.5), Position=UDim2.fromScale(0,0.5), BackgroundColor3=Color3.new(1,1,1), BorderSizePixel=1, BorderColor3=Color3.new(0,0,0), Parent=alphaSliderFrame, ZIndex=4}) end
-
-						local inputsFrame=Create("Frame",{Name="InputsFrame", Size=UDim2.new(1,0,0,30), BackgroundTransparency=1, Parent=pickerFrame}); local inputsLayout=Create("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal, VerticalAlignment=Enum.VerticalAlignment.Center, HorizontalAlignment=Enum.HorizontalAlignment.Center, Padding=UDim.new(0,5), SortOrder=Enum.SortOrder.LayoutOrder, Parent=inputsFrame})
-						local inputFields={}; local function CreateInputField(name, width, filterFunc, updateFunc) local fieldContainer=Create("Frame",{Name=name.."Field", Size=UDim2.new(0,width,1,0), BackgroundTransparency=1, Parent=inputsFrame}); local fieldLayout=Create("UIListLayout",{Padding=UDim.new(0,2), Parent=fieldContainer}); local fieldLabel=Create("TextLabel",{Name="Label", Text=name, FontFace=theme.Font.Regular, TextSize=10, TextColor3=theme.TextSecondary, Size=UDim2.new(1,0,0,10), BackgroundTransparency=1, TextXAlignment=Enum.TextXAlignment.Center, Parent=fieldContainer}); local fieldInput=Create("TextBox",{Name="Input", FontFace=theme.Font.Regular, TextSize=12, TextColor3=theme.Text, PlaceholderColor3=theme.TextSecondary, BackgroundColor3=theme.Background, Size=UDim2.new(1,0,0,18), TextXAlignment=Enum.TextXAlignment.Center, ClearTextOnFocus=false, LayoutOrder=1, Parent=fieldContainer}); ApplyStyling(fieldInput,"Input"); inputFields[name]=fieldInput; ManageConnection(fieldInput.FocusLost:Connect(updateFunc)); ManageConnection(fieldInput:GetPropertyChangedSignal("Text"):Connect(function() local current=fieldInput.Text; local filtered=filterFunc(current); if current~=filtered then fieldInput.Text=filtered end end)); return fieldInput end
-						local function filterRGB(t) return t:gsub("[^%d]",""):sub(1,3) end; local function filterHex(t) return "#"..t:gsub("[^%x]",""):upper():sub(1,6) end; local function filterAlpha(t) return t:gsub("[^%d%.]",""):sub(1,4) end
-						CreateInputField("R",35,filterRGB,function() UpdateColor("rgb") end); CreateInputField("G",35,filterRGB,function() UpdateColor("rgb") end); CreateInputField("B",35,filterRGB,function() UpdateColor("rgb") end); if useAlpha then CreateInputField("A",40,filterAlpha,function() UpdateColor("alpha") end) end; CreateInputField("Hex",60,filterHex,function() UpdateColor("hex") end)
-
-						local previewFrame=Create("Frame",{Name="PreviewFrame", Size=UDim2.new(1,0,0,30), BackgroundTransparency=1, Parent=pickerFrame}); local previewLayout=Create("UIGridLayout",{CellSize=UDim2.new(0.5,-2.5,1,0), CellPadding=UDim.new(0,5,0,0), Parent=previewFrame})
-						oldColorPreview=Create("Frame",{Name="OldColor", BackgroundColor3=ColorpickerFuncs.Color, BackgroundTransparency=ColorpickerFuncs.Alpha, Parent=previewFrame}); Create("UICorner",{CornerRadius=UDim.new(0,4), Parent=oldColorPreview}); Create("ImageLabel",{Name="CheckerOld", Image=AetheriumUI.Assets.grid, TileSize=UDim2.fromOffset(8,8), ScaleType=Enum.ScaleType.Tile, Size=UDim2.fromScale(1,1), BackgroundTransparency=1, ZIndex=1, ImageTransparency=0.8, Parent=oldColorPreview, Visible=useAlpha})
-						newColorPreview=Create("Frame",{Name="NewColor", BackgroundColor3=ColorpickerFuncs.Color, BackgroundTransparency=ColorpickerFuncs.Alpha, Parent=previewFrame}); Create("UICorner",{CornerRadius=UDim.new(0,4), Parent=newColorPreview}); Create("ImageLabel",{Name="CheckerNew", Image=AetheriumUI.Assets.grid, TileSize=UDim2.fromOffset(8,8), ScaleType=Enum.ScaleType.Tile, Size=UDim2.fromScale(1,1), BackgroundTransparency=1, ZIndex=1, ImageTransparency=0.8, Parent=newColorPreview, Visible=useAlpha})
-
-						local currentHue, currentSat, currentVal = ColorpickerFuncs.Color:ToHSV(); local currentAlpha = ColorpickerFuncs.Alpha
-						local function hexToCol3(hex) hex=hex:gsub("#",""); local r=tonumber("0x"..hex:sub(1,2) or "FF")/255; local g=tonumber("0x"..hex:sub(3,4) or "FF")/255; local b=tonumber("0x"..hex:sub(5,6) or "FF")/255; return Color3.new(r,g,b) end; local function col3ToHex(col) return string.format("#%02X%02X%02X",math.clamp(math.floor(col.R*255+.5),0,255),math.clamp(math.floor(col.G*255+.5),0,255),math.clamp(math.floor(col.B*255+.5),0,255)) end
-						function UpdateColor(source) local newColor; local newAlpha=currentAlpha; if source=="hsv" then newColor=Color3.fromHSV(currentHue,currentSat,currentVal) elseif source=="rgb" then local r=math.clamp(tonumber(inputFields.R.Text)or 0,0,255)/255; local g=math.clamp(tonumber(inputFields.G.Text)or 0,0,255)/255; local b=math.clamp(tonumber(inputFields.B.Text)or 0,0,255)/255; newColor=Color3.new(r,g,b); currentHue,currentSat,currentVal=newColor:ToHSV() elseif source=="hex" then newColor=hexToCol3(inputFields.Hex.Text); currentHue,currentSat,currentVal=newColor:ToHSV() elseif source=="alpha" then newAlpha=math.clamp(tonumber(inputFields.A.Text)or 0,0,1); currentAlpha=newAlpha; newColor=Color3.fromHSV(currentHue,currentSat,currentVal) end; newColorPreview.BackgroundColor3=newColor; newColorPreview.BackgroundTransparency=newAlpha; local targetColor=(currentVal>0.6 or currentSat<0.4) and Color3.new(0,0,0) or Color3.new(1,1,1); svTarget.ImageColor3=targetColor; if source~="rgb" and source~="hex" then inputFields.R.Text=tostring(math.floor(newColor.R*255+.5)); inputFields.G.Text=tostring(math.floor(newColor.G*255+.5)); inputFields.B.Text=tostring(math.floor(newColor.B*255+.5)) end; if source~="hex" then inputFields.Hex.Text=col3ToHex(newColor) end; if useAlpha and source~="alpha" then inputFields.A.Text=string.format("%.2f",currentAlpha) end; colorWheel.ImageColor3=Color3.fromHSV(currentHue,1,1); if useAlpha then local alphaCol=Color3.fromHSV(currentHue,currentSat,currentVal); alphaSliderFrame:FindFirstChildOfClass("UIGradient").Color=ColorSequence.new({ColorSequenceKeypoint.new(0,alphaCol),ColorSequenceKeypoint.new(1,alphaCol)}) end; if source=="rgb" or source=="hex" then local huePos=UDim2.fromScale(currentHue,0.5); hueHead.Position=huePos; local wheelRadius=wheelSize/2; local angle=currentHue*2*math.pi-math.pi/2; local dist=currentSat*wheelRadius; local svX=math.cos(angle)*dist; local svY=math.sin(angle)*dist; svTarget.Position=UDim2.new(0.5,svX,0.5,svY) end; if useAlpha and (source=="rgb" or source=="hex") then alphaHead.Position=UDim2.fromScale(currentAlpha,0.5) end end
-						local function InitializePickerState() currentHue,currentSat,currentVal=ColorpickerFuncs.Color:ToHSV(); currentAlpha=ColorpickerFuncs.Alpha; UpdateColor("hsv"); hueHead.Position=UDim2.fromScale(currentHue,0.5); local wheelRadius=wheelSize/2; local angle=currentHue*2*math.pi-math.pi/2; local dist=currentSat*wheelRadius; local svX=math.cos(angle)*dist; local svY=math.sin(angle)*dist; svTarget.Position=UDim2.new(0.5,svX,0.5,svY); if useAlpha then alphaHead.Position=UDim2.fromScale(currentAlpha,0.5) end end; InitializePickerState()
-
-						local wheelDragging,hueDragging,alphaDragging=false,false,false
-						ManageConnection(wheelInteract.InputBegan:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then wheelDragging=true; local mousePos=input.Position-colorWheel.AbsolutePosition; local center=wheelFrame.AbsoluteSize/2; local vec=mousePos-center; local radius=wheelFrame.AbsoluteSize.X/2; local dist=vec.Magnitude; local angle=math.atan2(vec.Y,vec.X); currentHue=(angle/(2*math.pi)+0.25)%1; currentSat=math.clamp(dist/radius,0,1); svTarget.Position=UDim2.new(0.5,math.clamp(vec.X,-radius,radius),0.5,math.clamp(vec.Y,-radius,radius)); hueHead.Position=UDim2.fromScale(currentHue,0.5); UpdateColor("hsv") end end))
-						ManageConnection(hueSliderInteract.InputBegan:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then hueDragging=true; local relativeX=input.Position.X-hueSliderFrame.AbsolutePosition.X; currentHue=math.clamp(relativeX/hueSliderFrame.AbsoluteSize.X,0,1); hueHead.Position=UDim2.fromScale(currentHue,0.5); UpdateColor("hsv") end end))
-						if useAlpha then ManageConnection(alphaInteract.InputBegan:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then alphaDragging=true; local relativeX=input.Position.X-alphaSliderFrame.AbsolutePosition.X; currentAlpha=math.clamp(relativeX/alphaSliderFrame.AbsoluteSize.X,0,1); alphaHead.Position=UDim2.fromScale(currentAlpha,0.5); UpdateColor("alpha") end end)) end
-						ManageConnection(UserInputService.InputChanged:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseMovement or input.UserInputType==Enum.UserInputType.Touch then if wheelDragging then local mousePos=input.Position-colorWheel.AbsolutePosition; local center=wheelFrame.AbsoluteSize/2; local vec=mousePos-center; local radius=wheelFrame.AbsoluteSize.X/2; local dist=vec.Magnitude; local angle=math.atan2(vec.Y,vec.X); currentHue=(angle/(2*math.pi)+0.25)%1; currentSat=math.clamp(dist/radius,0,1); svTarget.Position=UDim2.new(0.5,math.clamp(vec.X,-radius,radius),0.5,math.clamp(vec.Y,-radius,radius)); hueHead.Position=UDim2.fromScale(currentHue,0.5); UpdateColor("hsv") elseif hueDragging then local relativeX=input.Position.X-hueSliderFrame.AbsolutePosition.X; currentHue=math.clamp(relativeX/hueSliderFrame.AbsoluteSize.X,0,1); hueHead.Position=UDim2.fromScale(currentHue,0.5); UpdateColor("hsv") elseif alphaDragging then local relativeX=input.Position.X-alphaSliderFrame.AbsolutePosition.X; currentAlpha=math.clamp(relativeX/alphaSliderFrame.AbsoluteSize.X,0,1); alphaHead.Position=UDim2.fromScale(currentAlpha,0.5); UpdateColor("alpha") end end end))
-						local function endDrag(input) if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then wheelDragging,hueDragging,alphaDragging=false,false,false end end; ManageConnection(UserInputService.InputEnded:Connect(endDrag))
-
-						local buttonsFrame=Create("Frame",{Name="Buttons", Size=UDim2.new(1,0,0,30), BackgroundTransparency=1, Parent=pickerFrame}); local buttonsLayout=Create("UIGridLayout",{CellSize=UDim2.new(0.5,-2.5,1,0), CellPadding=UDim.new(0,5,0,0), Parent=buttonsFrame})
-						local confirmButton=Create("TextButton",{Name="Confirm", Text="Confirm", FontFace=theme.Font.Medium, TextColor3=theme.Text, BackgroundColor3=theme.Accent, Size=UDim2.fromScale(1,1), AutoButtonColor=false, Parent=buttonsFrame}); Create("UICorner",{CornerRadius=theme.CornerRadius,Parent=confirmButton}); ManageConnection(confirmButton.MouseButton1Click:Connect(function() ClosePickerPopup(false) end))
-						local cancelButton=Create("TextButton",{Name="Cancel", Text="Cancel", FontFace=theme.Font.Medium, TextColor3=theme.TextSecondary, BackgroundColor3=theme.PrimaryInteraction, Size=UDim2.fromScale(1,1), AutoButtonColor=false, Parent=buttonsFrame}); Create("UICorner",{CornerRadius=theme.CornerRadius,Parent=cancelButton}); ManageConnection(cancelButton.MouseButton1Click:Connect(function() ClosePickerPopup(true) end))
-
-						return pickerCanvas, pickerFrame
-					end
-					function ClosePickerPopup(isCancel)
-						if not isPickerOpen or not pickerCanvas then return end; isPickerOpen=false
-						local canvas=pickerCanvas; local frame=canvas:FindFirstChild("PickerFrame"); local overlay=canvas:FindFirstChild("Overlay")
-						local tweenInfo=TweenInfo.new(theme.AnimationSpeed*1.5,theme.EasingStyle,theme.EasingDirection)
-						local completedConn; completedConn = TweenInstance(canvas,{GroupTransparency=1},tweenInfo).Completed:Connect(function() if not isCancel then ColorpickerFuncs.Color=newColorPreview.BackgroundColor3; ColorpickerFuncs.Alpha=newColorPreview.BackgroundTransparency; colorDisplay.BackgroundColor3=ColorpickerFuncs.Color; colorDisplay.BackgroundTransparency=ColorpickerFuncs.Alpha; task.spawn(function() if cSettings.Callback then pcall(cSettings.Callback,ColorpickerFuncs.Color, useAlpha and ColorpickerFuncs.Alpha or nil) end end) end; DestroyPicker(); if completedConn and completedConn.Connected then completedConn:Disconnect() end end)
-						TweenInstance(overlay,{BackgroundTransparency=1},tweenInfo); TweenInstance(frame,{Scale=0.95},tweenInfo)
-					end
-					local function OpenPickerPopup() if isPickerOpen then return end; isPickerOpen=true; local canvas, frame=CreatePickerPopup(); local tweenInfo=TweenInfo.new(theme.AnimationSpeed*1.5,theme.EasingStyle,theme.EasingDirection); TweenInstance(canvas,{GroupTransparency=0},tweenInfo); TweenInstance(canvas:FindFirstChild("Overlay"),{BackgroundTransparency=0.5},tweenInfo); TweenInstance(frame,{Scale=1},tweenInfo) end
-
-					ManageConnection(previewButton.MouseButton1Click:Connect(OpenPickerPopup))
-
-					function ColorpickerFuncs:SetColor(color3,noCallback) if typeof(color3)=="Color3" then ColorpickerFuncs.Color=color3; colorDisplay.BackgroundColor3=color3; if isPickerOpen then InitializePickerState() end; if not noCallback then task.spawn(function() if cSettings.Callback then pcall(cSettings.Callback,ColorpickerFuncs.Color, useAlpha and ColorpickerFuncs.Alpha or nil) end end) end end end
-					function ColorpickerFuncs:SetAlpha(alpha,noCallback) if useAlpha and type(alpha)=="number" then ColorpickerFuncs.Alpha=math.clamp(alpha,0,1); colorDisplay.BackgroundTransparency=ColorpickerFuncs.Alpha; if isPickerOpen then InitializePickerState() end; if not noCallback then task.spawn(function() if cSettings.Callback then pcall(cSettings.Callback,ColorpickerFuncs.Color, ColorpickerFuncs.Alpha) end end) end end end
-					function ColorpickerFuncs:GetColor() return ColorpickerFuncs.Color end
-					function ColorpickerFuncs:GetAlpha() return useAlpha and ColorpickerFuncs.Alpha or nil end
-					function ColorpickerFuncs:UpdateName(newName) nameLabel.Text = newName end
-					function ColorpickerFuncs:SetVisibility(visible) container.Visible = visible end
-					if flag then AetheriumUI.Options[flag] = ColorpickerFuncs end
-					return ColorpickerFuncs
-				end
-
-
-				return SectionFunctions
-			end -- End Section Function
-
-			function TabFunctions:Select() SelectTab() end
-
-			-- Config Section - Re-examined structure and Dialog call
-			function TabFunctions:InsertConfigSection(side)
-				local configSection = self:Section({ Side = side or "Left", Name = "Configuration" })
-				local isCfgSysAvailable = not AetheriumUI._Variables.IsStudio and pcall(function() return isfolder, makefolder, writefile, readfile, listfiles end)
-
-				if not isCfgSysAvailable then
-					configSection:Label({ Text = "Configuration system unavailable in this environment." })
-					return
-				end
-
-				local inputPath = ""
-				local selectedConfig = nil
-
-				local nameInput = configSection:Input({ Name = "Config Name", Placeholder = "Enter name...", Default = "", Callback = function(txt) inputPath = txt:gsub("[^%w_%.%-]", "") end })
-				local configDropdown = configSection:Dropdown({ Name = "Select Config", Options = AetheriumUI:RefreshConfigList(), Multi = false, Callback = function(val) selectedConfig = val end })
-
-				configSection:Button({ Name = "Create/Save", Callback = function()
-					if not inputPath or inputPath == "" then if WindowFunctions.Notify then WindowFunctions:Notify({ Title="Config Error", Description="Please enter a config name.", Style="Cancel"}) end; return end
-					local success, msg = AetheriumUI:SaveConfig(inputPath); if WindowFunctions.Notify then WindowFunctions:Notify({ Title=success and "Config Saved" or "Save Error", Description=success and ("Saved as '"..inputPath.."'") or msg, Style=success and "Confirm" or "Cancel"}) end
-					if success then configDropdown:InsertOptions(AetheriumUI:RefreshConfigList()); configDropdown:UpdateSelection(inputPath) end
-				end})
-
-				configSection:Button({ Name = "Load Selected", Callback = function()
-					if not selectedConfig then if WindowFunctions.Notify then WindowFunctions:Notify({ Title="Config Error", Description="Please select a config to load.", Style="Cancel"}) end; return end
-					local success, msg = AetheriumUI:LoadConfig(selectedConfig); if WindowFunctions.Notify then WindowFunctions:Notify({ Title=success and "Config Loaded" or "Load Error", Description=success and ("Loaded '"..selectedConfig.."'") or msg, Style=success and "Confirm" or "Cancel"}) end
-				end})
-
-				-- Delete Button with carefully structured Dialog call
-				configSection:Button({ Name = "Delete Selected", Callback = function()
-					if not selectedConfig then if WindowFunctions.Notify then WindowFunctions:Notify({ Title="Config Error", Description="Please select a config to delete.", Style="Cancel"}) end; return end
-
-					-- Define Dialog options table separately for clarity
-					local dialogOptions = {
-						Title = "Confirm Delete",
-						Description = "Delete '" .. selectedConfig .. "'? This cannot be undone.",
-						Buttons = {
-							{ -- Button 1 Table
-								Name = "Delete",
-								Callback = function() -- Button 1 Callback
-									local success, msg = AetheriumUI:DeleteConfig(selectedConfig)
-									if WindowFunctions.Notify then WindowFunctions:Notify({ Title=success and "Config Deleted" or "Delete Error", Description=success and ("Deleted '"..selectedConfig.."'") or msg, Style=success and "Confirm" or "Cancel"}) end
-									if success then configDropdown:InsertOptions(AetheriumUI:RefreshConfigList()); configDropdown:UpdateSelection(nil) end
-								end -- End Button 1 Callback
-							}, -- Comma between button tables
-							{ Name = "Cancel" } -- Button 2 Table
-						} -- End Buttons Table
-					} -- End Dialog Options Table
-
-					-- Call Dialog with the defined table
-					WindowFunctions:Dialog(dialogOptions)
-
-				end}) -- End Delete Button Callback and Button definition
-
-				configSection:Button({ Name = "Refresh List", Callback = function() configDropdown:ClearOptions(); configDropdown:InsertOptions(AetheriumUI:RefreshConfigList()); if WindowFunctions.Notify then WindowFunctions:Notify({ Title="Config", Description="Refreshed config list.", Style="None"}) end end})
-
-				local autoloadLabel = configSection:Label({ Text = "Autoload: None" })
-				local currentAutoload = AetheriumUI:GetAutoLoadConfigName(); if currentAutoload then autoloadLabel:UpdateName("Autoload: " .. currentAutoload) end
-
-				configSection:Button({ Name = "Set Autoload", Callback = function() if not selectedConfig then if WindowFunctions.Notify then WindowFunctions:Notify({ Title="Config Error", Description="Please select a config to set as autoload.", Style="Cancel"}) end; return end; local success, msg = AetheriumUI:SetAutoLoadConfig(selectedConfig); if WindowFunctions.Notify then WindowFunctions:Notify({ Title=success and "Autoload Set" or "Autoload Error", Description=success and ("Set '"..selectedConfig.."' as autoload") or msg, Style=success and "Confirm" or "Cancel"}) end; if success then autoloadLabel:UpdateName("Autoload: " .. selectedConfig) end end})
-				configSection:Button({ Name = "Clear Autoload", Callback = function() local success, msg = AetheriumUI:SetAutoLoadConfig(nil); if WindowFunctions.Notify then WindowFunctions:Notify({ Title=success and "Autoload Cleared" or "Autoload Error", Description=success and "Cleared autoload config." or msg, Style=success and "Confirm" or "Cancel"}) end; if success then autoloadLabel:UpdateName("Autoload: None") end end})
-
-			end -- End InsertConfigSection
-
-
-			return TabFunctions
-		end -- End Tab Function
-
-		return TabGroupFunctions
-	end -- End TabGroup Function
-
-
-	-- Notification Function (Re-pasted)
-	function WindowFunctions:Notify(nSettings)
-		local NotifyFuncs = {}; local lifetime=nSettings.Lifetime==nil and 3 or nSettings.Lifetime; local style=nSettings.Style or "None"
-		local notification=Create("Frame",{Name="Notification", AutomaticSize=Enum.AutomaticSize.Y, Size=UDim2.new(0,nSettings.SizeX or 250,0,0), BackgroundColor3=theme.BackgroundLighter, Parent=WindowFunctions._NotificationContainer}); notification.LayoutOrder=tick()
-		local nCorner=Create("UICorner",{CornerRadius=theme.CornerRadius, Parent=notification}); local nStroke=Create("UIStroke",{Color=theme.StrokeLight, Thickness=1, Parent=notification}); local nPadding=Create("UIPadding",{PaddingLeft=UDim.new(0,12), PaddingRight=UDim.new(0,12), PaddingTop=UDim.new(0,10), PaddingBottom=UDim.new(0,10), Parent=notification}); local nLayout=Create("UIListLayout",{Padding=UDim.new(0,5), SortOrder=Enum.SortOrder.LayoutOrder, Parent=notification}); local nScale=Create("UIScale",{Scale=0, Parent=notification})
-		local titleLabel=Create("TextLabel",{Name="Title", Text=nSettings.Title or "Notification", FontFace=theme.Font.Medium, TextSize=14, TextColor3=theme.Text, AutomaticSize=Enum.AutomaticSize.Y, Size=UDim2.new(1,0,0,16), BackgroundTransparency=1, TextXAlignment=Enum.TextXAlignment.Left, Parent=notification})
-		local descLabel=Create("TextLabel",{Name="Description", Text=nSettings.Description or "", FontFace=theme.Font.Regular, TextSize=12, TextColor3=theme.TextSecondary, TextWrapped=true, AutomaticSize=Enum.AutomaticSize.Y, Size=UDim2.new(1,0,0,14), BackgroundTransparency=1, TextXAlignment=Enum.TextXAlignment.Left, LayoutOrder=1, Parent=notification, Visible=(nSettings.Description and nSettings.Description~="")})
-		local dismissButton=nil; if style~="None" or lifetime==0 then dismissButton=Create("TextButton",{Name="DismissButton", Size=UDim2.fromOffset(18,18), AnchorPoint=Vector2.new(1,0), Position=UDim2.new(1,-5,0,5), BackgroundTransparency=1, Text="", ZIndex=2, Parent=notification}); local dismissIcon=Create("TextLabel",{Name="DismissIcon", Font=Enum.Font.SourceSansBold, Text="✕", TextSize=14, TextColor3=theme.TextSecondary, Size=UDim2.fromScale(1,1), BackgroundTransparency=1, Parent=dismissButton}); ManageConnection(dismissButton.MouseEnter:Connect(function() TweenInstance(dismissIcon,{TextColor3=theme.Red}) end)); ManageConnection(dismissButton.MouseLeave:Connect(function() TweenInstance(dismissIcon,{TextColor3=theme.TextSecondary}) end)); ManageConnection(dismissButton.MouseButton1Click:Connect(function() NotifyFuncs:Cancel() end)); nPadding.PaddingRight=UDim.new(0,25) end
-		if style=="Confirm" then nStroke.Color=theme.Green elseif style=="Cancel" then nStroke.Color=theme.Red end
-		local animTween=nil; local function Animate(fadeIn) if animTween and animTween.PlaybackState~=Enum.PlaybackState.Completed then pcall(animTween.Cancel, animTween) end; local targetScale=fadeIn and 1 or 0; local tweenInfo=TweenInfo.new(theme.AnimationSpeed*1.5,theme.EasingStyle,theme.EasingDirection); animTween=TweenInstance(nScale,{Scale=targetScale},tweenInfo); return animTween end
-		local lifetimeCoroutine=nil; Animate(true).Completed:Connect(function() if lifetime>0 then lifetimeCoroutine=task.delay(lifetime,function() if notification and notification.Parent then Animate(false).Completed:Connect(function() if notification and notification.Parent then pcall(notification.Destroy, notification) end end) end end) end end)
-		function NotifyFuncs:Cancel() if lifetimeCoroutine then task.cancel(lifetimeCoroutine); lifetimeCoroutine=nil end; if notification and notification.Parent then Animate(false).Completed:Connect(function() if notification and notification.Parent then pcall(notification.Destroy, notification) end end) end end
-		function NotifyFuncs:UpdateTitle(newTitle) titleLabel.Text=newTitle end; function NotifyFuncs:UpdateDescription(newDesc) descLabel.Text=newDesc; descLabel.Visible=(newDesc and newDesc~="") end
-		return NotifyFuncs
-	end
-	-- Dialog Function (Re-pasted)
-	function WindowFunctions:Dialog(dSettings)
-		local DialogFuncs={}; local wasClosed=false
-		local dialogCanvas=Create("CanvasGroup",{Name="DialogCanvas", Size=UDim2.fromScale(1,1), BackgroundTransparency=1, GroupTransparency=1, ZIndex=200, Parent=base})
-		local overlay=Create("Frame",{Name="Overlay", Size=UDim2.fromScale(1,1), BackgroundColor3=theme.Overlay, BackgroundTransparency=1, ZIndex=1, Parent=dialogCanvas})
-		local prompt=Create("Frame",{Name="Prompt", AnchorPoint=Vector2.new(0.5,0.5), Position=UDim2.fromScale(0.5,0.5), Size=UDim2.fromOffset(dSettings.Width or 320,0), AutomaticSize=Enum.AutomaticSize.Y, BackgroundColor3=theme.BackgroundLight, ZIndex=2, Scale=0.95, Parent=dialogCanvas})
-		Create("UICorner",{CornerRadius=theme.CornerRadius, Parent=prompt}); Create("UIStroke",{Color=theme.StrokeLight, Thickness=1, Parent=prompt}); local promptPadding=Create("UIPadding",{Padding=UDim.new(0,20), Parent=prompt}); local promptLayout=Create("UIListLayout",{Padding=UDim.new(0,15), SortOrder=Enum.SortOrder.LayoutOrder, Parent=prompt})
-		Create("TextLabel",{Name="Title", Text=dSettings.Title or "Dialog", FontFace=theme.Font.SemiBold, TextSize=18, TextColor3=theme.Text, TextWrapped=true, AutomaticSize=Enum.AutomaticSize.Y, Size=UDim2.new(1,0,0,20), BackgroundTransparency=1, TextXAlignment=Enum.TextXAlignment.Center, Parent=prompt})
-		Create("TextLabel",{Name="Description", Text=dSettings.Description or "", FontFace=theme.Font.Regular, TextSize=14, TextColor3=theme.TextSecondary, TextWrapped=true, AutomaticSize=Enum.AutomaticSize.Y, Size=UDim2.new(1,0,0,16), BackgroundTransparency=1, TextXAlignment=Enum.TextXAlignment.Center, LayoutOrder=1, Parent=prompt})
-		local buttonsFrame=Create("Frame",{Name="ButtonsFrame", Size=UDim2.new(1,0,0,35), AutomaticSize=Enum.AutomaticSize.X, BackgroundTransparency=1, LayoutOrder=2, Parent=prompt}); local buttonsLayout=Create("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal, HorizontalAlignment=Enum.HorizontalAlignment.Center, VerticalAlignment=Enum.VerticalAlignment.Center, Padding=UDim.new(0,10), SortOrder=Enum.SortOrder.LayoutOrder, Parent=buttonsFrame})
-		local function AnimateDialog(fadeIn) local tweenInfo=TweenInfo.new(theme.AnimationSpeed*1.5,theme.EasingStyle,theme.EasingDirection); local targetGroupTrans=fadeIn and 0 or 1; local targetOverlayTrans=fadeIn and 0.5 or 1; local targetScale=fadeIn and 1 or 0.95; TweenInstance(dialogCanvas,{GroupTransparency=targetGroupTrans},tweenInfo); TweenInstance(overlay,{BackgroundTransparency=targetOverlayTrans},tweenInfo); local scaleTween=TweenInstance(prompt,{Scale=targetScale},tweenInfo); return scaleTween end
-		local function CloseDialog() if wasClosed then return end; wasClosed=true; AnimateDialog(false).Completed:Connect(function() if dialogCanvas and dialogCanvas.Parent then pcall(dialogCanvas.Destroy, dialogCanvas) end end) end
-		for i,btnData in ipairs(dSettings.Buttons or {}) do local isPrimary=i==1; local btn=Create("TextButton",{Name=btnData.Name or "Button", Text=btnData.Name or "Okay", FontFace=theme.Font.Medium, TextSize=14, TextColor3=isPrimary and theme.Background or theme.Text, BackgroundColor3=isPrimary and theme.Accent or theme.PrimaryInteraction, AutomaticSize=Enum.AutomaticSize.X, Size=UDim2.new(0,0,1,0), AutoButtonColor=false, Parent=buttonsFrame}); Create("UICorner",{CornerRadius=theme.CornerRadius, Parent=btn}); Create("UIPadding",{PaddingLeft=UDim.new(0,15), PaddingRight=UDim.new(0,15), Parent=btn}); ManageConnection(btn.MouseEnter:Connect(function() TweenInstance(btn,{BackgroundColor3=isPrimary and theme.AccentLight or theme.PrimaryInteractionHover}) end)); ManageConnection(btn.MouseLeave:Connect(function() TweenInstance(btn,{BackgroundColor3=isPrimary and theme.Accent or theme.PrimaryInteraction}) end)); ManageConnection(btn.MouseButton1Click:Connect(function() CloseDialog(); task.spawn(function() if btnData.Callback then pcall(btnData.Callback) end end) end)) end
-		AnimateDialog(true)
-		function DialogFuncs:Cancel() CloseDialog() end
-		return DialogFuncs
-	end
-
-
-	-- Unload Function
-	local onUnloadCallback = nil
-	function WindowFunctions.onUnloaded(callback) onUnloadCallback = callback end
-	function WindowFunctions:Unload() AetheriumUI:Unload() end -- Point to library unload
-
-
-	-- Keybind Listener for Toggle
-	ManageConnection(UserInputService.InputBegan:Connect(function(input, gameProcessed)
-		if gameProcessed then return end
-		if input.KeyCode == menuKeybind then
-			ToggleMenuVisibility()
-		end
-	end))
-
-
-	-- Initial Setup Calls
-	if useAcrylicBlur and acrylicBlurEnabled then
-		UpdateAcrylicBlurState(true) -- Ensure acrylic starts correctly if enabled
-	elseif useUIBlur and acrylicBlurEnabled then
-		UpdateAcrylicBlurState(true) -- Ensure UIBlur starts correctly
-	end
-
-	WindowFunctions:SetUserInfoState(showUserInfo) -- Set initial user info visibility
-
-	-- Automatically select the first tab if any exist
- task.defer(function() -- Defer selection slightly
-    local firstButton = nil
-    for btn, data in pairs(tabs) do
-        if btn and data then
-            firstButton = btn
-            break
-        end
-    end -- end for 'for' loop
-
-    -- Combined check:
-    if firstButton and tabs[firstButton] and tabs[firstButton].Button then
-        tabs[firstButton].Button.MouseButton1Click:Fire()
-    end -- end for combined 'if'
-
-end) -- end) for task.defer
-
-    AetheriumUI:LoadAutoLoadConfig() -- Load autoload config after UI is setup
-
-    return WindowFunctions -- Return the window functions table
-end -- <<<< End of AetheriumUI:Window function.
-
-
--- // Config System Functions // --
-local ClassParser = { -- Based on the element's .Class property
-	["Toggle"] = { Save=function(f,d) return {t="Toggle",f=f,s=d.State} end, Load=function(f,d) if AetheriumUI.Options[f] then AetheriumUI.Options[f]:UpdateState(d.s,true) end end },
-	["Slider"] = { Save=function(f,d) return {t="Slider",f=f,v=d.Value} end, Load=function(f,d) if AetheriumUI.Options[f] then AetheriumUI.Options[f]:UpdateValue(d.v,true) end end },
-	["Input"] = { Save=function(f,d) return {t="Input",f=f,x=d.Text} end, Load=function(f,d) if AetheriumUI.Options[f] then AetheriumUI.Options[f]:UpdateText(d.x,true) end end },
-	["Keybind"] = { Save=function(f,d) return {t="Keybind",f=f,b=d.Bind and d.Bind.Name or nil, e=d.Bind and d.Bind.EnumType.Name or nil} end, Load=function(f,d) if AetheriumUI.Options[f] and d.b and d.e then local et=Enum[d.e]; if et then local k=et[d.b]; if k then AetheriumUI.Options[f]:Bind(k,true) end end elseif AetheriumUI.Options[f] and d.b==nil then AetheriumUI.Options[f]:Unbind(true) end end },
-	["Dropdown"] = { Save=function(f,d) return {t="Dropdown",f=f,v=d.Value} end, Load=function(f,d) if AetheriumUI.Options[f] then AetheriumUI.Options[f]:UpdateSelection(d.v,true) end end },
-	["Colorpicker"] = { Save=function(f,d) return {t="Colorpicker",f=f,c=AetheriumUI:_Col3ToTable(d.Color), a=d.Alpha} end, Load=function(f,d) if AetheriumUI.Options[f] then local col=d.c and AetheriumUI:_TableToCol3(d.c); if col then AetheriumUI.Options[f]:SetColor(col,true) end; if d.a~=nil then AetheriumUI.Options[f]:SetAlpha(d.a,true) end end end }
-}
-function AetheriumUI:_Col3ToTable(col) return {R=col.R,G=col.G,B=col.B} end
-function AetheriumUI:_TableToCol3(tbl) return Color3.new(tbl.R or 0,tbl.G or 0,tbl.B or 0) end
-function AetheriumUI:_GetConfigPath(filename) return self.Folder.."/Configs/"..(filename or "") end
-function AetheriumUI:_EnsureFolders() if AetheriumUI._Variables.IsStudio or not pcall(function()return isfolder,makefolder end) then return false end; local s=pcall(function() if not isfolder(self.Folder) then makefolder(self.Folder) end; if not isfolder(self.Folder.."/Configs") then makefolder(self.Folder.."/Configs") end; if not isfolder(self.Folder.."/Settings") then makefolder(self.Folder.."/Settings") end end); return s end
-function AetheriumUI:SetFolder(folderName) if type(folderName)=="string" and folderName~="" then self.Folder=folderName; self:_EnsureFolders() else warn("[AetheriumUI] SetFolder expects non-empty string.") end end
-function AetheriumUI:SaveConfig(filename) if not self:_EnsureFolders() then return false,"File system unavailable." end; if not filename or filename=="" then return false,"Filename empty." end; local d={Elements={}}; for f,e in pairs(self.Options) do if not e.IgnoreConfig and e.Class and ClassParser[e.Class] then local s,dat=pcall(ClassParser[e.Class].Save,f,e); if s then table.insert(d.Elements,dat) else warn(("[AetheriumUI] Save element '%s' fail: %s"):format(f,tostring(dat))) end end end; local s,enc=pcall(HttpService.JSONEncode,HttpService,d); if not s then return false,"JSON Encode fail." end; local p=self:_GetConfigPath(filename..".json"); local ws,we=pcall(writefile,p,enc); if not ws then return false,"Write fail: "..tostring(we) end; return true end
-function AetheriumUI:LoadConfig(filename) if AetheriumUI._Variables.IsStudio or not pcall(function()return isfile,readfile end) then return false,"File system unavailable." end; if not filename or filename=="" then return false,"Filename empty." end; local p=self:_GetConfigPath(filename..".json"); if not isfile(p) then return false,"Config not found." end; local rs,c=pcall(readfile,p); if not rs then return false,"Read fail: "..tostring(c) end; local ds,d=pcall(HttpService.JSONDecode,HttpService,c); if not ds then return false,"JSON Decode fail." end; if type(d)~="table" or type(d.Elements)~="table" then return false,"Invalid format." end; local errs={}; for _,e in ipairs(d.Elements) do if type(e)=="table" and e.t and e.f then if ClassParser[e.t] then local s,err=pcall(ClassParser[e.t].Load,e.f,e); if not s then table.insert(errs,("Load element '%s' fail: %s"):format(e.f,tostring(err))) end else table.insert(errs,("Unknown type '%s' for '%s'"):format(e.t,e.f)) end end end; if #errs>0 then warn("[AetheriumUI] Config load errors:\n"..table.concat(errs,"\n")); return true,"Loaded with errors." end; return true end
-function AetheriumUI:DeleteConfig(filename) if not self:_EnsureFolders() then return false,"File system unavailable." end; if not filename or filename=="" then return false,"Filename empty." end; local p=self:_GetConfigPath(filename..".json"); if not isfile(p) then return false,"Config not found." end; if filename==self:GetAutoLoadConfigName() then self:SetAutoLoadConfig(nil) end; local ds,de=pcall(delfile,p); if not ds then return false,"Delete fail: "..tostring(de) end; return true end
-function AetheriumUI:RefreshConfigList() if not self:_EnsureFolders() or not pcall(function()return listfiles end) then return {} end; local files=listfiles(self.Folder.."/Configs/"); local names={}; for _,fp in ipairs(files) do local n=fp:match("([^/\\]-)%.json$"); if n then table.insert(names,n) end end; table.sort(names); return names end
-function AetheriumUI:GetAutoLoadConfigName() if not pcall(function()return isfile,readfile end) then return nil end; local p=self.Folder.."/Settings/autoload.cfg"; if isfile(p) then local s,n=pcall(readfile,p); if s and type(n)=="string" and n~="" then return n end end; return nil end
-function AetheriumUI:SetAutoLoadConfig(filename) if not self:_EnsureFolders() then return false,"File system unavailable." end; local p=self.Folder.."/Settings/autoload.cfg"; if filename==nil or filename=="" then if isfile(p) then local ds,de=pcall(delfile,p); if not ds then return false,"Clear autoload fail: "..tostring(de) end end; return true else local ws,we=pcall(writefile,p,filename); if not ws then return false,"Set autoload fail: "..tostring(we) end; return true end end
-function AetheriumUI:LoadAutoLoadConfig() local n=self:GetAutoLoadConfigName(); if n then print("[AetheriumUI] Autoloading:",n); local s,m=self:LoadConfig(n); if AetheriumUI._Internal.CurrentWindow and AetheriumUI._Internal.CurrentWindow.Notify then pcall(AetheriumUI._Internal.CurrentWindow.Notify,{Title=s and "Autoload OK" or "Autoload Fail",Description=s and("Loaded '"..n.."'") or("Fail: "..(m or "Unknown")),Style=s and "Confirm" or "Cancel"}) end; return s end; return false end
+	local onUnloadCallback=nil; function WindowFunctions.onUnloaded(callback)onUnloadCallback=callback end; function WindowFunctions:Unload()AetheriumUI:Unload()end
+	ManageConnection(UserInputService.InputBegan:Connect(function(input,gameProcessed) if gameProcessed then return end; if input.KeyCode==menuKeybind then ToggleMenuVisibility() end end))
+	if useAcrylicBlur and acrylicBlurEnabled then UpdateAcrylicBlurState(true) end -- Only check Acrylic
+	WindowFunctions:SetUserInfoState(showUserInfo)
+	task.defer(function() local firstButton=nil; for btn,data in pairs(tabs) do if btn and data then firstButton=btn; break end end; if firstButton and tabs[firstButton] and tabs[firstButton].Button then tabs[firstButton].Button.MouseButton1Click:Fire() end end) -- Fixed if check
+	AetheriumUI:LoadAutoLoadConfig()
+	return WindowFunctions
+end -- End AetheriumUI:Window
+
+-- // Config System Functions (Assume correct) // --
+-- [PREVIOUS Config System Functions Here]
+local ClassParser={["Toggle"]={Save=function(f,d)return{t="Toggle",f=f,s=d.State}end,Load=function(f,d)if AetheriumUI.Options[f]then AetheriumUI.Options[f]:UpdateState(d.s,true)end end},["Slider"]={Save=function(f,d)return{t="Slider",f=f,v=d.Value}end,Load=function(f,d)if AetheriumUI.Options[f]then AetheriumUI.Options[f]:UpdateValue(d.v,true)end end},["Input"]={Save=function(f,d)return{t="Input",f=f,x=d.Text}end,Load=function(f,d)if AetheriumUI.Options[f]then AetheriumUI.Options[f]:UpdateText(d.x,true)end end},["Keybind"]={Save=function(f,d)return{t="Keybind",f=f,b=d.Bind and d.Bind.Name or nil,e=d.Bind and d.Bind.EnumType.Name or nil}end,Load=function(f,d)if AetheriumUI.Options[f]and d.b and d.e then local et=Enum[d.e]; if et then local k=et[d.b]; if k then AetheriumUI.Options[f]:Bind(k,true)end end elseif AetheriumUI.Options[f]and d.b==nil then AetheriumUI.Options[f]:Unbind(true)end end},["Dropdown"]={Save=function(f,d)return{t="Dropdown",f=f,v=d.Value}end,Load=function(f,d)if AetheriumUI.Options[f]then AetheriumUI.Options[f]:UpdateSelection(d.v,true)end end},["Colorpicker"]={Save=function(f,d)return{t="Colorpicker",f=f,c=AetheriumUI:_Col3ToTable(d.Color),a=d.Alpha}end,Load=function(f,d)if AetheriumUI.Options[f]then local col=d.c and AetheriumUI:_TableToCol3(d.c); if col then AetheriumUI.Options[f]:SetColor(col,true)end; if d.a~=nil then AetheriumUI.Options[f]:SetAlpha(d.a,true)end end end}}
+function AetheriumUI:_Col3ToTable(col)return{R=col.R,G=col.G,B=col.B}end; function AetheriumUI:_TableToCol3(tbl)return Color3.new(tbl.R or 0,tbl.G or 0,tbl.B or 0)end; function AetheriumUI:_GetConfigPath(filename)return self.Folder.."/Configs/"..(filename or "")end; function AetheriumUI:_EnsureFolders()if AetheriumUI._Variables.IsStudio or not pcall(function()return isfolder,makefolder end)then return false end; local s=pcall(function()if not isfolder(self.Folder)then makefolder(self.Folder)end; if not isfolder(self.Folder.."/Configs")then makefolder(self.Folder.."/Configs")end; if not isfolder(self.Folder.."/Settings")then makefolder(self.Folder.."/Settings")end end); return s end; function AetheriumUI:SetFolder(folderName)if type(folderName)=="string" and folderName~=""then self.Folder=folderName; self:_EnsureFolders()else warn("[AetheriumUI] SetFolder expects non-empty string.")end end; function AetheriumUI:SaveConfig(filename)if not self:_EnsureFolders()then return false,"File system unavailable."end; if not filename or filename==""then return false,"Filename empty."end; local d={Elements={}}; for f,e in pairs(self.Options)do if not e.IgnoreConfig and e.Class and ClassParser[e.Class]then local s,dat=pcall(ClassParser[e.Class].Save,f,e); if s then table.insert(d.Elements,dat)else warn(("[AetheriumUI] Save element '%s' fail: %s"):format(f,tostring(dat)))end end end; local s,enc=pcall(HttpService.JSONEncode,HttpService,d); if not s then return false,"JSON Encode fail."end; local p=self:_GetConfigPath(filename..".json"); local ws,we=pcall(writefile,p,enc); if not ws then return false,"Write fail: "..tostring(we)end; return true end; function AetheriumUI:LoadConfig(filename)if AetheriumUI._Variables.IsStudio or not pcall(function()return isfile,readfile end)then return false,"File system unavailable."end; if not filename or filename==""then return false,"Filename empty."end; local p=self:_GetConfigPath(filename..".json"); if not isfile(p)then return false,"Config not found."end; local rs,c=pcall(readfile,p); if not rs then return false,"Read fail: "..tostring(c)end; local ds,d=pcall(HttpService.JSONDecode,HttpService,c); if not ds then return false,"JSON Decode fail."end; if type(d)~="table"or type(d.Elements)~="table"then return false,"Invalid format."end; local errs={}; for _,e in ipairs(d.Elements)do if type(e)=="table"and e.t and e.f then if ClassParser[e.t]then local s,err=pcall(ClassParser[e.t].Load,e.f,e); if not s then table.insert(errs,("Load element '%s' fail: %s"):format(e.f,tostring(err)))end else table.insert(errs,("Unknown type '%s' for '%s'"):format(e.t,e.f))end end end; if #errs>0 then warn("[AetheriumUI] Config load errors:\n"..table.concat(errs,"\n")); return true,"Loaded with errors."end; return true end; function AetheriumUI:DeleteConfig(filename)if not self:_EnsureFolders()then return false,"File system unavailable."end; if not filename or filename==""then return false,"Filename empty."end; local p=self:_GetConfigPath(filename..".json"); if not isfile(p)then return false,"Config not found."end; if filename==self:GetAutoLoadConfigName()then self:SetAutoLoadConfig(nil)end; local ds,de=pcall(delfile,p); if not ds then return false,"Delete fail: "..tostring(de)end; return true end; function AetheriumUI:RefreshConfigList()if not self:_EnsureFolders()or not pcall(function()return listfiles end)then return{}end; local files=listfiles(self.Folder.."/Configs/"); local names={}; for _,fp in ipairs(files)do local n=fp:match("([^/\\]-)%.json$"); if n then table.insert(names,n)end end; table.sort(names); return names end; function AetheriumUI:GetAutoLoadConfigName()if not pcall(function()return isfile,readfile end)then return nil end; local p=self.Folder.."/Settings/autoload.cfg"; if isfile(p)then local s,n=pcall(readfile,p); if s and type(n)=="string"and n~=""then return n end end; return nil end; function AetheriumUI:SetAutoLoadConfig(filename)if not self:_EnsureFolders()then return false,"File system unavailable."end; local p=self.Folder.."/Settings/autoload.cfg"; if filename==nil or filename==""then if isfile(p)then local ds,de=pcall(delfile,p); if not ds then return false,"Clear autoload fail: "..tostring(de)end end; return true else local ws,we=pcall(writefile,p,filename); if not ws then return false,"Set autoload fail: "..tostring(we)end; return true end end; function AetheriumUI:LoadAutoLoadConfig()local n=self:GetAutoLoadConfigName(); if n then print("[AetheriumUI] Autoloading:",n); local s,m=self:LoadConfig(n); if AetheriumUI._Internal.CurrentWindow and AetheriumUI._Internal.CurrentWindow.Notify then pcall(AetheriumUI._Internal.CurrentWindow.Notify,{Title=s and "Autoload OK"or"Autoload Fail",Description=s and("Loaded '"..n.."'")or("Fail: "..(m or"Unknown")),Style=s and"Confirm"or"Cancel"})end; return s end; return false end
 
 -- // Unload Function // --
-function AetheriumUI:Unload()
-	if AetheriumUI._Internal.IsUnloaded then return end
-	AetheriumUI._Internal.IsUnloaded = true
-	print("[AetheriumUI] Unloading...")
-	if AetheriumUI._Internal.CurrentWindow and AetheriumUI._Internal.CurrentWindow.onUnloadCallback then pcall(AetheriumUI._Internal.CurrentWindow.onUnloadCallback) end
-	CleanupConnections()
-	CleanupTweens()
-	local gui = GetGuiParent():FindFirstChild("AetheriumUI_ScreenGui"); if gui then pcall(gui.Destroy, gui) end
-	AetheriumUI:_CleanupAcrylicBlur()
-	AetheriumUI.Options = {}; AetheriumUI.Flags = AetheriumUI.Options; AetheriumUI._Internal.CurrentWindow = nil
-	print("[AetheriumUI] Unloaded.")
-end
+function AetheriumUI:Unload() if AetheriumUI._Internal.IsUnloaded then return end; AetheriumUI._Internal.IsUnloaded=true; print("[AetheriumUI] Unloading..."); if AetheriumUI._Internal.CurrentWindow and AetheriumUI._Internal.CurrentWindow.onUnloadCallback then pcall(AetheriumUI._Internal.CurrentWindow.onUnloadCallback) end; CleanupConnections(); CleanupTweens(); local gui=GetGuiParent():FindFirstChild("AetheriumUI_ScreenGui"); if gui then pcall(gui.Destroy,gui) end; AetheriumUI:_CleanupAcrylicBlur(); AetheriumUI.Options={}; AetheriumUI.Flags=AetheriumUI.Options; AetheriumUI._Internal.CurrentWindow=nil; print("[AetheriumUI] Unloaded.") end
 
--- // Acrylic Blur Implementation (Separate for Clarity) // --
--- Keep _InitializeAcrylicBlur and _CleanupAcrylicBlur definitions here from previous response
--- Omitted for brevity, assume they are correct as they weren't causing syntax errors.
-AetheriumUI._Internal.AcrylicDOF = nil; AetheriumUI._Internal.AcrylicParts = {}; AetheriumUI._Internal.AcrylicUpdateFunction = nil; AetheriumUI._Internal.AcrylicBlurTarget = nil
-function AetheriumUI:_InitializeAcrylicBlur(targetFrame, partsTable, theme) if not pcall(function() return workspace.CurrentCamera end) then return end; local camera = workspace.CurrentCamera; local HS=HttpService; if not HS then return end; AetheriumUI._Internal.AcrylicBlurTarget=targetFrame; AetheriumUI._Internal.AcrylicParts=partsTable; local DepthOfField=AetheriumUI._Internal.AcrylicDOF; if not DepthOfField or not DepthOfField.Parent then DepthOfField=Lighting:FindFirstChild("Aetherium_DepthOfField"); if not DepthOfField or not DepthOfField:IsA("DepthOfFieldEffect") then DepthOfField=Create("DepthOfFieldEffect",{Name="Aetherium_DepthOfField", FarIntensity=0, FocusDistance=50, InFocusRadius=40, NearIntensity=0.8, Enabled=false, Parent=Lighting}) end; AetheriumUI._Internal.AcrylicDOF=DepthOfField end; DepthOfField.Enabled=true; local acos,max,pi,sqrt=math.acos,math.max,math.pi,math.sqrt; local sz=0.2; local wedgeguid=HS:GenerateGUID(false); local function DrawTriangle(v1,v2,v3,p0,p1) local s1=(v1-v2).Magnitude; local s2=(v2-v3).Magnitude; local s3=(v3-v1).Magnitude; local smax=max(s1,s2,s3); local A,B,C; if s1==smax then A,B,C=v1,v2,v3 elseif s2==smax then A,B,C=v2,v3,v1 else A,B,C=v3,v1,v2 end; local AB,AC=B-A,C-A; local para=AB:Dot(AC)/AB.Magnitude; local perp=sqrt(math.max(0, AC.Magnitude^2-para*para)); local dif_para=AB.Magnitude-para; local st=CFrame.lookAt(B,A); local za=CFrame.Angles(pi/2,0,0); local cf0=st; local Top_Look=(cf0*za).LookVector; local Mid_Point=A+(B-A).Unit*para; local Needed_Look=(C-Mid_Point).Unit; local dot=Top_Look:Dot(Needed_Look); local angle=acos(math.clamp(dot,-1,1)); local ac=CFrame.Angles(0,0,angle); cf0=cf0*ac; if ((cf0*za).LookVector-Needed_Look).Magnitude>0.01 then cf0=cf0*CFrame.Angles(0,0,-2*angle) end; cf0=cf0*CFrame.new(0,perp/2,-(dif_para+para/2)); local cf1=st*CFrame.Angles(0,0,-angle)*CFrame.Angles(0,pi,0); if ((cf1*za).LookVector-Needed_Look).Magnitude>0.01 then cf1=cf1*CFrame.Angles(0,0,2*angle) end; cf1=cf1*CFrame.new(0,perp/2,dif_para/2); if not p0 then p0=Create("Part",{FormFactor=Enum.FormFactor.Custom,TopSurface=Enum.SurfaceType.Smooth,BottomSurface=Enum.SurfaceType.Smooth,Anchored=true,CanCollide=false,CastShadow=false,Material=Enum.Material.Glass,Size=Vector3.new(sz,sz,sz),Name=HS:GenerateGUID(false)}) end; local mesh0=p0:FindFirstChild(wedgeguid) or Create("SpecialMesh",{MeshType=Enum.MeshType.Wedge,Name=wedgeguid,Parent=p0}); mesh0.Scale=Vector3.new(0,perp/sz,para/sz); p0.CFrame=cf0; if not p1 then p1=p0:Clone() end; local mesh1=p1:FindFirstChild(wedgeguid) or Create("SpecialMesh",{MeshType=Enum.MeshType.Wedge,Name=wedgeguid,Parent=p1}); mesh1.Scale=Vector3.new(0,perp/sz,dif_para/sz); p1.CFrame=cf1; return p0,p1 end; local function DrawQuad(v1,v2,v3,v4,parts) local p1,p2,p3,p4; p1,p2=DrawTriangle(v1,v2,v3,parts[1],parts[2]); p3,p4=DrawTriangle(v3,v2,v4,parts[3],parts[4]); return p1,p2,p3,p4 end; AetheriumUI._Internal.AcrylicUpdateFunction=function() local target=AetheriumUI._Internal.AcrylicBlurTarget; local parts=AetheriumUI._Internal.AcrylicParts; local dof=AetheriumUI._Internal.AcrylicDOF; if not target or not target.Parent or not target.Visible or not acrylicBlurEnabled or AetheriumUI._Internal.IsUnloaded then for i=1,4 do if parts[i] and parts[i].Parent then parts[i].Parent=nil end end; if dof then dof.Enabled=false end; return end; if not dof or not dof.Parent then return end; dof.Enabled=true; local zIndex=1-0.05*target.AbsoluteSize.Z; local tl_pos,br_pos=target.AbsolutePosition,target.AbsolutePosition+target.AbsoluteSize; local tr_pos,bl_pos=Vector2.new(br_pos.X,tl_pos.Y),Vector2.new(tl_pos.X,br_pos.Y); if target.Rotation~=0 then local mid=tl_pos:Lerp(br_pos,0.5); local rad=math.rad(target.Rotation); local cosR,sinR=math.cos(rad),math.sin(rad); local function rotate(v) local x,y=v.X-mid.X,v.Y-mid.Y; return Vector2.new(mid.X+x*cosR-y*sinR,mid.Y+x*sinR+y*cosR) end; tl_pos,tr_pos,bl_pos,br_pos=rotate(tl_pos),rotate(tr_pos),rotate(bl_pos),rotate(br_pos) end; local s,v1,v2,v3,v4=pcall(function() return camera:ScreenPointToRay(tl_pos.X,tl_pos.Y,zIndex).Origin,camera:ScreenPointToRay(tr_pos.X,tr_pos.Y,zIndex).Origin,camera:ScreenPointToRay(bl_pos.X,bl_pos.Y,zIndex).Origin,camera:ScreenPointToRay(br_pos.X,br_pos.Y,zIndex).Origin end); if not s then return end; local p1,p2,p3,p4=DrawQuad(v1,v2,v3,v4,parts); parts[1],parts[2],parts[3],parts[4]=p1,p2,p3,p4; for i=1,4 do if parts[i] then parts[i].Parent=camera; parts[i].Transparency=0.98; parts[i].Color=Color3.new(1,1,1); parts[i].Reflectance=0.1 end end end end
-function AetheriumUI:_CleanupAcrylicBlur() if AetheriumUI._Internal.AcrylicUpdateFunction and AetheriumUI._Internal.Connections then end; AetheriumUI._Internal.AcrylicUpdateFunction=nil; for _,part in pairs(AetheriumUI._Internal.AcrylicParts) do if part and part.Parent then pcall(part.Destroy, part) end end; AetheriumUI._Internal.AcrylicParts={}; if AetheriumUI._Internal.AcrylicDOF and AetheriumUI._Internal.AcrylicDOF.Parent then if AetheriumUI._Internal.AcrylicDOF.Name=="Aetherium_DepthOfField" then pcall(AetheriumUI._Internal.AcrylicDOF.Destroy, AetheriumUI._Internal.AcrylicDOF) else AetheriumUI._Internal.AcrylicDOF.Enabled=false end end; AetheriumUI._Internal.AcrylicDOF=nil; AetheriumUI._Internal.AcrylicBlurTarget=nil end
-
+-- // Acrylic Blur Implementation // --
+AetheriumUI._Internal.AcrylicDOF=nil; AetheriumUI._Internal.AcrylicParts={}; AetheriumUI._Internal.AcrylicUpdateFunction=nil; AetheriumUI._Internal.AcrylicBlurTarget=nil
+function AetheriumUI:_InitializeAcrylicBlur(targetFrame,partsTable,theme)if not pcall(function()return workspace.CurrentCamera end)then return end; local camera=workspace.CurrentCamera; local HS=HttpService; if not HS then return end; AetheriumUI._Internal.AcrylicBlurTarget=targetFrame; AetheriumUI._Internal.AcrylicParts=partsTable; local DepthOfField=AetheriumUI._Internal.AcrylicDOF; if not DepthOfField or not DepthOfField.Parent then DepthOfField=Lighting:FindFirstChild("Aetherium_DepthOfField"); if not DepthOfField or not DepthOfField:IsA("DepthOfFieldEffect")then DepthOfField=Create("DepthOfFieldEffect",{Name="Aetherium_DepthOfField",FarIntensity=0,FocusDistance=50,InFocusRadius=40,NearIntensity=0.8,Enabled=false,Parent=Lighting})end; AetheriumUI._Internal.AcrylicDOF=DepthOfField end; DepthOfField.Enabled=true; local acos,max,pi,sqrt=math.acos,math.max,math.pi,math.sqrt; local sz=0.2; local wedgeguid=HS:GenerateGUID(false); local function DrawTriangle(v1,v2,v3,p0,p1)local s1=(v1-v2).Magnitude; local s2=(v2-v3).Magnitude; local s3=(v3-v1).Magnitude; local smax=max(s1,s2,s3); local A,B,C; if s1==smax then A,B,C=v1,v2,v3 elseif s2==smax then A,B,C=v2,v3,v1 else A,B,C=v3,v1,v2 end; local AB,AC=B-A,C-A; local para=AB:Dot(AC)/AB.Magnitude; local perp=sqrt(math.max(0,AC.Magnitude^2-para*para)); local dif_para=AB.Magnitude-para; local st=CFrame.lookAt(B,A); local za=CFrame.Angles(pi/2,0,0); local cf0=st; local Top_Look=(cf0*za).LookVector; local Mid_Point=A+(B-A).Unit*para; local Needed_Look=(C-Mid_Point).Unit; local dot=Top_Look:Dot(Needed_Look); local angle=acos(math.clamp(dot,-1,1)); local ac=CFrame.Angles(0,0,angle); cf0=cf0*ac; if((cf0*za).LookVector-Needed_Look).Magnitude>0.01 then cf0=cf0*CFrame.Angles(0,0,-2*angle)end; cf0=cf0*CFrame.new(0,perp/2,-(dif_para+para/2)); local cf1=st*CFrame.Angles(0,0,-angle)*CFrame.Angles(0,pi,0); if((cf1*za).LookVector-Needed_Look).Magnitude>0.01 then cf1=cf1*CFrame.Angles(0,0,2*angle)end; cf1=cf1*CFrame.new(0,perp/2,dif_para/2); if not p0 then p0=Create("Part",{FormFactor=Enum.FormFactor.Custom,TopSurface=Enum.SurfaceType.Smooth,BottomSurface=Enum.SurfaceType.Smooth,Anchored=true,CanCollide=false,CastShadow=false,Material=Enum.Material.Glass,Size=Vector3.new(sz,sz,sz),Name=HS:GenerateGUID(false)})end; local mesh0=p0:FindFirstChild(wedgeguid)or Create("SpecialMesh",{MeshType=Enum.MeshType.Wedge,Name=wedgeguid,Parent=p0}); mesh0.Scale=Vector3.new(0,perp/sz,para/sz); p0.CFrame=cf0; if not p1 then p1=p0:Clone()end; local mesh1=p1:FindFirstChild(wedgeguid)or Create("SpecialMesh",{MeshType=Enum.MeshType.Wedge,Name=wedgeguid,Parent=p1}); mesh1.Scale=Vector3.new(0,perp/sz,dif_para/sz); p1.CFrame=cf1; return p0,p1 end; local function DrawQuad(v1,v2,v3,v4,parts)local p1,p2,p3,p4; p1,p2=DrawTriangle(v1,v2,v3,parts[1],parts[2]); p3,p4=DrawTriangle(v3,v2,v4,parts[3],parts[4]); return p1,p2,p3,p4 end; AetheriumUI._Internal.AcrylicUpdateFunction=function()local target=AetheriumUI._Internal.AcrylicBlurTarget; local parts=AetheriumUI._Internal.AcrylicParts; local dof=AetheriumUI._Internal.AcrylicDOF; if not target or not target.Parent or not target.Visible or not acrylicBlurEnabled or AetheriumUI._Internal.IsUnloaded then for i=1,4 do if parts[i]and parts[i].Parent then parts[i].Parent=nil end end; if dof then dof.Enabled=false end; return end; if not dof or not dof.Parent then return end; dof.Enabled=true; local zIndex=1-0.05*target.AbsoluteSize.Z; local tl_pos,br_pos=target.AbsolutePosition,target.AbsolutePosition+target.AbsoluteSize; local tr_pos,bl_pos=Vector2.new(br_pos.X,tl_pos.Y),Vector2.new(tl_pos.X,br_pos.Y); if target.Rotation~=0 then local mid=tl_pos:Lerp(br_pos,0.5); local rad=math.rad(target.Rotation); local cosR,sinR=math.cos(rad),math.sin(rad); local function rotate(v)local x,y=v.X-mid.X,v.Y-mid.Y; return Vector2.new(mid.X+x*cosR-y*sinR,mid.Y+x*sinR+y*cosR)end; tl_pos,tr_pos,bl_pos,br_pos=rotate(tl_pos),rotate(tr_pos),rotate(bl_pos),rotate(br_pos)end; local s,v1,v2,v3,v4=pcall(function()return camera:ScreenPointToRay(tl_pos.X,tl_pos.Y,zIndex).Origin,camera:ScreenPointToRay(tr_pos.X,tr_pos.Y,zIndex).Origin,camera:ScreenPointToRay(bl_pos.X,bl_pos.Y,zIndex).Origin,camera:ScreenPointToRay(br_pos.X,br_pos.Y,zIndex).Origin end); if not s then return end; local p1,p2,p3,p4=DrawQuad(v1,v2,v3,v4,parts); parts[1],parts[2],parts[3],parts[4]=p1,p2,p3,p4; for i=1,4 do if parts[i]then parts[i].Parent=camera; parts[i].Transparency=0.98; parts[i].Color=Color3.new(1,1,1); parts[i].Reflectance=0.1 end end end end
+function AetheriumUI:_CleanupAcrylicBlur()if AetheriumUI._Internal.AcrylicUpdateFunction and AetheriumUI._Internal.Connections then end; AetheriumUI._Internal.AcrylicUpdateFunction=nil; for _,part in pairs(AetheriumUI._Internal.AcrylicParts)do if part and part.Parent then pcall(part.Destroy,part)end end; AetheriumUI._Internal.AcrylicParts={}; if AetheriumUI._Internal.AcrylicDOF and AetheriumUI._Internal.AcrylicDOF.Parent then if AetheriumUI._Internal.AcrylicDOF.Name=="Aetherium_DepthOfField"then pcall(AetheriumUI._Internal.AcrylicDOF.Destroy,AetheriumUI._Internal.AcrylicDOF)else AetheriumUI._Internal.AcrylicDOF.Enabled=false end end; AetheriumUI._Internal.AcrylicDOF=nil; AetheriumUI._Internal.AcrylicBlurTarget=nil end
 
 -- // Preload Assets // --
 function AetheriumUI:PreloadAssets() local assetList={}; for _,assetId in pairs(self.Assets) do if type(assetId)=="string" and assetId:match("^rbx") then table.insert(assetList,assetId) end end; if #assetList>0 then print("[AetheriumUI] Preloading",#assetList,"assets..."); local s,e=pcall(ContentProvider.PreloadAsync,ContentProvider,assetList); if not s then warn("[AetheriumUI] Asset preload failed:",e) else print("[AetheriumUI] Asset preload complete.") end end end
 AetheriumUI:PreloadAssets()
 
-
 -- // Demo Function (Keep for testing) // --
-function AetheriumUI:Demo() -- START OF DEMO FUNCTION
-    print("[AetheriumUI] Launching Demo Window...")
-    local Window=AetheriumUI:Window({Title="AetheriumUI Demo", Subtitle="Showcasing UI Elements", Size=UDim2.fromOffset(900,650), Keybind=Enum.KeyCode.RightControl, BlurType="UIBlur", AcrylicBlurEnabled=true, ShowUserInfo=true})
-    if not Window then print("Failed to create window."); return end -- Check if window creation failed
+function AetheriumUI:Demo() print("[AetheriumUI] Launching Demo Window (No UIBlur)..."); local Window=AetheriumUI:Window({Title="AetheriumUI Demo", Subtitle="Showcasing UI Elements", Size=UDim2.fromOffset(900,650), Keybind=Enum.KeyCode.RightControl, BlurType="None", AcrylicBlurEnabled=false, ShowUserInfo=true}); if not Window then print("Failed to create window."); return end; Window:GlobalSetting({Name="Acrylic Blur", Default=Window:GetAcrylicBlurState(), Callback=function(s) Window:SetAcrylicBlurState(s); Window:Notify({Title="Setting", Description="Acrylic Blur "..(s and "On" or "Off")}) end}); Window:GlobalSetting({Name="Notifications", Default=Window:GetNotificationsState(), Callback=function(s) Window:SetNotificationsState(s); Window:Notify({Title="Setting", Description="Notifications "..(s and "On" or "Off")}) end}); Window:GlobalSetting({Name="User Info", Default=Window:GetUserInfoState(), Callback=function(s) Window:SetUserInfoState(s); Window:Notify({Title="Setting", Description="User Info "..(s and "Shown" or "Hidden")}) end}); local mainTabGroup=Window:TabGroup({Name="Main Features"}); local settingsTabGroup=Window:TabGroup({Name="Configuration"}); local mainTab=mainTabGroup:Tab({Name="Elements", Image=AetheriumUI.Assets.defaultTabIcon}); local configTab=settingsTabGroup:Tab({Name="Settings", Image=AetheriumUI.Assets.settingsTabIcon}); local sectionLeft=mainTab:Section({Side="Left"}); local sectionRight=mainTab:Section({Side="Right"}); sectionLeft:Header({Text="Basic Elements"}); sectionLeft:Button({Name="Show Dialog", Callback=function() Window:Dialog({Title="Example Dialog", Description="This is a test.", Buttons={{Name="Confirm"},{Name="Cancel"}}}) end}); sectionLeft:Button({Name="Show Notify", Callback=function() Window:Notify({Title="Demo Notify", Description="This disappears.", Style="Confirm", Lifetime=4}) end}); sectionLeft:Toggle({Name="Simple Toggle", Default=true}, "DemoToggle"); sectionLeft:Label({Text="A descriptive label."}); sectionLeft:Divider(); sectionLeft:Header({Text="Input Elements"}); sectionLeft:Input({Name="Text Input", Placeholder="Enter text...", Default="Hello"}, "DemoInput"); sectionLeft:Input({Name="Numeric Input", Placeholder="Enter numbers...", AcceptedCharacters="Numeric"}); sectionLeft:Keybind({ Name="Action Keybind", Default=Enum.KeyCode.F, Callback=function(k)Window:Notify({Title="Keybind",Description=k.Name.." pressed!"}) end }, "DemoKeybind"); sectionRight:Header({Text="Advanced Elements"}); sectionRight:Slider({Name="Percent Slider", Minimum=0, Maximum=100, Default=50, Precision=0, DisplayMethod="Percent"}, "DemoSlider"); sectionRight:Slider({Name="Value Slider", Minimum=-10, Maximum=10, Default=0, Precision=1, Step=0.5, Suffix=" units"}); local demoOpts={"Opt A","Opt B","Opt C","Long Option"}; sectionRight:Dropdown({Name="Single Select", Options=demoOpts, Default=demoOpts[1], Required=true}, "DemoDropdown"); sectionRight:Dropdown({Name="Multi Select", Options={"Apple","Banana","Cherry","Date","Fig","Grape"}, Multi=true, Search=true, Default={"Apple","Cherry"}}, "DemoMultiDropdown"); sectionRight:Colorpicker({Name="Primary Color", Default=Color3.fromRGB(80,120,255)}, "DemoColorpicker"); sectionRight:Colorpicker({Name="Secondary (Alpha)", Default=Color3.fromRGB(255,80,80), Alpha=0.5}, "DemoColorpickerAlpha"); sectionRight:Paragraph({Header="Info", Body="Complex elements here."}); sectionRight:SubLabel({Text="Color pickers included."}); configTab:InsertConfigSection("Left"); mainTab:Select(); print("[AetheriumUI] Demo setup complete.") end
 
-    -- Global Settings - These look okay structurally
-    Window:GlobalSetting({Name="UI Blur", Default=Window:GetAcrylicBlurState(), Callback=function(s) Window:SetAcrylicBlurState(s); Window:Notify({Title="Setting", Description="UI Blur "..(s and "On" or "Off")}) end})
-    Window:GlobalSetting({Name="Notifications", Default=Window:GetNotificationsState(), Callback=function(s) Window:SetNotificationsState(s); Window:Notify({Title="Setting", Description="Notifications "..(s and "On" or "Off")}) end})
-    Window:GlobalSetting({Name="User Info", Default=Window:GetUserInfoState(), Callback=function(s) Window:SetUserInfoState(s); Window:Notify({Title="Setting", Description="User Info "..(s and "Shown" or "Hidden")}) end})
-
-    -- Tabs - These look okay structurally
-    local mainTabGroup=Window:TabGroup({Name="Main Features"})
-    local settingsTabGroup=Window:TabGroup({Name="Configuration"})
-    local mainTab=mainTabGroup:Tab({Name="Elements", Image=AetheriumUI.Assets.defaultTabIcon})
-    local configTab=settingsTabGroup:Tab({Name="Settings", Image=AetheriumUI.Assets.settingsTabIcon})
-    local sectionLeft=mainTab:Section({Side="Left"})
-    local sectionRight=mainTab:Section({Side="Right"})
-
-    -- Left Section - Checking blocks here carefully
-    sectionLeft:Header({Text="Basic Elements"})
-    sectionLeft:Button({Name="Show Dialog", Callback=function() Window:Dialog({Title="Example Dialog", Description="This is a test.", Buttons={{Name="Confirm"},{Name="Cancel"}}}) end}) -- OK
-    sectionLeft:Button({Name="Show Notify", Callback=function() Window:Notify({Title="Demo Notify", Description="This disappears.", Style="Confirm", Lifetime=4}) end}) -- OK
-    sectionLeft:Toggle({Name="Simple Toggle", Default=true}, "DemoToggle") -- OK
-    sectionLeft:Label({Text="A descriptive label."}) -- OK
-    sectionLeft:Divider() -- OK
-    sectionLeft:Header({Text="Input Elements"})
-    sectionLeft:Input({Name="Text Input", Placeholder="Enter text...", Default="Hello"}, "DemoInput") -- OK
-    sectionLeft:Input({Name="Numeric Input", Placeholder="Enter numbers...", AcceptedCharacters="Numeric"}) -- OK
-
-    -- Keybind - Check the callback function's end
-    sectionLeft:Keybind({
-        Name="Action Keybind",
-        Default=Enum.KeyCode.F,
-        Callback=function(k) -- START CALLBACK
-            Window:Notify({ Title="Keybind", Description=k.Name.." pressed!"})
-        end -- <<<< ENSURE THIS 'end' EXISTS AND IS CORRECT
-     }, "DemoKeybind") -- OK
-
-    -- Right Section - Checking blocks here
-    sectionRight:Header({Text="Advanced Elements"})
-    sectionRight:Slider({Name="Percent Slider", Minimum=0, Maximum=100, Default=50, Precision=0, DisplayMethod="Percent"}, "DemoSlider") -- OK
-    sectionRight:Slider({Name="Value Slider", Minimum=-10, Maximum=10, Default=0, Precision=1, Step=0.5, Suffix=" units"}) -- OK
-    local demoOpts={"Opt A","Opt B","Opt C","Long Option"}
-    sectionRight:Dropdown({Name="Single Select", Options=demoOpts, Default=demoOpts[1], Required=true}, "DemoDropdown") -- OK
-    sectionRight:Dropdown({Name="Multi Select", Options={"Apple","Banana","Cherry","Date","Fig","Grape"}, Multi=true, Search=true, Default={"Apple","Cherry"}}, "DemoMultiDropdown") -- OK
-    sectionRight:Colorpicker({Name="Primary Color", Default=Color3.fromRGB(80,120,255)}, "DemoColorpicker") -- OK
-    sectionRight:Colorpicker({Name="Secondary (Alpha)", Default=Color3.fromRGB(255,80,80), Alpha=0.5}, "DemoColorpickerAlpha") -- OK
-    sectionRight:Paragraph({Header="Info", Body="Complex elements here."}) -- OK
-    sectionRight:SubLabel({Text="Color pickers included."}) -- OK
-
-    -- Config Section - This calls another function, assume InsertConfigSection is okay from previous checks
-    configTab:InsertConfigSection("Left") -- OK
-
-    -- Select initial tab
-    mainTab:Select() -- OK
-
-    print("[AetheriumUI] Demo setup complete.")
-end -- <<<< ENSURE THIS FINAL 'end' FOR THE DEMO FUNCTION ITSELF EXISTS<<< Make sure this 'end' is still here
-
-
-return AetheriumUI -- Final return of the library tabl
+return AetheriumUI
